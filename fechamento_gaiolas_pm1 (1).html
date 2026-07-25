@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fechamento de Gaiolas — SMG1 PM1</title>
+<style>
+  :root {
+    --am: #FFE600; --pr: #111111; --ce: #1C1C1C; --cc: #252525;
+    --cb: #333333; --br: #FFFFFF; --tx: #AAAAAA;
+    --vr: #FF4444; --vd: #22CC77; --lr: #FF8C00; --az: #4499FF; --ro: #CC44FF;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--pr); color: var(--br); font-family: 'Segoe UI', Arial, sans-serif; min-height: 100vh; }
+
+  header { background: var(--am); padding: 14px 28px; display: flex; align-items: center; gap: 14px; }
+  .logo { width: 34px; height: 34px; background: var(--pr); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 900; color: var(--am); flex-shrink: 0; }
+  header h1 { font-size: 16px; font-weight: 800; color: var(--pr); }
+  header p  { font-size: 11px; color: #555; }
+
+  main { max-width: 1300px; margin: 0 auto; padding: 24px 20px; }
+
+  .upload-section { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
+  @media(max-width:700px){ .upload-section { grid-template-columns: 1fr; } }
+
+  .drop-zone { background: var(--cc); border: 2px dashed var(--cb); border-radius: 10px; padding: 20px; transition: border-color .2s; cursor: pointer; }
+  .drop-zone.dragover, .drop-zone.loaded { border-color: var(--am); }
+  .drop-zone.loaded { border-style: solid; }
+  .drop-zone h3 { font-size: 12px; color: var(--am); letter-spacing: 1px; text-transform: uppercase; margin-bottom: 8px; }
+  .drop-zone p  { font-size: 12px; color: var(--tx); line-height: 1.5; }
+  .drop-zone .file-name { font-size: 12px; color: var(--vd); margin-top: 6px; font-weight: 600; }
+  .drop-zone label { display: block; cursor: pointer; }
+
+  .btn-primary { background: var(--am); color: var(--pr); border: none; border-radius: 8px; padding: 13px 28px; font-size: 14px; font-weight: 800; cursor: pointer; width: 100%; margin-top: 12px; transition: opacity .15s, transform .1s; letter-spacing: 0.5px; }
+  .btn-primary:hover { opacity: .85; transform: translateY(-1px); }
+  .btn-primary:disabled { opacity: .4; cursor: not-allowed; transform: none; }
+  .btn-sec { background: transparent; color: var(--tx); border: 1px solid var(--cb); border-radius: 8px; padding: 8px 16px; font-size: 12px; cursor: pointer; transition: border-color .2s, color .2s; margin-top: 8px; width: 100%; }
+  .btn-sec:hover { border-color: var(--am); color: var(--am); }
+
+  .spinner { display: none; text-align: center; padding: 40px; color: var(--tx); }
+  .error-msg { display: none; background: rgba(255,68,68,.1); border: 1px solid var(--vr); border-radius: 8px; padding: 12px 16px; color: var(--vr); font-size: 13px; margin-bottom: 16px; }
+  #resultados { display: none; }
+
+  /* META BAR */
+  .meta-bar-wrap { background: var(--cc); border-radius: 10px; padding: 18px 20px; margin-bottom: 20px; border: 1px solid var(--cb); }
+  .meta-bar-header { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 10px; flex-wrap: wrap; gap: 8px; }
+  .meta-bar-header h3 { font-size: 13px; font-weight: 700; color: var(--am); letter-spacing: 1px; text-transform: uppercase; }
+  .meta-bar-nums { font-size: 13px; color: var(--tx); }
+  .meta-bar-nums strong { color: var(--br); font-size: 16px; }
+  .meta-track { background: #1a1a1a; border-radius: 6px; height: 18px; overflow: hidden; position: relative; }
+  .meta-fill { height: 100%; border-radius: 6px; transition: width 1s ease; display: flex; align-items: center; justify-content: flex-end; padding-right: 8px; }
+  .meta-fill span { font-size: 11px; font-weight: 700; color: var(--pr); }
+  .meta-marker { position: absolute; top: 0; height: 100%; border-left: 2px dashed rgba(255,255,255,.3); }
+  .meta-marker-label { position: absolute; top: -18px; font-size: 10px; color: var(--tx); transform: translateX(-50%); white-space: nowrap; }
+
+  /* KPIs */
+  .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin-bottom: 20px; }
+  .kpi { background: var(--cc); border-radius: 10px; padding: 16px 14px; border-left: 4px solid var(--cb); }
+  .kpi.am { border-color: var(--am); } .kpi.vd { border-color: var(--vd); } .kpi.vr { border-color: var(--vr); }
+  .kpi.lr { border-color: var(--lr); } .kpi.az { border-color: var(--az); }
+  .kpi-val { font-size: 28px; font-weight: 800; line-height: 1; margin-bottom: 4px; }
+  .kpi.am .kpi-val { color: var(--am); } .kpi.vd .kpi-val { color: var(--vd); } .kpi.vr .kpi-val { color: var(--vr); }
+  .kpi.lr .kpi-val { color: var(--lr); } .kpi.az .kpi-val { color: var(--az); }
+  .kpi-lbl { font-size: 11px; color: var(--tx); text-transform: uppercase; letter-spacing: .5px; }
+  .kpi-sub { font-size: 10px; color: #555; margin-top: 3px; }
+
+  /* OPORTUNIDADE */
+  .op-panel { background: var(--cc); border-radius: 10px; padding: 18px 20px; margin-bottom: 20px; border: 1px solid var(--am); position: relative; overflow: hidden; }
+  .op-panel::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: var(--am); }
+  .op-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; flex-wrap: wrap; gap: 8px; }
+  .op-title { font-size: 13px; font-weight: 700; color: var(--am); letter-spacing: 1px; text-transform: uppercase; }
+  .op-subtitle { font-size: 12px; color: var(--tx); margin-top: 2px; }
+  .op-badge-count { background: var(--am); color: var(--pr); font-size: 12px; font-weight: 800; padding: 4px 12px; border-radius: 20px; }
+
+  .op-cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 12px; }
+  .op-card { background: #1a1a1a; border-radius: 8px; padding: 14px; border: 1px solid var(--cb); position: relative; }
+  .op-card.recebido  { border-color: rgba(34,204,119,.4); }
+  .op-card.nao-recebido { border-color: rgba(255,140,0,.35); }
+  .op-card-rota { font-size: 15px; font-weight: 800; color: var(--br); margin-bottom: 2px; }
+  .op-card-gaiola { font-size: 11px; color: var(--tx); margin-bottom: 10px; }
+  .op-card-id { font-size: 11px; font-family: monospace; background: #111; padding: 5px 9px; border-radius: 5px; color: var(--am); margin-bottom: 10px; display: block; letter-spacing: .5px; }
+  .op-card-stats { display: flex; gap: 8px; flex-wrap: wrap; }
+  .op-stat { font-size: 10px; padding: 2px 8px; border-radius: 8px; font-weight: 600; }
+  .op-stat.ow  { background: rgba(68,153,255,.15); color: var(--az); }
+  .op-stat.rec { background: rgba(34,204,119,.15); color: var(--vd); }
+  .op-stat.nr  { background: rgba(255,140,0,.15); color: var(--lr); }
+  .op-tag { position: absolute; top: 10px; right: 10px; font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 10px; }
+  .op-tag.rec { background: rgba(34,204,119,.2); color: var(--vd); border: 1px solid rgba(34,204,119,.3); }
+  .op-tag.nr  { background: rgba(255,140,0,.2);  color: var(--lr); border: 1px solid rgba(255,140,0,.3); }
+
+  .op-section-label { font-size: 11px; font-weight: 700; color: var(--tx); text-transform: uppercase; letter-spacing: .5px; margin-bottom: 8px; margin-top: 14px; display: flex; align-items: center; gap: 6px; }
+  .op-section-label::after { content: ''; flex: 1; height: 1px; background: var(--cb); }
+
+  /* ALERTAS */
+  .alert-box { border-radius: 8px; padding: 11px 14px; font-size: 12px; margin-bottom: 10px; display: flex; align-items: flex-start; gap: 8px; }
+  .alert-box.info { background: rgba(68,153,255,.1); border: 1px solid rgba(68,153,255,.3); color: var(--az); }
+  .alert-box.warn { background: rgba(255,140,0,.1);  border: 1px solid rgba(255,140,0,.3);  color: var(--lr); }
+
+  /* TABELA */
+  .section-title { font-size: 12px; font-weight: 700; color: var(--am); letter-spacing: 1px; text-transform: uppercase; margin-bottom: 12px; }
+  .table-wrap { overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; font-size: 12px; }
+  thead th { background: #1a1a1a; color: var(--tx); font-size: 10px; font-weight: 700; letter-spacing: .5px; text-transform: uppercase; padding: 9px 10px; text-align: left; border-bottom: 1px solid var(--cb); white-space: nowrap; position: sticky; top: 0; }
+  tbody tr { border-bottom: 1px solid #1e1e1e; transition: background .1s; }
+  tbody tr:hover { background: #1e1e1e; }
+  tbody td { padding: 8px 10px; vertical-align: middle; white-space: nowrap; }
+
+  .badge { display: inline-block; padding: 2px 8px; border-radius: 10px; font-size: 11px; font-weight: 700; }
+  .b-vd { background: rgba(34,204,119,.15); color: var(--vd); } .b-vr { background: rgba(255,68,68,.15); color: var(--vr); }
+  .b-lr { background: rgba(255,140,0,.15); color: var(--lr); }  .b-az { background: rgba(68,153,255,.15); color: var(--az); }
+  .b-am { background: rgba(255,230,0,.15); color: var(--am); }  .b-gr { background: rgba(100,100,100,.2); color: #888; }
+
+  .status-pill { display: inline-block; padding: 3px 10px; border-radius: 20px; font-size: 10px; font-weight: 700; letter-spacing: .3px; }
+  .s-100  { background: rgba(34,204,119,.2); color: var(--vd); border: 1px solid rgba(34,204,119,.3); }
+  .s-auto { background: rgba(68,153,255,.2); color: var(--az); border: 1px solid rgba(68,153,255,.3); }
+  .s-err  { background: rgba(255,68,68,.2);  color: var(--vr); border: 1px solid rgba(255,68,68,.3); }
+  .s-mix  { background: rgba(255,140,0,.2);  color: var(--lr); border: 1px solid rgba(255,140,0,.3); }
+
+  .fill-bar { display: flex; align-items: center; gap: 6px; }
+  .fill-track { width: 70px; background: #2a2a2a; border-radius: 3px; height: 7px; overflow: hidden; flex-shrink: 0; }
+  .fill-inner { height: 100%; border-radius: 3px; }
+
+  .filter-row { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 16px; align-items: center; }
+  .filter-btn { background: var(--cc); color: var(--tx); border: 1px solid var(--cb); border-radius: 20px; padding: 5px 14px; font-size: 11px; font-weight: 600; cursor: pointer; transition: all .15s; white-space: nowrap; }
+  .filter-btn.active { background: var(--am); color: var(--pr); border-color: var(--am); }
+  .filter-btn:hover:not(.active) { border-color: var(--am); color: var(--am); }
+  .search-input { background: var(--cc); border: 1px solid var(--cb); border-radius: 8px; color: var(--br); font-size: 12px; padding: 6px 12px; outline: none; transition: border-color .2s; width: 180px; }
+  .search-input:focus { border-color: var(--am); }
+  .panel { background: var(--cc); border-radius: 10px; padding: 18px; border: 1px solid var(--cb); margin-bottom: 20px; }
+  .legend { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 16px; }
+  .legend-item { display: flex; align-items: center; gap: 6px; font-size: 11px; color: var(--tx); }
+  .legend-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+  .row-count { font-size: 12px; color: var(--tx); margin-left: auto; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">ML</div>
+  <div>
+    <h1>Fechamento de Gaiolas — PM1</h1>
+    <p>SMG1 · Meta 70% · Oportunidade de 1 pacote · On Way auto · At Station operacional</p>
+  </div>
+</header>
+
+<main>
+  <div class="upload-section">
+    <div class="drop-zone" id="zone1" ondragover="dg(event,'zone1')" ondragleave="dl('zone1')" ondrop="dp(event,'zone1','file1')">
+      <label>
+        <input type="file" id="file1" accept=".csv" style="display:none" onchange="loadFile('file1','zone1','label1')">
+        <h3>📦 Base de Pacotes</h3>
+        <p>Arquivo com os pacotes faltantes, On Way / At Station e data de inbound.<br><em>SMG1-PM1-DD_MM_AAAA.csv</em></p>
+        <div class="file-name" id="label1">Clique ou arraste o arquivo aqui</div>
+      </label>
+    </div>
+    <div class="drop-zone" id="zone2" ondragover="dg(event,'zone2')" ondragleave="dl('zone2')" ondrop="dp(event,'zone2','file2')">
+      <label>
+        <input type="file" id="file2" accept=".csv" style="display:none" onchange="loadFile('file2','zone2','label2')">
+        <h3>🗺 Base de Rotas Planejadas</h3>
+        <p>Arquivo com rotas otimizadas e pacotes estimados por gaiola.<br><em>SMG1-optimization-DD_MM_AAAA.csv</em></p>
+        <div class="file-name" id="label2">Clique ou arraste o arquivo aqui</div>
+      </label>
+    </div>
+  </div>
+
+  <button class="btn-primary" id="btnAnalisar" onclick="analisar()" disabled>▶ Analisar Fechamento de Gaiolas</button>
+  <button class="btn-sec" onclick="limpar()">✕ Limpar e carregar nova base</button>
+
+  <div class="error-msg" id="errorMsg"></div>
+  <div class="spinner" id="spinner">⏳ Processando gaiolas...</div>
+
+  <div id="resultados">
+
+    <!-- BARRA DE META -->
+    <div class="meta-bar-wrap" style="margin-top:24px;">
+      <div class="meta-bar-header">
+        <div>
+          <h3>🎯 Indicador de Fechamento — Meta 70%</h3>
+        </div>
+        <div class="meta-bar-nums">
+          Fechadas: <strong id="metaFechadas">0</strong> de <strong id="metaTotal">0</strong>
+          &nbsp;|&nbsp; Faltando: <strong id="metaFaltando" style="color:var(--vr)">0</strong> para bater a meta
+        </div>
+      </div>
+      <div class="meta-track">
+        <div class="meta-fill" id="metaFill" style="width:0%;background:var(--vr);">
+          <span id="metaPct">0%</span>
+        </div>
+        <div class="meta-marker" id="metaMarker" style="left:70%">
+          <div class="meta-marker-label">Meta 70%</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- KPIs -->
+    <div class="kpi-grid" id="kpiGrid"></div>
+
+    <!-- ALERTAS DE REGRA -->
+    <div style="margin-bottom:16px;">
+      <div class="alert-box info">ℹ️ <span><strong>On Way</strong> — em trânsito para a estação. Gaiola fecha automaticamente após chegada de todos os pacotes.</span></div>
+      <div class="alert-box warn">⚠️ <span><strong>At Station</strong> — pacote chegou aqui mas não foi alocado. Erro operacional — buscar manualmente na gaiola física.</span></div>
+    </div>
+
+    <!-- PAINEL DE OPORTUNIDADE -->
+    <div class="op-panel" id="opPanel">
+      <div class="op-header">
+        <div>
+          <div class="op-title">🎯 Oportunidade — 1 Pacote por Gaiola</div>
+          <div class="op-subtitle">Gaiolas com apenas 1 At Station pendente — 1 busca e a gaiola fecha completamente</div>
+        </div>
+        <div class="op-badge-count" id="opCount">0 gaiolas</div>
+      </div>
+      <div id="opCards"></div>
+    </div>
+
+    <!-- TABELA GERAL -->
+    <div class="panel">
+      <div class="section-title">📋 Todas as Gaiolas</div>
+      <div class="legend">
+        <div class="legend-item"><div class="legend-dot" style="background:var(--vd)"></div>100% Fechada</div>
+        <div class="legend-item"><div class="legend-dot" style="background:var(--az)"></div>Fecha Automático (só On Way)</div>
+        <div class="legend-item"><div class="legend-dot" style="background:var(--vr)"></div>Erro Operacional (At Station)</div>
+        <div class="legend-item"><div class="legend-dot" style="background:var(--lr)"></div>Misto (At Station + On Way)</div>
+      </div>
+      <div class="filter-row">
+        <button class="filter-btn active" onclick="filtrar('todos',this)">Todas</button>
+        <button class="filter-btn" onclick="filtrar('100',this)">✅ 100% Fechadas</button>
+        <button class="filter-btn" onclick="filtrar('auto',this)">🔵 Fecha Auto</button>
+        <button class="filter-btn" onclick="filtrar('erro',this)">🔴 Erro Op.</button>
+        <button class="filter-btn" onclick="filtrar('misto',this)">🟠 Misto</button>
+        <button class="filter-btn" onclick="filtrar('op1',this)">⭐ 1 At Station</button>
+        <input class="search-input" type="text" placeholder="🔍 Buscar rota..." oninput="buscar(this.value)" />
+        <span class="row-count" id="rowCount"></span>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Rota / Gaiola</th>
+              <th>Status</th>
+              <th>Estimado</th>
+              <th>Faltantes</th>
+              <th>On Way 🔵</th>
+              <th>At Station 🔴</th>
+              <th>Recebidos ✅</th>
+              <th>ID Pacote At Station</th>
+              <th>% Completo</th>
+            </tr>
+          </thead>
+          <tbody id="tabelaBody"></tbody>
+        </table>
+      </div>
+    </div>
+
+  </div>
+</main>
+
+<script>
+const csvData = { f1: null, f2: null };
+
+function dg(e,id){ e.preventDefault(); document.getElementById(id).classList.add('dragover'); }
+function dl(id)  { document.getElementById(id).classList.remove('dragover'); }
+function dp(e,zoneId,fileId){ e.preventDefault(); dl(zoneId); const f=e.dataTransfer.files[0]; if(!f)return; readFile(f,fileId==='file1'?'f1':'f2',zoneId,fileId==='file1'?'label1':'label2'); }
+
+function loadFile(inputId,zoneId,labelId){
+  const f=document.getElementById(inputId).files[0]; if(!f)return;
+  readFile(f,inputId==='file1'?'f1':'f2',zoneId,labelId);
+}
+function readFile(file,key,zoneId,labelId){
+  const r=new FileReader();
+  r.onload=e=>{ csvData[key]=e.target.result; document.getElementById(labelId).textContent='✅ '+file.name; document.getElementById(zoneId).classList.add('loaded'); checkReady(); };
+  r.readAsText(file,'UTF-8');
+}
+function checkReady(){ document.getElementById('btnAnalisar').disabled=!(csvData.f1&&csvData.f2); }
+function limpar(){
+  csvData.f1=null; csvData.f2=null;
+  ['label1','label2'].forEach(id=>document.getElementById(id).textContent='Clique ou arraste o arquivo aqui');
+  ['zone1','zone2'].forEach(id=>document.getElementById(id).classList.remove('loaded'));
+  document.getElementById('resultados').style.display='none';
+  document.getElementById('errorMsg').style.display='none';
+  document.getElementById('btnAnalisar').disabled=true;
+}
+
+function parseCSV(text){
+  const lines=text.trim().split('\n'); if(lines.length<2)return null;
+  const sep=lines[0].includes(';')?';':',';
+  const headers=lines[0].split(sep).map(h=>h.trim().replace(/^"|"$/g,''));
+  const rows=[];
+  for(let i=1;i<lines.length;i++){
+    const cols=splitLine(lines[i],sep); if(cols.length<2)continue;
+    const obj={}; headers.forEach((h,j)=>obj[h]=(cols[j]||'').trim().replace(/^"|"$/g,'')); rows.push(obj);
+  }
+  return{headers,rows};
+}
+function splitLine(line,sep){
+  const r=[];let cur='';let inQ=false;
+  for(const c of line){ if(c==='"'){inQ=!inQ;continue;} if(c===sep&&!inQ){r.push(cur);cur='';continue;} cur+=c; }
+  r.push(cur); return r;
+}
+
+let tableData=[];
+
+function analisar(){
+  document.getElementById('spinner').style.display='block';
+  document.getElementById('resultados').style.display='none';
+  document.getElementById('errorMsg').style.display='none';
+  setTimeout(()=>{
+    try{
+      const p1=parseCSV(csvData.f1), p2=parseCSV(csvData.f2);
+      if(!p1||!p2){ showError('Erro ao ler os arquivos.'); return; }
+
+      const H1=p1.headers;
+      const colId    = H1.find(h=>/id.*(pac|ship)/i.test(h))||H1[0];
+      const colRota  = H1.find(h=>/rota|n.º/i.test(h))||H1[1];
+      const colLoc   = H1.find(h=>/local/i.test(h))||H1[8];
+      const colInb   = H1.find(h=>/inbound|data/i.test(h))||H1[4];
+
+      const H2=p2.headers;
+      const colRotaOt=H2.find(h=>/otimizado/i.test(h))||H2[1];
+      const colEst   =H2.find(h=>/estimado/i.test(h))||H2[6];
+      const colDet   =H2.find(h=>/detalhe/i.test(h))||H2[2];
+
+      const estimados={}, gaiolas={};
+      p2.rows.forEach(r=>{ const rt=(r[colRotaOt]||'').trim(); if(!rt)return; estimados[rt]=parseInt(r[colEst])||0; gaiolas[rt]=(r[colDet]||'').trim(); });
+
+      // Agrupa por rota
+      const byRota={};
+      p1.rows.forEach(r=>{
+        const rota=(r[colRota]||'').trim(); if(!rota)return;
+        if(!byRota[rota]) byRota[rota]={ onWay:0, atStation:0, recebidos:0, atIds:[], atRec:[] };
+        const loc=(r[colLoc]||'').trim();
+        const inb=(r[colInb]||'').trim();
+        const id =(r[colId ]||'').trim();
+        const isOnWay   =/caminho|on.?way/i.test(loc);
+        const isAtStation=/esta.{0,3}o|at.?station/i.test(loc);
+        if(isOnWay)    byRota[rota].onWay++;
+        if(isAtStation){ byRota[rota].atStation++; byRota[rota].atIds.push(id); if(inb) byRota[rota].atRec.push(id); }
+        if(inb)        byRota[rota].recebidos++;
+      });
+
+      // Monta tableData
+      tableData=Object.entries(byRota).map(([rota,d])=>{
+        const est=estimados[rota]||0;
+        const gaiola=gaiolas[rota]||'';
+        const faltantes=d.onWay+d.atStation;
+        const chegaram=est-faltantes;
+        const pct=est>0?Math.min(100,Math.round((chegaram/est)*100)):0;
+        let status;
+        if(faltantes===0)               status='100';
+        else if(d.atStation===0)        status='auto';
+        else if(d.onWay===0)            status='erro';
+        else                            status='misto';
+        return{ rota, gaiola, est, faltantes, onWay:d.onWay, atStation:d.atStation, recebidos:d.recebidos, atIds:d.atIds, atRec:d.atRec, pct, status };
+      }).sort((a,b)=>{
+        const ord={'100':0,'auto':1,'misto':2,'erro':3}; return (ord[a.status]-ord[b.status])||a.rota.localeCompare(b.rota);
+      });
+
+      // KPIs
+      const total =tableData.length;
+      const meta  =Math.round(total*0.7);
+      const f100  =tableData.filter(r=>r.status==='100').length;
+      const fAuto =tableData.filter(r=>r.status==='auto').length;
+      const fErro =tableData.filter(r=>r.status==='erro').length;
+      const fMisto=tableData.filter(r=>r.status==='misto').length;
+      const totOW =tableData.reduce((s,r)=>s+r.onWay,0);
+      const totAt =tableData.reduce((s,r)=>s+r.atStation,0);
+      const fechadas=f100+fAuto;
+      const faltandoMeta=Math.max(0,meta-fechadas);
+      const pctMeta=total>0?Math.min(100,Math.round((fechadas/total)*100)):0;
+
+      // Barra de meta
+      const fillColor=pctMeta>=70?'var(--vd)':pctMeta>=50?'var(--lr)':'var(--vr)';
+      document.getElementById('metaFechadas').textContent=fechadas;
+      document.getElementById('metaTotal').textContent=total;
+      document.getElementById('metaFaltando').textContent=faltandoMeta>0?faltandoMeta:'✅ Meta atingida!';
+      document.getElementById('metaFill').style.width=pctMeta+'%';
+      document.getElementById('metaFill').style.background=fillColor;
+      document.getElementById('metaPct').textContent=pctMeta+'%';
+
+      document.getElementById('kpiGrid').innerHTML=[
+        {v:total,   l:'Total Gaiolas',       s:'PM1',                   cls:'am'},
+        {v:f100,    l:'100% Fechadas',        s:'Todos pacotes OK',      cls:'vd'},
+        {v:fAuto,   l:'Fecha Automático',     s:'On Way — sem ação',     cls:'az'},
+        {v:fErro,   l:'Erro Operacional',     s:'Só At Station',         cls:'vr'},
+        {v:fMisto,  l:'Misto',                s:'At Station + On Way',   cls:'lr'},
+        {v:totOW,   l:'Pkgs On Way',          s:'Chegando automaticamente',cls:'az'},
+        {v:totAt,   l:'Pkgs At Station',      s:'Buscar manualmente',    cls:'vr'},
+      ].map(k=>`<div class="kpi ${k.cls}"><div class="kpi-val">${k.v.toLocaleString('pt-BR')}</div><div class="kpi-lbl">${k.l}</div><div class="kpi-sub">${k.s}</div></div>`).join('');
+
+      // PAINEL OPORTUNIDADE — At Station == 1
+      const op1=tableData.filter(r=>r.atStation===1).sort((a,b)=>b.atRec.length-a.atRec.length);
+      document.getElementById('opCount').textContent=op1.length+' gaiola'+(op1.length!==1?'s':'');
+
+      const recebidos=op1.filter(r=>r.atRec.length>0);
+      const naoRecebidos=op1.filter(r=>r.atRec.length===0);
+
+      let opHtml='';
+      if(recebidos.length){
+        opHtml+=`<div class="op-section-label">✅ Recebido por nós — pacote com data de inbound (prioridade máxima)</div>`;
+        opHtml+='<div class="op-cards">'+recebidos.map(r=>`
+          <div class="op-card recebido">
+            <span class="op-tag rec">✅ Recebido</span>
+            <div class="op-card-rota">${r.rota}</div>
+            <div class="op-card-gaiola">${r.gaiola}</div>
+            <code class="op-card-id">ID: ${r.atIds[0]||'—'}</code>
+            <div class="op-card-stats">
+              <span class="op-stat ow">🔵 ${r.onWay} On Way</span>
+              <span class="op-stat rec">📦 ${r.est} Estimados</span>
+            </div>
+          </div>`).join('')+'</div>';
+      }
+      if(naoRecebidos.length){
+        opHtml+=`<div class="op-section-label">⚠️ Sem data de inbound — investigar localização</div>`;
+        opHtml+='<div class="op-cards">'+naoRecebidos.map(r=>`
+          <div class="op-card nao-recebido">
+            <span class="op-tag nr">⚠️ Sem inbound</span>
+            <div class="op-card-rota">${r.rota}</div>
+            <div class="op-card-gaiola">${r.gaiola}</div>
+            <code class="op-card-id">ID: ${r.atIds[0]||'—'}</code>
+            <div class="op-card-stats">
+              <span class="op-stat ow">🔵 ${r.onWay} On Way</span>
+              <span class="op-stat nr">📦 ${r.est} Estimados</span>
+            </div>
+          </div>`).join('')+'</div>';
+      }
+      if(!op1.length) opHtml='<div style="color:var(--tx);font-size:13px;padding:12px 0;">Nenhuma gaiola com exatamente 1 At Station no momento.</div>';
+      document.getElementById('opCards').innerHTML=opHtml;
+
+      renderTable(tableData);
+      document.getElementById('resultados').style.display='block';
+      document.getElementById('resultados').scrollIntoView({behavior:'smooth'});
+    } catch(e){ showError('Erro: '+e.message); }
+    finally{ document.getElementById('spinner').style.display='none'; }
+  },80);
+}
+
+function renderTable(data){
+  const sp={
+    '100':'<span class="status-pill s-100">✅ 100% Fechada</span>',
+    'auto':'<span class="status-pill s-auto">🔵 Fecha Automático</span>',
+    'erro':'<span class="status-pill s-err">🔴 Erro Operacional</span>',
+    'misto':'<span class="status-pill s-mix">🟠 Misto</span>',
+  };
+  document.getElementById('tabelaBody').innerHTML=data.map(r=>{
+    const bc=r.pct===100?'var(--vd)':r.pct>=70?'var(--am)':r.pct>=40?'var(--lr)':'var(--vr)';
+    const atBadge=r.atStation>0?`<span class="badge b-vr">${r.atStation}</span>`:`<span style="color:#444">—</span>`;
+    const owBadge=r.onWay>0?`<span class="badge b-az">${r.onWay}</span>`:`<span style="color:#444">—</span>`;
+    const recBadge=r.recebidos>0?`<span class="badge b-vd">${r.recebidos}</span>`:`<span style="color:#444">—</span>`;
+    // IDs At Station — mostrar se 1, senão contagem
+    const idsHtml=r.atStation===1
+      ?`<code style="font-size:10px;color:var(--am);background:#111;padding:2px 6px;border-radius:4px">${r.atIds[0]||'—'}</code>`
+      :r.atStation>1?`<span style="color:var(--tx);font-size:11px">${r.atStation} pacotes</span>`
+      :`<span style="color:#444">—</span>`;
+    const starOp=r.atStation===1?'⭐ ':''
+    return`<tr data-status="${r.status}" data-at="${r.atStation}" data-rota="${r.rota.toLowerCase()}">
+      <td><strong style="font-size:13px">${starOp}${r.rota}</strong>${r.gaiola?`<br><span style="font-size:10px;color:var(--tx)">${r.gaiola}</span>`:''}</td>
+      <td>${sp[r.status]||''}</td>
+      <td><span class="badge b-am">${r.est}</span></td>
+      <td><span class="badge b-vr">${r.faltantes}</span></td>
+      <td>${owBadge}</td>
+      <td>${atBadge}</td>
+      <td>${recBadge}</td>
+      <td>${idsHtml}</td>
+      <td><div class="fill-bar"><div class="fill-track"><div class="fill-inner" style="width:${r.pct}%;background:${bc}"></div></div><span style="font-size:11px;color:${bc};font-weight:700">${r.pct}%</span></div></td>
+    </tr>`;
+  }).join('');
+  document.getElementById('rowCount').textContent=`${data.length} gaiola(s)`;
+}
+
+let filtroAtivo='todos', buscaAtiva='';
+function filtrar(status,btn){ document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active')); btn.classList.add('active'); filtroAtivo=status; aplicarFiltros(); }
+function buscar(val){ buscaAtiva=val.toLowerCase(); aplicarFiltros(); }
+function aplicarFiltros(){
+  const filtered=tableData.filter(r=>{
+    const ms=filtroAtivo==='todos'||r.status===filtroAtivo||(filtroAtivo==='op1'&&r.atStation===1);
+    const mb=!buscaAtiva||r.rota.toLowerCase().includes(buscaAtiva);
+    return ms&&mb;
+  });
+  renderTable(filtered);
+}
+function showError(msg){ document.getElementById('spinner').style.display='none'; const el=document.getElementById('errorMsg'); el.textContent='❌ '+msg; el.style.display='block'; }
+</script>
+</body>
+</html>
