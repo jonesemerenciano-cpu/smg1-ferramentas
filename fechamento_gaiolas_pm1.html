@@ -206,7 +206,7 @@
       <div class="op-header">
         <div>
           <div class="op-title">🎯 Oportunidade — 1 Pacote por Gaiola</div>
-          <div class="op-subtitle">Gaiolas com apenas 1 At Station pendente — 1 busca e a gaiola fecha completamente</div>
+          <div class="op-subtitle">Gaiolas com 1 pacote recebido hoje na estação (com data de inbound) — 1 busca na gaiola e fecha</div>
         </div>
         <div class="op-badge-count" id="opCount">0 gaiolas</div>
       </div>
@@ -387,43 +387,28 @@ function analisar(){
         {v:totAt,   l:'Pkgs At Station',      s:'Buscar manualmente',    cls:'vr'},
       ].map(k=>`<div class="kpi ${k.cls}"><div class="kpi-val">${k.v.toLocaleString('pt-BR')}</div><div class="kpi-lbl">${k.l}</div><div class="kpi-sub">${k.s}</div></div>`).join('');
 
-      // PAINEL OPORTUNIDADE — At Station == 1
-      const op1=tableData.filter(r=>r.atStation===1).sort((a,b)=>b.atRec.length-a.atRec.length);
+      // PAINEL OPORTUNIDADE — At Station com data de inbound (recebido hoje, está na estação)
+      // Apenas gaiolas onde há exatamente 1 At Station E esse pacote tem data de inbound confirmada
+      const op1=tableData.filter(r=>r.atStation===1 && r.atRec.length===1);
       document.getElementById('opCount').textContent=op1.length+' gaiola'+(op1.length!==1?'s':'');
 
-      const recebidos=op1.filter(r=>r.atRec.length>0);
-      const naoRecebidos=op1.filter(r=>r.atRec.length===0);
-
       let opHtml='';
-      if(recebidos.length){
-        opHtml+=`<div class="op-section-label">✅ Recebido por nós — pacote com data de inbound (prioridade máxima)</div>`;
-        opHtml+='<div class="op-cards">'+recebidos.map(r=>`
+      if(op1.length){
+        opHtml+=`<div class="op-section-label">✅ Recebido hoje na estação — buscar na gaiola e despachar</div>`;
+        opHtml+='<div class="op-cards">'+op1.map(r=>`
           <div class="op-card recebido">
-            <span class="op-tag rec">✅ Recebido</span>
+            <span class="op-tag rec">✅ Na Estação</span>
             <div class="op-card-rota">${r.rota}</div>
             <div class="op-card-gaiola">${r.gaiola}</div>
-            <code class="op-card-id">ID: ${r.atIds[0]||'—'}</code>
+            <code class="op-card-id">ID: ${r.atRec[0]||'—'}</code>
             <div class="op-card-stats">
               <span class="op-stat ow">🔵 ${r.onWay} On Way</span>
               <span class="op-stat rec">📦 ${r.est} Estimados</span>
             </div>
           </div>`).join('')+'</div>';
+      } else {
+        opHtml='<div style="color:var(--tx);font-size:13px;padding:12px 0;">Nenhuma gaiola com 1 pacote recebido hoje na estação no momento.</div>';
       }
-      if(naoRecebidos.length){
-        opHtml+=`<div class="op-section-label">⚠️ Sem data de inbound — investigar localização</div>`;
-        opHtml+='<div class="op-cards">'+naoRecebidos.map(r=>`
-          <div class="op-card nao-recebido">
-            <span class="op-tag nr">⚠️ Sem inbound</span>
-            <div class="op-card-rota">${r.rota}</div>
-            <div class="op-card-gaiola">${r.gaiola}</div>
-            <code class="op-card-id">ID: ${r.atIds[0]||'—'}</code>
-            <div class="op-card-stats">
-              <span class="op-stat ow">🔵 ${r.onWay} On Way</span>
-              <span class="op-stat nr">📦 ${r.est} Estimados</span>
-            </div>
-          </div>`).join('')+'</div>';
-      }
-      if(!op1.length) opHtml='<div style="color:var(--tx);font-size:13px;padding:12px 0;">Nenhuma gaiola com exatamente 1 At Station no momento.</div>';
       document.getElementById('opCards').innerHTML=opHtml;
 
       renderTable(tableData);
