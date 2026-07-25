@@ -338,18 +338,22 @@ function analisar(){
         if(inb)        byRota[rota].recebidos++;
       });
 
-      // Monta tableData
-      tableData=Object.entries(byRota).map(([rota,d])=>{
+      // Monta tableData — inclui TODAS as rotas da base de otimização
+      // Rotas que não aparecem na base de faltantes = 100% fechadas
+      const todasRotas = new Set([...Object.keys(estimados), ...Object.keys(byRota)]);
+
+      tableData=Array.from(todasRotas).map(rota=>{
         const est=estimados[rota]||0;
         const gaiola=gaiolas[rota]||'';
+        const d=byRota[rota]||{ onWay:0, atStation:0, recebidos:0, atIds:[], atRec:[] };
         const faltantes=d.onWay+d.atStation;
         const chegaram=est-faltantes;
         const pct=est>0?Math.min(100,Math.round((chegaram/est)*100)):0;
         let status;
-        if(faltantes===0)               status='100';
-        else if(d.atStation===0)        status='auto';
-        else if(d.onWay===0)            status='erro';
-        else                            status='misto';
+        if(faltantes===0)          status='100';  // sem pendência nenhuma = fechada
+        else if(d.atStation===0)   status='auto'; // só On Way = fecha automático
+        else if(d.onWay===0)       status='erro'; // só At Station = erro operacional
+        else                       status='misto';
         return{ rota, gaiola, est, faltantes, onWay:d.onWay, atStation:d.atStation, recebidos:d.recebidos, atIds:d.atIds, atRec:d.atRec, pct, status };
       }).sort((a,b)=>{
         const ord={'100':0,'auto':1,'misto':2,'erro':3}; return (ord[a.status]-ord[b.status])||a.rota.localeCompare(b.rota);
