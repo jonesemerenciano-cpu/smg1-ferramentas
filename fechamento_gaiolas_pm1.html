@@ -45,13 +45,41 @@
   .meta-bar-wrap { background: var(--cc); border-radius: 10px; padding: 18px 20px; margin-bottom: 20px; border: 1px solid var(--cb); }
   .meta-bar-header { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 10px; flex-wrap: wrap; gap: 8px; }
   .meta-bar-header h3 { font-size: 13px; font-weight: 700; color: var(--am); letter-spacing: 1px; text-transform: uppercase; }
-  .meta-bar-nums { font-size: 13px; color: var(--tx); }
-  .meta-bar-nums strong { color: var(--br); font-size: 16px; }
-  .meta-track { background: #1a1a1a; border-radius: 6px; height: 18px; overflow: hidden; position: relative; }
-  .meta-fill { height: 100%; border-radius: 6px; transition: width 1s ease; display: flex; align-items: center; justify-content: flex-end; padding-right: 8px; }
-  .meta-fill span { font-size: 11px; font-weight: 700; color: var(--pr); }
-  .meta-marker { position: absolute; top: 0; height: 100%; border-left: 2px dashed rgba(255,255,255,.3); }
-  .meta-marker-label { position: absolute; top: -18px; font-size: 10px; color: var(--tx); transform: translateX(-50%); white-space: nowrap; }
+  .meta-bar-nums { font-size: 13px; color: var(--tx); display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+  .meta-bar-nums strong { color: var(--br); font-size: 15px; }
+  .meta-bar-nums .sep { color: #444; }
+
+  .meta-track { background: #1a1a1a; border-radius: 6px; height: 22px; overflow: hidden; position: relative; }
+
+  /* Verde escuro — fechadas com todos pacotes (100%) */
+  .meta-fill-real {
+    position: absolute; left: 0; top: 0; height: 100%;
+    background: var(--vd);
+    border-radius: 6px 0 0 6px;
+    display: flex; align-items: center; justify-content: flex-end; padding-right: 6px;
+    transition: width 1s ease;
+    z-index: 3; min-width: 0;
+  }
+  .meta-fill-real span { font-size: 10px; font-weight: 800; color: #000; white-space: nowrap; }
+
+  /* Azul — fechadas via On Way (só On Way pendente, sem At Station) */
+  .meta-fill-ow {
+    position: absolute; top: 0; height: 100%;
+    background: #2e6bb5;
+    display: flex; align-items: center; justify-content: flex-end; padding-right: 6px;
+    transition: left 1s ease, width 1s ease;
+    z-index: 2; min-width: 0;
+  }
+  .meta-fill-ow span { font-size: 10px; font-weight: 800; color: #fff; white-space: nowrap; text-shadow: 0 1px 2px #000; }
+
+  .meta-marker { position: absolute; top: 0; height: 100%; border-left: 2px dashed rgba(255,255,255,.5); z-index: 5; pointer-events: none; }
+  .meta-marker-label { position: absolute; top: -20px; font-size: 10px; color: #ccc; transform: translateX(-50%); white-space: nowrap; font-weight: 700; }
+
+  .meta-legend { display: flex; gap: 18px; flex-wrap: wrap; margin-top: 10px; }
+  .meta-leg-item { display: flex; align-items: center; gap: 6px; font-size: 11px; color: var(--tx); }
+  .meta-leg-dot { width: 12px; height: 12px; border-radius: 3px; flex-shrink: 0; }
+
+  .previa-badge { display: inline-flex; align-items: center; gap: 5px; background: rgba(68,153,255,.15); border: 1px solid rgba(68,153,255,.35); border-radius: 20px; padding: 3px 10px; font-size: 11px; font-weight: 700; color: var(--az); }
 
   /* KPIs */
   .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin-bottom: 20px; }
@@ -63,6 +91,9 @@
   .kpi.lr .kpi-val { color: var(--lr); } .kpi.az .kpi-val { color: var(--az); }
   .kpi-lbl { font-size: 11px; color: var(--tx); text-transform: uppercase; letter-spacing: .5px; }
   .kpi-sub { font-size: 10px; color: #555; margin-top: 3px; }
+  .kpi-tag { font-size: 10px; margin-top: 6px; padding: 2px 7px; border-radius: 4px; display: inline-block; font-weight: 700; }
+  .kpi-tag.az { background: rgba(68,153,255,.12); color: var(--az); border: 1px solid rgba(68,153,255,.2); }
+  .kpi-tag.vd { background: rgba(34,204,119,.12); color: var(--vd); border: 1px solid rgba(34,204,119,.2); }
 
   /* OPORTUNIDADE */
   .op-panel { background: var(--cc); border-radius: 10px; padding: 18px 20px; margin-bottom: 20px; border: 1px solid var(--am); position: relative; overflow: hidden; }
@@ -71,11 +102,9 @@
   .op-title { font-size: 13px; font-weight: 700; color: var(--am); letter-spacing: 1px; text-transform: uppercase; }
   .op-subtitle { font-size: 12px; color: var(--tx); margin-top: 2px; }
   .op-badge-count { background: var(--am); color: var(--pr); font-size: 12px; font-weight: 800; padding: 4px 12px; border-radius: 20px; }
-
   .op-cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 12px; }
   .op-card { background: #1a1a1a; border-radius: 8px; padding: 14px; border: 1px solid var(--cb); position: relative; }
   .op-card.recebido  { border-color: rgba(34,204,119,.4); }
-  .op-card.nao-recebido { border-color: rgba(255,140,0,.35); }
   .op-card-rota { font-size: 15px; font-weight: 800; color: var(--br); margin-bottom: 2px; }
   .op-card-gaiola { font-size: 11px; color: var(--tx); margin-bottom: 10px; }
   .op-card-id { font-size: 11px; font-family: monospace; background: #111; padding: 5px 9px; border-radius: 5px; color: var(--am); margin-bottom: 10px; display: block; letter-spacing: .5px; }
@@ -83,11 +112,8 @@
   .op-stat { font-size: 10px; padding: 2px 8px; border-radius: 8px; font-weight: 600; }
   .op-stat.ow  { background: rgba(68,153,255,.15); color: var(--az); }
   .op-stat.rec { background: rgba(34,204,119,.15); color: var(--vd); }
-  .op-stat.nr  { background: rgba(255,140,0,.15); color: var(--lr); }
   .op-tag { position: absolute; top: 10px; right: 10px; font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 10px; }
   .op-tag.rec { background: rgba(34,204,119,.2); color: var(--vd); border: 1px solid rgba(34,204,119,.3); }
-  .op-tag.nr  { background: rgba(255,140,0,.2);  color: var(--lr); border: 1px solid rgba(255,140,0,.3); }
-
   .op-section-label { font-size: 11px; font-weight: 700; color: var(--tx); text-transform: uppercase; letter-spacing: .5px; margin-bottom: 8px; margin-top: 14px; display: flex; align-items: center; gap: 6px; }
   .op-section-label::after { content: ''; flex: 1; height: 1px; background: var(--cb); }
 
@@ -108,13 +134,13 @@
   .badge { display: inline-block; padding: 2px 8px; border-radius: 10px; font-size: 11px; font-weight: 700; }
   .b-vd { background: rgba(34,204,119,.15); color: var(--vd); } .b-vr { background: rgba(255,68,68,.15); color: var(--vr); }
   .b-lr { background: rgba(255,140,0,.15); color: var(--lr); }  .b-az { background: rgba(68,153,255,.15); color: var(--az); }
-  .b-am { background: rgba(255,230,0,.15); color: var(--am); }  .b-gr { background: rgba(100,100,100,.2); color: #888; }
+  .b-am { background: rgba(255,230,0,.15); color: var(--am); }
 
   .status-pill { display: inline-block; padding: 3px 10px; border-radius: 20px; font-size: 10px; font-weight: 700; letter-spacing: .3px; }
-  .s-100  { background: rgba(34,204,119,.2); color: var(--vd); border: 1px solid rgba(34,204,119,.3); }
-  .s-auto { background: rgba(68,153,255,.2); color: var(--az); border: 1px solid rgba(68,153,255,.3); }
-  .s-err  { background: rgba(255,68,68,.2);  color: var(--vr); border: 1px solid rgba(255,68,68,.3); }
-  .s-mix  { background: rgba(255,140,0,.2);  color: var(--lr); border: 1px solid rgba(255,140,0,.3); }
+  .s-100  { background: rgba(34,204,119,.2);  color: var(--vd); border: 1px solid rgba(34,204,119,.3); }
+  .s-auto { background: rgba(68,153,255,.2);  color: var(--az); border: 1px solid rgba(68,153,255,.3); }
+  .s-err  { background: rgba(255,68,68,.2);   color: var(--vr); border: 1px solid rgba(255,68,68,.3); }
+  .s-mix  { background: rgba(255,140,0,.2);   color: var(--lr); border: 1px solid rgba(255,140,0,.3); }
 
   .fill-bar { display: flex; align-items: center; gap: 6px; }
   .fill-track { width: 70px; background: #2a2a2a; border-radius: 3px; height: 7px; overflow: hidden; flex-shrink: 0; }
@@ -139,7 +165,7 @@
   <div class="logo">ML</div>
   <div>
     <h1>Fechamento de Gaiolas — PM1</h1>
-    <p>SMG1 · Meta 70% · Oportunidade de 1 pacote · On Way auto · At Station operacional</p>
+    <p>SMG1 · Meta 70% · "Caminho para a estação" = fecha automático · "Na estação" = ação necessária</p>
   </div>
 </header>
 
@@ -178,16 +204,43 @@
           <h3>🎯 Indicador de Fechamento — Meta 70%</h3>
         </div>
         <div class="meta-bar-nums">
-          Fechadas: <strong id="metaFechadas">0</strong> de <strong id="metaTotal">0</strong>
-          &nbsp;|&nbsp; Faltando: <strong id="metaFaltando" style="color:var(--vr)">0</strong> para bater a meta
+          <span>✅ Fechadas: <strong id="metaF100">0</strong></span>
+          <span class="sep">|</span>
+          <span class="previa-badge">🔵 On Way (fecha auto): <strong id="metaFAuto" style="margin-left:3px">0</strong></span>
+          <span class="sep">|</span>
+          <span>Total considerado: <strong id="metaTotalFechado">0</strong> / <strong id="metaTotal">0</strong></span>
+          <span class="sep">|</span>
+          <span id="metaStatusWrap"></span>
         </div>
       </div>
+
       <div class="meta-track">
-        <div class="meta-fill" id="metaFill" style="width:0%;background:var(--vr);">
-          <span id="metaPct">0%</span>
+        <!-- azul: on way — desenhado primeiro (atrás) -->
+        <div class="meta-fill-ow" id="metaFillOW" style="left:0%;width:0%;">
+          <span id="metaOWLabel"></span>
         </div>
-        <div class="meta-marker" id="metaMarker" style="left:70%">
+        <!-- verde: 100% fechadas — sobrepõe azul da esquerda -->
+        <div class="meta-fill-real" id="metaFillReal" style="width:0%;">
+          <span id="metaRealLabel"></span>
+        </div>
+        <!-- marcador 70% -->
+        <div class="meta-marker" style="left:70%">
           <div class="meta-marker-label">Meta 70%</div>
+        </div>
+      </div>
+
+      <div class="meta-legend">
+        <div class="meta-leg-item">
+          <div class="meta-leg-dot" style="background:var(--vd)"></div>
+          <span>Fechadas (100%) — <strong id="leg100" style="color:var(--vd)">0</strong></span>
+        </div>
+        <div class="meta-leg-item">
+          <div class="meta-leg-dot" style="background:#2e6bb5"></div>
+          <span>Fecha automático (só On Way) — <strong id="legAuto" style="color:var(--az)">0</strong> — sem ação necessária</span>
+        </div>
+        <div class="meta-leg-item">
+          <div class="meta-leg-dot" style="background:#1a1a1a;border:1px solid #333"></div>
+          <span>Pendente com ação necessária</span>
         </div>
       </div>
     </div>
@@ -195,10 +248,10 @@
     <!-- KPIs -->
     <div class="kpi-grid" id="kpiGrid"></div>
 
-    <!-- ALERTAS DE REGRA -->
+    <!-- ALERTAS -->
     <div style="margin-bottom:16px;">
-      <div class="alert-box info">ℹ️ <span><strong>On Way</strong> — em trânsito para a estação. Gaiola fecha automaticamente após chegada de todos os pacotes.</span></div>
-      <div class="alert-box warn">⚠️ <span><strong>At Station</strong> — pacote chegou aqui mas não foi alocado. Erro operacional — buscar manualmente na gaiola física.</span></div>
+      <div class="alert-box info">🔵 <span><strong>On Way (sem At Station)</strong> — <span id="alertAutoTxt">0 gaiolas</span> vão fechar automaticamente. Já contabilizadas como fechadas na meta — <strong>nenhuma ação necessária</strong>.</span></div>
+      <div class="alert-box warn">⚠️ <span><strong>At Station</strong> — pacote chegou mas não foi alocado. Erro operacional — buscar manualmente na gaiola física.</span></div>
     </div>
 
     <!-- PAINEL DE OPORTUNIDADE -->
@@ -218,7 +271,7 @@
       <div class="section-title">📋 Todas as Gaiolas</div>
       <div class="legend">
         <div class="legend-item"><div class="legend-dot" style="background:var(--vd)"></div>100% Fechada</div>
-        <div class="legend-item"><div class="legend-dot" style="background:var(--az)"></div>Fecha Automático (só On Way)</div>
+        <div class="legend-item"><div class="legend-dot" style="background:var(--az)"></div>Fecha Automático (só On Way) ✅ conta como fechada</div>
         <div class="legend-item"><div class="legend-dot" style="background:var(--vr)"></div>Erro Operacional (At Station)</div>
         <div class="legend-item"><div class="legend-dot" style="background:var(--lr)"></div>Misto (At Station + On Way)</div>
       </div>
@@ -323,7 +376,6 @@ function analisar(){
       const estimados={}, gaiolas={};
       p2.rows.forEach(r=>{ const rt=(r[colRotaOt]||'').trim(); if(!rt)return; estimados[rt]=parseInt(r[colEst])||0; gaiolas[rt]=(r[colDet]||'').trim(); });
 
-      // Agrupa por rota
       const byRota={};
       p1.rows.forEach(r=>{
         const rota=(r[colRota]||'').trim(); if(!rota)return;
@@ -331,75 +383,113 @@ function analisar(){
         const loc=(r[colLoc]||'').trim();
         const inb=(r[colInb]||'').trim();
         const id =(r[colId ]||'').trim();
-        const isOnWay   =/caminho|on.?way/i.test(loc);
-        const isAtStation=/esta.{0,3}o|at.?station/i.test(loc);
-        if(isOnWay)    byRota[rota].onWay++;
+        // Valores reais do CSV: "Caminho para a estação" = On Way | "Na estação" = At Station
+        const isOnWay    = /caminho para a esta/i.test(loc) || /on.?way/i.test(loc);
+        const isAtStation= /^na esta/i.test(loc) || /^at.?station/i.test(loc);
+        if(isOnWay)     byRota[rota].onWay++;
         if(isAtStation){ byRota[rota].atStation++; byRota[rota].atIds.push(id); if(inb) byRota[rota].atRec.push(id); }
-        if(inb)        byRota[rota].recebidos++;
+        if(inb)         byRota[rota].recebidos++;
       });
 
-      // Monta tableData — inclui TODAS as rotas da base de otimização
-      // Rotas que não aparecem na base de faltantes = 100% fechadas
       const todasRotas = new Set([...Object.keys(estimados), ...Object.keys(byRota)]);
 
-      tableData=Array.from(todasRotas).map(rota=>{
-        const est=estimados[rota]||0;
-        const gaiola=gaiolas[rota]||'';
-        const d=byRota[rota]||{ onWay:0, atStation:0, recebidos:0, atIds:[], atRec:[] };
-        const faltantes=d.onWay+d.atStation;
-        const chegaram=est-faltantes;
-        const pct=est>0?Math.min(100,Math.round((chegaram/est)*100)):0;
+      tableData = Array.from(todasRotas).map(rota=>{
+        const est    = estimados[rota]||0;
+        const gaiola = gaiolas[rota]||'';
+        const d      = byRota[rota]||{ onWay:0, atStation:0, recebidos:0, atIds:[], atRec:[] };
+        const faltantes = d.onWay + d.atStation;
+        const chegaram  = est - faltantes;
+        const pct = est>0 ? Math.min(100, Math.round((chegaram/est)*100)) : 0;
+
         let status;
-        if(faltantes===0)          status='100';  // sem pendência nenhuma = fechada
-        else if(d.atStation===0)   status='auto'; // só On Way = fecha automático
-        else if(d.onWay===0)       status='erro'; // só At Station = erro operacional
-        else                       status='misto';
-        return{ rota, gaiola, est, faltantes, onWay:d.onWay, atStation:d.atStation, recebidos:d.recebidos, atIds:d.atIds, atRec:d.atRec, pct, status };
+        if(faltantes === 0)        status = '100';   // sem nenhum pendente
+        else if(d.atStation === 0) status = 'auto';  // só On Way → fecha sozinha = conta como fechada
+        else if(d.onWay === 0)     status = 'erro';  // só At Station → ação necessária
+        else                       status = 'misto'; // ambos → ação necessária
+
+        return { rota, gaiola, est, faltantes, onWay:d.onWay, atStation:d.atStation,
+                 recebidos:d.recebidos, atIds:d.atIds, atRec:d.atRec, pct, status };
       }).sort((a,b)=>{
-        const ord={'100':0,'auto':1,'misto':2,'erro':3}; return (ord[a.status]-ord[b.status])||a.rota.localeCompare(b.rota);
+        const ord={'100':0,'auto':1,'misto':2,'erro':3};
+        return (ord[a.status]-ord[b.status]) || a.rota.localeCompare(b.rota);
       });
 
-      // KPIs
-      const total =tableData.length;
-      const meta  =Math.round(total*0.7);
-      const f100  =tableData.filter(r=>r.status==='100').length;
-      const fAuto =tableData.filter(r=>r.status==='auto').length;
-      const fErro =tableData.filter(r=>r.status==='erro').length;
-      const fMisto=tableData.filter(r=>r.status==='misto').length;
-      const totOW =tableData.reduce((s,r)=>s+r.onWay,0);
-      const totAt =tableData.reduce((s,r)=>s+r.atStation,0);
-      const fechadas=f100+fAuto;
-      const faltandoMeta=Math.max(0,meta-fechadas);
-      const pctMeta=total>0?Math.min(100,Math.round((fechadas/total)*100)):0;
+      // ---- KPIs ----
+      const total  = tableData.length;
+      const meta   = Math.round(total * 0.7);
+      const f100   = tableData.filter(r=>r.status==='100').length;
+      const fAuto  = tableData.filter(r=>r.status==='auto').length;
+      const fErro  = tableData.filter(r=>r.status==='erro').length;
+      const fMisto = tableData.filter(r=>r.status==='misto').length;
+      const totOW  = tableData.reduce((s,r)=>s+r.onWay,0);
+      const totAt  = tableData.reduce((s,r)=>s+r.atStation,0);
 
-      // Barra de meta
-      const fillColor=pctMeta>=70?'var(--vd)':pctMeta>=50?'var(--lr)':'var(--vr)';
-      document.getElementById('metaFechadas').textContent=fechadas;
-      document.getElementById('metaTotal').textContent=total;
-      document.getElementById('metaFaltando').textContent=faltandoMeta>0?faltandoMeta:'✅ Meta atingida!';
-      document.getElementById('metaFill').style.width=pctMeta+'%';
-      document.getElementById('metaFill').style.background=fillColor;
-      document.getElementById('metaPct').textContent=pctMeta+'%';
+      // ---- REGRA CENTRAL ----
+      // Fechadas = status 100 + status auto (só On Way → fecha sozinha)
+      const fechadas      = f100 + fAuto;
+      const faltandoMeta  = Math.max(0, meta - fechadas);
+      const pctFechadas   = total>0 ? Math.min(100,(fechadas/total)*100) : 0;
+      const pct100        = total>0 ? Math.min(100,(f100/total)*100) : 0;
+      const pctAuto       = total>0 ? Math.min(100,(fAuto/total)*100) : 0;
 
-      document.getElementById('kpiGrid').innerHTML=[
-        {v:total,   l:'Total Gaiolas',       s:'PM1',                   cls:'am'},
-        {v:f100,    l:'100% Fechadas',        s:'Todos pacotes OK',      cls:'vd'},
-        {v:fAuto,   l:'Fecha Automático',     s:'On Way — sem ação',     cls:'az'},
-        {v:fErro,   l:'Erro Operacional',     s:'Só At Station',         cls:'vr'},
-        {v:fMisto,  l:'Misto',                s:'At Station + On Way',   cls:'lr'},
-        {v:totOW,   l:'Pkgs On Way',          s:'Chegando automaticamente',cls:'az'},
-        {v:totAt,   l:'Pkgs At Station',      s:'Buscar manualmente',    cls:'vr'},
-      ].map(k=>`<div class="kpi ${k.cls}"><div class="kpi-val">${k.v.toLocaleString('pt-BR')}</div><div class="kpi-lbl">${k.l}</div><div class="kpi-sub">${k.s}</div></div>`).join('');
+      // ---- BARRA ----
+      // Camada azul: começa em 0, vai até pct100 + pctAuto
+      // Camada verde: começa em 0, vai até pct100 (sobrepõe azul)
+      const owEl   = document.getElementById('metaFillOW');
+      const realEl = document.getElementById('metaFillReal');
 
-      // PAINEL OPORTUNIDADE — At Station com data de inbound (recebido hoje, está na estação)
-      // Apenas gaiolas onde há exatamente 1 At Station E esse pacote tem data de inbound confirmada
-      const op1=tableData.filter(r=>r.atStation===1 && r.atRec.length===1);
-      document.getElementById('opCount').textContent=op1.length+' gaiola'+(op1.length!==1?'s':'');
+      owEl.style.left  = '0%';
+      owEl.style.width = (pct100 + pctAuto) + '%';
+      owEl.querySelector('span').textContent = pctAuto >= 5 ? Math.round(pctAuto)+'%' : '';
+      owEl.style.borderRadius = '6px';
 
-      let opHtml='';
+      realEl.style.width      = pct100 + '%';
+      realEl.style.background = pct100 >= 70 ? 'var(--vd)' : pct100 >= 50 ? 'var(--am)' : 'var(--vd)';
+      realEl.style.borderRadius = pctAuto > 0 ? '6px 0 0 6px' : '6px';
+      realEl.querySelector('span').textContent = pct100 >= 4 ? Math.round(pct100)+'%' : '';
+
+      // Textos
+      document.getElementById('metaF100').textContent       = f100;
+      document.getElementById('metaFAuto').textContent      = fAuto;
+      document.getElementById('metaTotalFechado').textContent = fechadas;
+      document.getElementById('metaTotal').textContent      = total;
+      document.getElementById('leg100').textContent         = f100;
+      document.getElementById('legAuto').textContent        = fAuto;
+      document.getElementById('alertAutoTxt').textContent   = fAuto + ' gaiola' + (fAuto!==1?'s':'');
+
+      const statusWrap = document.getElementById('metaStatusWrap');
+      if(faltandoMeta === 0){
+        statusWrap.innerHTML = '<strong style="color:var(--vd)">✅ Meta atingida!</strong>';
+      } else {
+        const pctTotal = Math.round(pctFechadas);
+        statusWrap.innerHTML = `Faltam <strong style="color:var(--lr)">${faltandoMeta}</strong> para meta &nbsp;<span style="font-size:11px;color:#666">(${pctTotal}% / 70%)</span>`;
+      }
+
+      // ---- KPI GRID ----
+      document.getElementById('kpiGrid').innerHTML = [
+        { v: total,    l: 'Total Gaiolas',      s: 'PM1',                          cls: 'am', tag: '' },
+        { v: fechadas, l: 'Fechadas (total)',    s: `${f100} diretas + ${fAuto} On Way`, cls: 'vd',
+          tag: `<span class="kpi-tag vd">✅ ${Math.round(pctFechadas)}% da meta</span>` },
+        { v: f100,     l: '100% Diretas',        s: 'Todos pacotes chegaram',       cls: 'vd', tag: '' },
+        { v: fAuto,    l: 'Fecha Automático',    s: 'Só On Way — sem ação',         cls: 'az',
+          tag: `<span class="kpi-tag az">🔵 Conta como fechada</span>` },
+        { v: fErro,    l: 'Erro Operacional',    s: 'Só At Station — buscar',       cls: 'vr', tag: '' },
+        { v: fMisto,   l: 'Misto',               s: 'At Station + On Way',          cls: 'lr', tag: '' },
+        { v: totAt,    l: 'Pkgs At Station',     s: 'Buscar manualmente',           cls: 'vr', tag: '' },
+      ].map(k=>`<div class="kpi ${k.cls}">
+        <div class="kpi-val">${k.v.toLocaleString('pt-BR')}</div>
+        <div class="kpi-lbl">${k.l}</div>
+        <div class="kpi-sub">${k.s}</div>
+        ${k.tag}
+      </div>`).join('');
+
+      // ---- OPORTUNIDADE ----
+      const op1 = tableData.filter(r=>r.atStation===1 && r.atRec.length===1);
+      document.getElementById('opCount').textContent = op1.length+' gaiola'+(op1.length!==1?'s':'');
+      let opHtml = '';
       if(op1.length){
-        opHtml+=`<div class="op-section-label">✅ Recebido hoje na estação — buscar na gaiola e despachar</div>`;
-        opHtml+='<div class="op-cards">'+op1.map(r=>`
+        opHtml += `<div class="op-section-label">✅ Recebido hoje na estação — buscar na gaiola e despachar</div>`;
+        opHtml += '<div class="op-cards">'+op1.map(r=>`
           <div class="op-card recebido">
             <span class="op-tag rec">✅ Na Estação</span>
             <div class="op-card-rota">${r.rota}</div>
@@ -411,9 +501,9 @@ function analisar(){
             </div>
           </div>`).join('')+'</div>';
       } else {
-        opHtml='<div style="color:var(--tx);font-size:13px;padding:12px 0;">Nenhuma gaiola com 1 pacote recebido hoje na estação no momento.</div>';
+        opHtml = '<div style="color:var(--tx);font-size:13px;padding:12px 0;">Nenhuma gaiola com 1 pacote recebido hoje na estação no momento.</div>';
       }
-      document.getElementById('opCards').innerHTML=opHtml;
+      document.getElementById('opCards').innerHTML = opHtml;
 
       renderTable(tableData);
       document.getElementById('resultados').style.display='block';
@@ -425,23 +515,24 @@ function analisar(){
 
 function renderTable(data){
   const sp={
-    '100':'<span class="status-pill s-100">✅ 100% Fechada</span>',
-    'auto':'<span class="status-pill s-auto">🔵 Fecha Automático</span>',
-    'erro':'<span class="status-pill s-err">🔴 Erro Operacional</span>',
+    '100' : '<span class="status-pill s-100">✅ 100% Fechada</span>',
+    'auto': '<span class="status-pill s-auto">🔵 Fecha Auto ✅</span>',
+    'erro': '<span class="status-pill s-err">🔴 Erro Operacional</span>',
     'misto':'<span class="status-pill s-mix">🟠 Misto</span>',
   };
-  document.getElementById('tabelaBody').innerHTML=data.map(r=>{
-    const bc=r.pct===100?'var(--vd)':r.pct>=70?'var(--am)':r.pct>=40?'var(--lr)':'var(--vr)';
-    const atBadge=r.atStation>0?`<span class="badge b-vr">${r.atStation}</span>`:`<span style="color:#444">—</span>`;
-    const owBadge=r.onWay>0?`<span class="badge b-az">${r.onWay}</span>`:`<span style="color:#444">—</span>`;
-    const recBadge=r.recebidos>0?`<span class="badge b-vd">${r.recebidos}</span>`:`<span style="color:#444">—</span>`;
-    // IDs At Station — mostrar se 1, senão contagem
-    const idsHtml=r.atStation===1
-      ?`<code style="font-size:10px;color:var(--am);background:#111;padding:2px 6px;border-radius:4px">${r.atIds[0]||'—'}</code>`
-      :r.atStation>1?`<span style="color:var(--tx);font-size:11px">${r.atStation} pacotes</span>`
-      :`<span style="color:#444">—</span>`;
-    const starOp=r.atStation===1?'⭐ ':''
-    return`<tr data-status="${r.status}" data-at="${r.atStation}" data-rota="${r.rota.toLowerCase()}">
+  document.getElementById('tabelaBody').innerHTML = data.map(r=>{
+    const bc = r.pct===100?'var(--vd)':r.pct>=70?'var(--am)':r.pct>=40?'var(--lr)':'var(--vr)';
+    const atBadge  = r.atStation>0 ? `<span class="badge b-vr">${r.atStation}</span>` : `<span style="color:#444">—</span>`;
+    const owBadge  = r.onWay>0     ? `<span class="badge b-az">${r.onWay}</span>`     : `<span style="color:#444">—</span>`;
+    const recBadge = r.recebidos>0  ? `<span class="badge b-vd">${r.recebidos}</span>` : `<span style="color:#444">—</span>`;
+    const idsHtml  = r.atStation===1
+      ? `<code style="font-size:10px;color:var(--am);background:#111;padding:2px 6px;border-radius:4px">${r.atIds[0]||'—'}</code>`
+      : r.atStation>1 ? `<span style="color:var(--tx);font-size:11px">${r.atStation} pacotes</span>`
+      : `<span style="color:#444">—</span>`;
+    const starOp = r.atStation===1 ? '⭐ ' : '';
+    // destaque de linha para auto
+    const rowStyle = r.status==='auto' ? 'background:rgba(68,153,255,.04);' : '';
+    return `<tr data-status="${r.status}" data-at="${r.atStation}" data-rota="${r.rota.toLowerCase()}" style="${rowStyle}">
       <td><strong style="font-size:13px">${starOp}${r.rota}</strong>${r.gaiola?`<br><span style="font-size:10px;color:var(--tx)">${r.gaiola}</span>`:''}</td>
       <td>${sp[r.status]||''}</td>
       <td><span class="badge b-am">${r.est}</span></td>
@@ -453,17 +544,17 @@ function renderTable(data){
       <td><div class="fill-bar"><div class="fill-track"><div class="fill-inner" style="width:${r.pct}%;background:${bc}"></div></div><span style="font-size:11px;color:${bc};font-weight:700">${r.pct}%</span></div></td>
     </tr>`;
   }).join('');
-  document.getElementById('rowCount').textContent=`${data.length} gaiola(s)`;
+  document.getElementById('rowCount').textContent = `${data.length} gaiola(s)`;
 }
 
 let filtroAtivo='todos', buscaAtiva='';
 function filtrar(status,btn){ document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active')); btn.classList.add('active'); filtroAtivo=status; aplicarFiltros(); }
 function buscar(val){ buscaAtiva=val.toLowerCase(); aplicarFiltros(); }
 function aplicarFiltros(){
-  const filtered=tableData.filter(r=>{
-    const ms=filtroAtivo==='todos'||r.status===filtroAtivo||(filtroAtivo==='op1'&&r.atStation===1);
-    const mb=!buscaAtiva||r.rota.toLowerCase().includes(buscaAtiva);
-    return ms&&mb;
+  const filtered = tableData.filter(r=>{
+    const ms = filtroAtivo==='todos' || r.status===filtroAtivo || (filtroAtivo==='op1' && r.atStation===1);
+    const mb = !buscaAtiva || r.rota.toLowerCase().includes(buscaAtiva);
+    return ms && mb;
   });
   renderTable(filtered);
 }
