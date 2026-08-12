@@ -1,0 +1,926 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Grupos de Trabalho — SMG1 T2</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap');
+:root {
+  --yellow:#FFE600; --dark:#141414; --mid:#1E1E1E; --card:#242424; --card2:#2A2A2A;
+  --border:#333; --border2:#444; --text:#E8E8E8; --muted:#777; --muted2:#999;
+  --fem:#FF6B9D; --masc:#4DA6FF; --fem-bg:rgba(255,107,157,0.12); --masc-bg:rgba(77,166,255,0.12);
+  --green:#3ECF8E; --red:#FF5252; --green-bg:rgba(62,207,142,0.1); --red-bg:rgba(255,82,82,0.1);
+  --A:#FFE600; --B:#3ECF8E; --C:#4DA6FF; --D:#FF6B9D;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--dark);color:var(--text);font-family:'Inter',sans-serif;font-size:13px;min-height:100vh;display:flex;flex-direction:column;}
+
+/* ── SCREENS ── */
+.screen{display:none;flex:1;}
+.screen.active{display:flex;flex-direction:column;flex:1;}
+
+/* ══════════════════════════════════════════
+   TELA DE SELEÇÃO DE MODO
+══════════════════════════════════════════ */
+#screen-select{align-items:center;justify-content:center;min-height:100vh;}
+.select-wrap{text-align:center;padding:40px 24px;}
+.select-logo{background:var(--yellow);color:var(--dark);font-family:'JetBrains Mono',monospace;font-weight:700;font-size:12px;padding:5px 14px;border-radius:5px;letter-spacing:.06em;display:inline-block;margin-bottom:24px;}
+.select-title{font-size:26px;font-weight:800;margin-bottom:6px;}
+.select-sub{font-size:13px;color:var(--muted2);margin-bottom:40px;}
+.mode-cards{display:flex;gap:20px;flex-wrap:wrap;justify-content:center;}
+.mode-card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:32px 28px;width:240px;cursor:pointer;transition:all .2s;text-align:center;}
+.mode-card:hover{border-color:var(--yellow);transform:translateY(-3px);box-shadow:0 12px 40px rgba(0,0,0,.4);}
+.mode-card .mc-icon{font-size:40px;margin-bottom:14px;}
+.mode-card .mc-title{font-size:15px;font-weight:700;margin-bottom:6px;}
+.mode-card .mc-desc{font-size:11px;color:var(--muted2);line-height:1.6;}
+.mode-card.admin-card:hover{border-color:var(--red);}
+.mode-card.visao-card:hover{border-color:#4DA6FF;}
+
+/* ══════════════════════════════════════════
+   VISÃO COLABORADOR
+══════════════════════════════════════════ */
+.colab-topbar{background:var(--mid);border-bottom:2px solid var(--yellow);padding:0 24px;display:flex;align-items:center;height:52px;gap:12px;}
+.colab-logo{background:var(--yellow);color:var(--dark);font-family:'JetBrains Mono',monospace;font-weight:700;font-size:11px;padding:3px 10px;border-radius:4px;}
+.colab-title{font-size:14px;font-weight:600;}
+.back-btn{margin-left:auto;background:none;border:1px solid var(--border2);color:var(--muted2);border-radius:7px;padding:5px 14px;font-size:11px;cursor:pointer;font-family:'Inter',sans-serif;transition:all .15s;}
+.back-btn:hover{border-color:var(--text);color:var(--text);}
+
+.colab-body{flex:1;display:flex;flex-direction:column;align-items:center;padding:40px 24px;}
+.search-box{width:100%;max-width:500px;margin-bottom:32px;}
+.search-box label{display:block;font-size:11px;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);margin-bottom:8px;}
+.search-input-wrap{position:relative;}
+.search-input{width:100%;background:var(--card);border:2px solid var(--border2);color:var(--text);border-radius:12px;padding:14px 18px 14px 46px;font-size:15px;font-family:'Inter',sans-serif;outline:none;transition:border .2s;}
+.search-input:focus{border-color:var(--yellow);}
+.search-icon{position:absolute;left:16px;top:50%;transform:translateY(-50%);font-size:18px;color:var(--muted);}
+.search-hint{font-size:11px;color:var(--muted);margin-top:8px;text-align:center;}
+
+/* Resultado colaborador */
+.colab-result{width:100%;max-width:500px;}
+.colab-not-found{text-align:center;padding:40px;color:var(--muted2);}
+.colab-not-found .nf-icon{font-size:48px;margin-bottom:12px;}
+.colab-not-found p{font-size:13px;}
+
+.colab-card{background:var(--card);border:2px solid var(--border);border-radius:20px;overflow:hidden;animation:fadeUp .3s ease;}
+@keyframes fadeUp{from{opacity:0;transform:translateY(12px);}to{opacity:1;transform:translateY(0);}}
+.colab-card-banner{padding:28px 28px 24px;text-align:center;position:relative;}
+.colab-card-banner::after{content:'';position:absolute;inset:0;opacity:.05;pointer-events:none;}
+.group-big-letter{font-family:'JetBrains Mono',monospace;font-size:80px;font-weight:700;line-height:1;margin-bottom:4px;}
+.group-label{font-size:13px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;opacity:.7;}
+.colab-name{background:var(--card2);padding:18px 28px;border-top:1px solid var(--border);}
+.colab-name .cn-label{font-size:10px;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);margin-bottom:4px;}
+.colab-name .cn-nome{font-size:15px;font-weight:600;}
+.colab-meta{padding:14px 28px;border-top:1px solid var(--border);display:flex;gap:20px;flex-wrap:wrap;}
+.meta-item{display:flex;flex-direction:column;gap:2px;}
+.meta-item .mi-lbl{font-size:10px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);}
+.meta-item .mi-val{font-size:12px;font-weight:600;}
+.colab-colegas{padding:16px 28px;border-top:1px solid var(--border);}
+.colab-colegas .cc-title{font-size:11px;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);margin-bottom:10px;}
+.colega-list{display:flex;flex-direction:column;gap:4px;max-height:200px;overflow-y:auto;}
+.colega-row{display:flex;align-items:center;gap:8px;padding:5px 8px;border-radius:6px;}
+.colega-row.destaque{background:rgba(255,230,0,0.08);border:1px solid rgba(255,230,0,0.2);}
+.colega-row .cr-tag{font-size:9px;font-weight:700;border-radius:3px;padding:1px 5px;}
+.cr-F{background:var(--fem-bg);color:var(--fem);}
+.cr-M{background:var(--masc-bg);color:var(--masc);}
+.colega-row .cr-nome{font-size:11px;flex:1;}
+.colega-row .cr-voce{font-size:9px;color:var(--yellow);font-weight:600;}
+
+/* Autocomplete */
+.autocomplete-list{background:var(--card2);border:1px solid var(--border2);border-radius:10px;margin-top:6px;overflow:hidden;display:none;}
+.autocomplete-list.show{display:block;}
+.ac-item{padding:10px 16px;cursor:pointer;font-size:13px;border-bottom:1px solid var(--border);transition:background .1s;}
+.ac-item:last-child{border-bottom:none;}
+.ac-item:hover{background:rgba(255,230,0,0.07);}
+.ac-item mark{background:none;color:var(--yellow);font-weight:600;}
+
+/* ══════════════════════════════════════════
+   LOGIN ADMIN
+══════════════════════════════════════════ */
+#screen-login{align-items:center;justify-content:center;min-height:100vh;}
+.login-box{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:36px;width:340px;text-align:center;}
+.login-icon{font-size:36px;margin-bottom:12px;}
+.login-title{font-size:16px;font-weight:700;margin-bottom:4px;}
+.login-sub{font-size:12px;color:var(--muted2);margin-bottom:24px;}
+.login-field{text-align:left;margin-bottom:14px;}
+.login-field label{font-size:10px;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);display:block;margin-bottom:5px;}
+.login-field input{width:100%;background:var(--mid);border:1px solid var(--border2);color:var(--text);border-radius:8px;padding:10px 14px;font-size:13px;font-family:'Inter',sans-serif;outline:none;transition:border .15s;}
+.login-field input:focus{border-color:var(--yellow);}
+.login-err{font-size:11px;color:var(--red);margin-bottom:10px;display:none;}
+.login-back{margin-top:14px;font-size:11px;color:var(--muted2);cursor:pointer;}
+.login-back:hover{color:var(--text);}
+
+/* ══════════════════════════════════════════
+   ADMIN PANEL
+══════════════════════════════════════════ */
+.admin-topbar{background:var(--mid);border-bottom:2px solid var(--red);padding:0 28px;display:flex;align-items:center;height:52px;gap:14px;}
+.admin-badge{background:var(--red);color:#fff;font-family:'JetBrains Mono',monospace;font-weight:700;font-size:11px;padding:3px 10px;border-radius:4px;}
+.admin-title{font-size:14px;font-weight:600;}
+.admin-tabs{background:var(--mid);border-bottom:1px solid var(--border);display:flex;padding:0 28px;gap:2px;}
+.atab{padding:10px 16px;font-size:12px;font-weight:500;color:var(--muted2);cursor:pointer;border-bottom:2px solid transparent;transition:all .15s;white-space:nowrap;}
+.atab:hover{color:var(--text);}
+.atab.active{color:var(--red);border-bottom-color:var(--red);font-weight:600;}
+.admin-content{padding:24px 28px;}
+
+/* Stats */
+.stat-row{display:flex;gap:12px;margin-bottom:20px;flex-wrap:wrap;}
+.stat-box{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:12px 18px;min-width:90px;}
+.stat-box .val{font-family:'JetBrains Mono',monospace;font-size:22px;font-weight:700;line-height:1;}
+.stat-box .lbl{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-top:3px;}
+.val-y{color:var(--yellow);}.val-f{color:var(--fem);}.val-m{color:var(--masc);}.val-g{color:var(--green);}.val-r{color:var(--red);}
+
+/* Groups grid */
+.groups-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:16px;}
+.gcard{background:var(--card);border:1px solid var(--border);border-radius:12px;overflow:hidden;}
+.gcard-head{padding:12px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
+.gletter{font-family:'JetBrains Mono',monospace;font-size:26px;font-weight:700;line-height:1;}
+.gname{font-weight:600;margin-left:10px;font-size:13px;}
+.gcount{font-family:'JetBrains Mono',monospace;font-size:11px;background:var(--mid);color:var(--muted2);padding:3px 10px;border-radius:20px;}
+.gbar-row{padding:8px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px;}
+.bar-track{flex:1;height:5px;background:var(--border2);border-radius:3px;overflow:hidden;display:flex;}
+.bar-f{background:var(--fem);}.bar-m{background:var(--masc);}
+.gleg{display:flex;gap:10px;font-size:10px;}
+.gleg span{display:flex;align-items:center;gap:3px;}
+.dot{width:6px;height:6px;border-radius:50%;}.dot-f{background:var(--fem);}.dot-m{background:var(--masc);}
+.glist{max-height:290px;overflow-y:auto;}
+.glist::-webkit-scrollbar{width:3px;}.glist::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px;}
+.grow{display:flex;align-items:center;padding:6px 14px;gap:8px;border-bottom:1px solid rgba(255,255,255,0.03);transition:background .1s;}
+.grow:hover{background:rgba(255,255,255,0.04);}
+.grow:last-child{border-bottom:none;}
+.grow-num{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);min-width:18px;}
+.gtag{font-size:9px;font-weight:700;border-radius:3px;padding:1px 5px;}
+.gtag-F{background:var(--fem-bg);color:var(--fem);}.gtag-M{background:var(--masc-bg);color:var(--masc);}
+.grow-name{font-size:11.5px;flex:1;}
+.grow-rota{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);background:var(--mid);border-radius:3px;padding:1px 5px;}
+.grow-badge{font-size:9px;padding:1px 6px;border-radius:3px;}
+.badge-fixo{background:rgba(255,230,0,0.1);color:var(--yellow);}
+.badge-novo{background:var(--green-bg);color:var(--green);}
+.inativo-btn{background:none;border:none;color:var(--muted);cursor:pointer;font-size:13px;padding:2px 4px;border-radius:4px;transition:all .15s;line-height:1;}
+.inativo-btn:hover{background:var(--red-bg);color:var(--red);}
+
+/* Form */
+.form-section{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:20px;margin-bottom:16px;}
+.form-section h3{font-size:13px;font-weight:600;margin-bottom:14px;}
+.form-row{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:10px;}
+.form-field{display:flex;flex-direction:column;gap:4px;flex:1;min-width:140px;}
+.form-field label{font-size:10px;text-transform:uppercase;color:var(--muted);letter-spacing:.06em;}
+.form-field input,.form-field select{background:var(--mid);border:1px solid var(--border2);color:var(--text);border-radius:7px;padding:8px 12px;font-size:12px;font-family:'Inter',sans-serif;outline:none;transition:border .15s;}
+.form-field input:focus,.form-field select:focus{border-color:var(--yellow);}
+.form-field select option{background:var(--mid);}
+.btn{padding:8px 18px;border-radius:7px;font-size:12px;font-weight:600;cursor:pointer;border:none;font-family:'Inter',sans-serif;transition:all .15s;}
+.btn:hover{opacity:.85;}
+.btn-y{background:var(--yellow);color:var(--dark);}
+.btn-outline{background:transparent;border:1px solid var(--border2);color:var(--text);}
+.btn-red{background:var(--red-bg);color:var(--red);border:1px solid rgba(255,82,82,0.4);}
+.btn-sm{padding:5px 12px;font-size:11px;}
+.suggestion-box{background:var(--card2);border:1px solid var(--border2);border-radius:10px;padding:14px 16px;display:none;margin-top:12px;}
+.suggestion-box.show{display:block;}
+.sugg-title{font-size:11px;color:var(--muted2);margin-bottom:10px;}
+.sugg-options{display:flex;gap:10px;flex-wrap:wrap;}
+.sugg-chip{background:var(--mid);border:1px solid var(--border2);border-radius:10px;padding:10px 16px;cursor:pointer;transition:all .15s;text-align:center;min-width:90px;}
+.sugg-chip:hover{border-color:var(--yellow);background:rgba(255,230,0,.07);}
+.sugg-chip .sc-letter{font-family:'JetBrains Mono',monospace;font-size:20px;font-weight:700;color:var(--yellow);}
+.sugg-chip .sc-info{font-size:10px;color:var(--muted2);margin-top:3px;}
+.sugg-chip .sc-rec{font-size:9px;color:var(--green);margin-top:4px;}
+.sugg-chip.recommended{border-color:rgba(62,207,142,0.5);background:rgba(62,207,142,0.05);}
+.sugg-chip.recommended .sc-letter{color:var(--green);}
+.inativo-row{display:flex;align-items:center;padding:7px 14px;gap:8px;border-bottom:1px solid rgba(255,255,255,0.03);}
+.inativo-row:last-child{border-bottom:none;}
+.inativo-nome{flex:1;font-size:11.5px;color:var(--muted2);text-decoration:line-through;}
+.reativar-btn{background:none;border:1px solid var(--border2);color:var(--muted2);cursor:pointer;font-size:10px;padding:2px 8px;border-radius:4px;font-family:'Inter',sans-serif;transition:all .15s;}
+.reativar-btn:hover{border-color:var(--green);color:var(--green);}
+.info-box{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:14px 18px;font-size:12px;color:var(--muted2);line-height:1.7;}
+.info-box strong{color:var(--text);}
+
+/* Toast */
+.toast{position:fixed;bottom:24px;right:24px;background:var(--card2);border:1px solid var(--border2);border-radius:10px;padding:12px 18px;font-size:12px;font-weight:500;box-shadow:0 8px 32px rgba(0,0,0,.5);transform:translateY(80px);opacity:0;transition:all .3s cubic-bezier(.16,1,.3,1);z-index:9999;display:flex;align-items:center;gap:10px;max-width:320px;}
+.toast.show{transform:translateY(0);opacity:1;}
+.empty{padding:24px;text-align:center;color:var(--muted);font-size:12px;}
+::-webkit-scrollbar{width:5px;height:5px;}::-webkit-scrollbar-track{background:transparent;}::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px;}
+
+/* ── VISÃO GERAL ── */
+.vg-stat{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:10px 16px;min-width:80px;text-align:center;}
+.vg-stat .vs-val{font-family:'JetBrains Mono',monospace;font-size:20px;font-weight:700;line-height:1;}
+.vg-stat .vs-lbl{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-top:2px;}
+.vg-card{background:var(--card);border:2px solid var(--border);border-radius:14px;overflow:hidden;display:flex;flex-direction:column;}
+.vg-head{padding:14px 18px 10px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
+.vg-letter{font-family:'JetBrains Mono',monospace;font-size:30px;font-weight:800;line-height:1;}
+.vg-info{text-align:right;}
+.vg-total{font-family:'JetBrains Mono',monospace;font-size:18px;font-weight:700;}
+.vg-comp{font-size:10px;color:var(--muted2);margin-top:2px;}
+.vg-bar-row{padding:8px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px;}
+.vg-bar-track{flex:1;height:6px;background:var(--border2);border-radius:3px;overflow:hidden;display:flex;}
+.vg-members{flex:1;}
+.vg-members::-webkit-scrollbar{width:3px;}
+.vg-members::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px;}
+.vg-row{display:flex;align-items:center;padding:5px 16px;gap:8px;border-bottom:1px solid rgba(255,255,255,0.03);transition:background .1s;}
+.vg-row:last-child{border-bottom:none;}
+.vg-row:hover{background:rgba(255,255,255,0.04);}
+.vg-row.highlight{background:rgba(255,230,0,0.06);}
+.vg-row.dimmed{opacity:.35;}
+.vg-num{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--muted);min-width:16px;}
+.vg-tag{font-size:8px;font-weight:700;border-radius:2px;padding:1px 4px;}
+.vg-tag-F{background:var(--fem-bg);color:var(--fem);}
+.vg-tag-M{background:var(--masc-bg);color:var(--masc);}
+.vg-name{font-size:11px;flex:1;}
+.vg-rota{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--muted);background:var(--mid);border-radius:2px;padding:1px 4px;}
+.vg-badge{font-size:8px;padding:1px 5px;border-radius:2px;}
+.vg-foot{padding:10px 18px;border-top:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;background:var(--mid);}
+.vg-foot-stat{font-size:10px;color:var(--muted2);}
+.vg-foot-stat span{font-weight:700;color:var(--text);}
+</style>
+</head>
+<body>
+
+<!-- ══════════════════════════════════════════
+     TELA 1: SELEÇÃO DE MODO
+══════════════════════════════════════════ -->
+<div class="screen active" id="screen-select" style="align-items:center;justify-content:center;min-height:100vh;">
+  <div class="select-wrap">
+    <div class="select-logo">SMG1 · T2</div>
+    <div class="select-title">Grupos de Trabalho</div>
+    <div class="select-sub">Como você quer acessar?</div>
+    <div class="mode-cards">
+      <div class="mode-card" onclick="goColab()">
+        <div class="mc-icon">🔍</div>
+        <div class="mc-title">Ver meu grupo</div>
+        <div class="mc-desc">Busque seu nome e veja em qual grupo você está e quem são seus colegas.</div>
+      </div>
+      <div class="mode-card visao-card" onclick="goVisao()">
+        <div class="mc-icon">📋</div>
+        <div class="mc-title">Visão Geral</div>
+        <div class="mc-desc">Veja todos os grupos lado a lado com composição completa de cada um.</div>
+      </div>
+      <div class="mode-card admin-card" onclick="goLogin()">
+        <div class="mc-icon">🔐</div>
+        <div class="mc-title">Painel Admin</div>
+        <div class="mc-desc">Acesso restrito. Gerencie os grupos, adicione novatos e inative colaboradores.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     TELA 2: VISÃO GERAL
+══════════════════════════════════════════ -->
+<div class="screen" id="screen-visao">
+  <div class="colab-topbar" style="border-bottom-color:#4DA6FF;">
+    <div class="colab-logo" style="background:#4DA6FF;">SMG1 · T2</div>
+    <span class="colab-title">Visão Geral dos Grupos</span>
+    <div style="margin-left:auto;display:flex;gap:8px;align-items:center;">
+      <div id="visao-search-wrap" style="position:relative;">
+        <input id="visao-search" type="text" placeholder="🔎 Filtrar nome..." autocomplete="off"
+          style="background:var(--card);border:1px solid var(--border2);color:var(--text);border-radius:7px;padding:6px 12px;font-size:12px;font-family:'Inter',sans-serif;outline:none;width:180px;transition:border .15s;"
+          oninput="filtrarVisao()" onfocus="this.style.borderColor='#4DA6FF'" onblur="this.style.borderColor='var(--border2)'">
+      </div>
+      <button class="back-btn" onclick="goSelect()">← Voltar</button>
+    </div>
+  </div>
+
+  <!-- Stats rápidas -->
+  <div style="padding:16px 28px 0;display:flex;gap:10px;flex-wrap:wrap;" id="visao-stats"></div>
+
+  <!-- Grid dos grupos -->
+  <div style="padding:16px 28px 28px;display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px;" id="visao-grid"></div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     TELA 3: VISÃO COLABORADOR
+══════════════════════════════════════════ -->
+<div class="screen" id="screen-colab">
+  <div class="colab-topbar">
+    <div class="colab-logo">SMG1 · T2</div>
+    <span class="colab-title">Consultar Grupo</span>
+    <button class="back-btn" onclick="goSelect()">← Voltar</button>
+  </div>
+  <div class="colab-body">
+    <div class="search-box">
+      <label>Digite seu nome</label>
+      <div class="search-input-wrap">
+        <span class="search-icon">🔎</span>
+        <input class="search-input" id="colab-input" type="text" placeholder="Ex: JULIANA, CARLOS..." autocomplete="off"
+          oninput="onColabInput()" onkeydown="onColabKey(event)">
+      </div>
+      <div class="autocomplete-list" id="ac-list"></div>
+      <div class="search-hint">Digite pelo menos 3 letras do seu nome</div>
+    </div>
+    <div class="colab-result" id="colab-result"></div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     TELA 3: LOGIN ADMIN
+══════════════════════════════════════════ -->
+<div class="screen" id="screen-login" style="align-items:center;justify-content:center;min-height:100vh;">
+  <div class="login-box">
+    <div class="login-icon">🔐</div>
+    <div class="login-title">Acesso Administrativo</div>
+    <div class="login-sub">Digite a senha para continuar</div>
+    <div class="login-field">
+      <label>Senha</label>
+      <input type="password" id="login-pwd" placeholder="••••••••" onkeydown="if(event.key==='Enter')tentarLogin()">
+    </div>
+    <div class="login-err" id="login-err">Senha incorreta. Tente novamente.</div>
+    <button class="btn btn-y" style="width:100%;" onclick="tentarLogin()">Entrar</button>
+    <div class="login-back" onclick="goSelect()">← Voltar</div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     TELA 4: PAINEL ADMIN
+══════════════════════════════════════════ -->
+<div class="screen" id="screen-admin">
+  <div class="admin-topbar">
+    <div class="admin-badge">ADMIN</div>
+    <span class="admin-title">Gestão de Grupos — SMG1 T2</span>
+    <div style="margin-left:auto;display:flex;gap:8px;">
+      <button class="btn btn-outline btn-sm" onclick="exportarTexto()">📋 Exportar</button>
+      <button class="btn btn-red btn-sm" onclick="logout()">Sair</button>
+    </div>
+  </div>
+  <div class="admin-tabs">
+    <div class="atab active" onclick="showAdminTab('grupos')">📊 Grupos</div>
+    <div class="atab" onclick="showAdminTab('adicionar')">➕ Novo Colaborador</div>
+    <div class="atab" onclick="showAdminTab('inativos')">🔴 Inativos <span id="inativo-badge" style="display:none;background:var(--red);color:#fff;border-radius:20px;padding:1px 7px;font-size:10px;margin-left:4px;vertical-align:middle;"></span></div>
+    <div class="atab" onclick="showAdminTab('senha')">⚙️ Senha</div>
+  </div>
+
+  <div class="admin-content" id="atab-grupos">
+    <div class="stat-row" id="stat-row"></div>
+    <div class="groups-grid" id="groups-grid"></div>
+  </div>
+
+  <div class="admin-content" id="atab-adicionar" style="display:none;max-width:680px;">
+    <div class="form-section">
+      <h3>➕ Cadastrar Novo Colaborador</h3>
+      <div class="form-row">
+        <div class="form-field" style="flex:3;">
+          <label>Nome Completo</label>
+          <input type="text" id="inp-nome" placeholder="Ex: FULANO DA SILVA" oninput="this.value=this.value.toUpperCase()">
+        </div>
+        <div class="form-field">
+          <label>Gênero</label>
+          <select id="inp-genero">
+            <option value="">Selecionar...</option>
+            <option value="F">Feminino</option>
+            <option value="M">Masculino</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-field">
+          <label>Rota</label>
+          <input type="text" id="inp-rota" placeholder="Ex: 15, 16EX, 100" oninput="this.value=this.value.toUpperCase()">
+        </div>
+        <div class="form-field">
+          <label>Empresa</label>
+          <select id="inp-empresa">
+            <option value="MELI">MELI</option>
+            <option value="RANDSTAD">RANDSTAD</option>
+            <option value="GI GROUP">GI GROUP</option>
+            <option value="OUTRO">OUTRO</option>
+          </select>
+        </div>
+        <div class="form-field" style="justify-content:flex-end;">
+          <label>&nbsp;</label>
+          <button class="btn btn-y" onclick="sugerirGrupo()">Ver balanceamento →</button>
+        </div>
+      </div>
+      <div class="suggestion-box" id="suggestion-box">
+        <div class="sugg-title">Escolha o grupo — <span style="color:var(--green);">verde = recomendado</span>:</div>
+        <div class="sugg-options" id="sugg-options"></div>
+      </div>
+    </div>
+    <div class="info-box">
+      <strong>Como funciona:</strong> Preencha os dados e clique em <em>"Ver balanceamento"</em>. O sistema mostra quantos F/M há em cada grupo e destaca o recomendado (menor número do mesmo gênero). Você escolhe onde alocar.
+    </div>
+  </div>
+
+  <div class="admin-content" id="atab-inativos" style="display:none;max-width:680px;">
+    <div class="form-section">
+      <h3>🔴 Colaboradores Inativos</h3>
+      <p style="font-size:12px;color:var(--muted2);margin-bottom:14px;">Inativos não aparecem nos grupos. Reativando, o colaborador volta ao grupo original.</p>
+      <div id="inativo-list"><div class="empty">Nenhum colaborador inativo.</div></div>
+    </div>
+    <div class="form-section">
+      <h3>🗑️ Limpeza</h3>
+      <p style="font-size:12px;color:var(--muted2);margin-bottom:12px;">Remove permanentemente apenas os <strong>novatos</strong> inativos do histórico.</p>
+      <button class="btn btn-red btn-sm" onclick="limparInativosNovatos()">Remover novatos inativos do histórico</button>
+    </div>
+  </div>
+
+  <div class="admin-content" id="atab-senha" style="display:none;max-width:400px;">
+    <div class="form-section">
+      <h3>⚙️ Alterar Senha do Admin</h3>
+      <div class="form-row" style="flex-direction:column;">
+        <div class="form-field">
+          <label>Senha Atual</label>
+          <input type="password" id="pwd-atual" placeholder="••••••••">
+        </div>
+        <div class="form-field">
+          <label>Nova Senha</label>
+          <input type="password" id="pwd-nova" placeholder="Mínimo 4 caracteres">
+        </div>
+        <div class="form-field">
+          <label>Confirmar Nova Senha</label>
+          <input type="password" id="pwd-confirmar" placeholder="Repita a nova senha">
+        </div>
+        <div>
+          <button class="btn btn-y" onclick="alterarSenha()">Salvar nova senha</button>
+        </div>
+      </div>
+    </div>
+    <div class="info-box">
+      <strong>Senha padrão inicial:</strong> <code style="color:var(--yellow);">smg1admin</code><br>
+      Altere para uma senha que só os supervisores conheçam.
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"><span id="toast-icon">✅</span><span id="toast-msg"></span></div>
+
+<script>
+// ══════════════════════════════════════════════════
+// BASE FIXA
+// A=29(17F+12M) B=29(17F+12M) C=27(16F+11M) D=27(16F+11M)
+// ══════════════════════════════════════════════════
+const BASE_FIXA = {
+  A:[
+    {n:"ANDRESSA ISOLANI CAMILO DOS SANTOS",g:"F",r:"26",e:"MELI"},
+    {n:"CLAUDILENE DOS SANTOS ALVES",g:"F",r:"26",e:"MELI"},
+    {n:"DARDANE KELLY DOS SANTOS",g:"F",r:"26",e:"MELI"},
+    {n:"DIEGO GABRIEL SOUZA NASCIMENTO",g:"M",r:"15",e:"MELI"},
+    {n:"EDUARDO OLIVEIRA DE LANA",g:"M",r:"16",e:"MELI"},
+    {n:"FABIANA PEREIRA ROCHA",g:"F",r:"16",e:"MELI"},
+    {n:"GABRIELLA CIRILO",g:"F",r:"15",e:"RANDSTAD"},
+    {n:"GUILHERME DE JESUS PORTO",g:"M",r:"26",e:"MELI"},
+    {n:"GUILHERME OLIVEIRA DUARTE",g:"M",r:"16",e:"MELI"},
+    {n:"GUILHERME RODRIGUES MARTINS SOARES",g:"M",r:"18EX",e:"MELI"},
+    {n:"INGRID DE ARAUJO MARTINS BATISTA",g:"F",r:"18EX",e:"MELI"},
+    {n:"IZABELLY EDUARDA DA SILVA CORDEIRO",g:"F",r:"18",e:"MELI"},
+    {n:"JESSICA OLIVEIRA DA SILVA BRITO",g:"F",r:"15",e:"MELI"},
+    {n:"JOAO PAULO LUIZ VALADARES DA SILVA",g:"M",r:"16",e:"MELI"},
+    {n:"JOSE APARECIDO DE JESUS",g:"M",r:"16",e:"MELI"},
+    {n:"LIDIANA MEIRELES BURI",g:"F",r:"18",e:"MELI"},
+    {n:"LORENA EMANUELE LUIZA GOMES DOS SANTOS",g:"F",r:"100",e:"MELI"},
+    {n:"LUIZ INACIO SANTOS ARAUJO",g:"M",r:"18EX",e:"MELI"},
+    {n:"MARCIA FERREIRA DOS SANTOS",g:"F",r:"26",e:"MELI"},
+    {n:"MARIA DENISLANE SANTOS BATISTA DE SOUSA",g:"F",r:"15",e:"MELI"},
+    {n:"MARLON FERREIRA BARBOSA",g:"M",r:"15EX",e:"MELI"},
+    {n:"OMAR JOSE GOMEZ RUBIO",g:"M",r:"15",e:"MELI"},
+    {n:"PAULO SERGIO PEREIRA",g:"M",r:"26",e:"MELI"},
+    {n:"POLIANA MENDES DE PAULA",g:"F",r:"18",e:"MELI"},
+    {n:"RAMON FELIPE MEIRA ANTUNES",g:"M",r:"15",e:"MELI"},
+    {n:"RENATA GUIMARAES DE ALMEIDA",g:"F",r:"26",e:"MELI"},
+    {n:"VANESSA DANTAS DOS SANTOS",g:"F",r:"15",e:"MELI"},
+    {n:"VANESSA PAES LANDIM",g:"F",r:"16",e:"MELI"},
+    {n:"VITORIA GOMES VIEIRA",g:"F",r:"18",e:"MELI"},
+  ],
+  B:[
+    {n:"ALEXANDRE MOISES SILVA DOMINGOS",g:"M",r:"15",e:"MELI"},
+    {n:"ANNA CAROLINE DE AQUINO",g:"F",r:"18EX",e:"MELI"},
+    {n:"CARLOS BERNARDO FERNANDES GOMES DA SILVA",g:"M",r:"100",e:"MELI"},
+    {n:"CRISTIANA DOS SANTOS CASSIANO",g:"F",r:"16EX",e:"MELI"},
+    {n:"DEYSY CRISTINA LOPES PEREIRA",g:"F",r:"16",e:"MELI"},
+    {n:"EBER SOUZA DA SILVA",g:"M",r:"15",e:"MELI"},
+    {n:"EVA VILMA PEREIRA ALVES",g:"F",r:"18",e:"MELI"},
+    {n:"GERSINETE DOS SANTOS NASCIMENTO",g:"F",r:"16",e:"MELI"},
+    {n:"ITALO HENRIQUE VIEIRA DE SOUZA",g:"M",r:"15EX",e:"MELI"},
+    {n:"JULIANA PEREIRA DE SOUZA",g:"F",r:"16",e:"MELI"},
+    {n:"JULIO HENRIQUE CIPRIANO BARBOSA",g:"M",r:"15",e:"GI GROUP"},
+    {n:"KAILAYNE VITORIA BARROSO TEIXEIRA",g:"F",r:"15EX",e:"MELI"},
+    {n:"KALINE PRAZERES DA CONCEICAO",g:"F",r:"100",e:"MELI"},
+    {n:"KELLY SILVA DOS SANTOS MACIEL",g:"F",r:"15",e:"MELI"},
+    {n:"KENNEDY ROBERTO MEDEIROS",g:"M",r:"16EX",e:"MELI"},
+    {n:"LEIA JOANNA DOS SANTOS",g:"F",r:"18",e:"MELI"},
+    {n:"LIVIA OLIVEIRA SILVA",g:"F",r:"26",e:"MELI"},
+    {n:"LUCIANE DOS SANTOS CARVALHO PEREIRA",g:"F",r:"15",e:"MELI"},
+    {n:"MATEUS FILIPE DA COSTA MARCAL",g:"M",r:"15",e:"MELI"},
+    {n:"MATHEUS HENRIQUE DE PAULA SILVA",g:"M",r:"15EX",e:"MELI"},
+    {n:"PEDRO LUCAS LIMA SANTOS",g:"M",r:"26",e:"MELI"},
+    {n:"RAQUEL LOURENCO DE SOUZA",g:"F",r:"15",e:"MELI"},
+    {n:"RICARDO AUGUSTO CRUZ",g:"M",r:"16",e:"MELI"},
+    {n:"ROSIMENE DEROT",g:"F",r:"16",e:"MELI"},
+    {n:"RUTHIELLE KEITHY RIBEIRO DE OLIVEIRA",g:"F",r:"16EX",e:"MELI"},
+    {n:"SAMUEL MARCOS RODRIGUES DA SILVA",g:"M",r:"26",e:"MELI"},
+    {n:"STEFANE VITORIA DOS ANJOS SILVA",g:"F",r:"15",e:"MELI"},
+    {n:"VITORIA CARVALHO DA SILVA",g:"F",r:"15",e:"MELI"},
+    {n:"WELBERT WAGNER SILVA",g:"M",r:"15",e:"RANDSTAD"},
+  ],
+  C:[
+    {n:"ANDRESA CRISTINA GONCALVES DE LIMA",g:"F",r:"16EX",e:"MELI"},
+    {n:"ANDREY GABRIEL FREITAS LOPES",g:"M",r:"18EX",e:"MELI"},
+    {n:"CARINA APARECIDA DE OLIVEIRA ROSA",g:"F",r:"15EX",e:"MELI"},
+    {n:"CARLOS HENRIQUE DA SILVA",g:"M",r:"18EX",e:"MELI"},
+    {n:"CLAUDIO JUNIO RIBEIRO DE ARAUJO",g:"M",r:"15",e:"MELI"},
+    {n:"DENIAN CESAR SOARES FARIA",g:"M",r:"18",e:"MELI"},
+    {n:"FRANCIELLE ADRIANE OLIVEIRA SILVA",g:"F",r:"26",e:"MELI"},
+    {n:"GUSTAVO RODRIGUES LIMA",g:"M",r:"15",e:"MELI"},
+    {n:"HARIEL HELENA DE ARAUJO",g:"F",r:"16EX",e:"MELI"},
+    {n:"HELEN CAROLINE PEREIRA DE JESUS",g:"F",r:"15",e:"MELI"},
+    {n:"ISAAC PIRES ROCHA",g:"M",r:"26",e:"MELI"},
+    {n:"ISABELLE RAMOS DE OLIVEIRA",g:"F",r:"15",e:"MELI"},
+    {n:"IURI JONATAN SANTOS DA SILVA",g:"M",r:"18",e:"MELI"},
+    {n:"JACKLINE FIDELIS RODRIGUES",g:"F",r:"16EX",e:"MELI"},
+    {n:"JHULLY YASMIM DE SOUZA DAMASCENO",g:"F",r:"100",e:"MELI"},
+    {n:"JOAO PEDRO REIS TECLO DE MIRANDA",g:"M",r:"18EX",e:"MELI"},
+    {n:"LUCILENE DA COSTA CAMPOS DE JESUS",g:"F",r:"26",e:"MELI"},
+    {n:"MARA DO CARMO DA SILVA",g:"F",r:"16EX",e:"MELI"},
+    {n:"MARCOS ANDRE FERNANDES MORIKAWA",g:"M",r:"16",e:"GI GROUP"},
+    {n:"MICHELE DO NASCIMENTO COSTA",g:"F",r:"26",e:"MELI"},
+    {n:"PABLO RODRIGO DOS SANTOS COELHO",g:"M",r:"15",e:"MELI"},
+    {n:"RENATA DAMARIS VERDE",g:"F",r:"18",e:"MELI"},
+    {n:"SABRINA DA SILVA PURCINO CASTRO",g:"F",r:"26",e:"RANDSTAD"},
+    {n:"SARAH GABRIELE DA SILVA AGUIAR",g:"F",r:"16",e:"MELI"},
+    {n:"THAIS EDUARDA LOPES INACIO",g:"F",r:"15",e:"MELI"},
+    {n:"VERONICA REGINA ALVES DA SILVA",g:"F",r:"15",e:"MELI"},
+    {n:"WANDERSON TOMAZ ROCHA",g:"M",r:"16EX",e:"MELI"},
+  ],
+  D:[
+    {n:"ANA CLARA LOPES DE OLIVEIRA",g:"F",r:"18",e:"MELI"},
+    {n:"ANDREA RIBEIRO DOS SANTOS",g:"F",r:"15EX",e:"MELI"},
+    {n:"ARTHUR VICTOR",g:"M",r:"16EX",e:"MELI"},
+    {n:"BARBARA RODRIGUES SANTIAGO",g:"F",r:"15",e:"MELI"},
+    {n:"CAMILLA OLIVEIRA DOS SANTOS",g:"F",r:"15",e:"MELI"},
+    {n:"DANIELE LOPES BARBOSA",g:"F",r:"16EX",e:"MELI"},
+    {n:"FABIANA LIMA DE OLIVEIRA",g:"F",r:"16",e:"MELI"},
+    {n:"FRANCIELE MARIA DE OLIVEIRA",g:"F",r:"16EX",e:"MELI"},
+    {n:"GETULIO JOSE MAGALHAES",g:"M",r:"26",e:"MELI"},
+    {n:"GUSTAVO RAMOS FERREIRA",g:"M",r:"18",e:"MELI"},
+    {n:"ISRAEL ALVES BRAGA",g:"M",r:"18",e:"MELI"},
+    {n:"JACQUELINE CRISTINA DA SILVA",g:"F",r:"15",e:"MELI"},
+    {n:"JOAO MIGUEL CAMPOS SOARES",g:"M",r:"18",e:"MELI"},
+    {n:"KAILA VITORIA FAUSTINA BARRETO BISPO",g:"F",r:"16EX",e:"MELI"},
+    {n:"LUCAS AUGUSTO DOLARIS",g:"M",r:"16EX",e:"MELI"},
+    {n:"MARCELO ALCINDO DA SILVA",g:"M",r:"18",e:"MELI"},
+    {n:"PAULO SERGIO DE SOUSA ALECRIM",g:"M",r:"16",e:"MELI"},
+    {n:"RAFAEL SIQUEIRA",g:"M",r:"16EX",e:"MELI"},
+    {n:"REJANE PAULA DE OLIVEIRA",g:"F",r:"26",e:"MELI"},
+    {n:"SAMIRI COIMBRA DE ARAUJO",g:"F",r:"16",e:"MELI"},
+    {n:"STEPHANNY MAYRA PEREIRA DOS REIS",g:"F",r:"18",e:"MELI"},
+    {n:"THAMIRIS VITORIA VIEIRA PEREIRA",g:"F",r:"18",e:"MELI"},
+    {n:"VALDEENE DAS GRACAS PEREIRA DOS SANTOS",g:"F",r:"15",e:"MELI"},
+    {n:"VALERIA BARBOSA LIMA CORDEIRO",g:"F",r:"26",e:"MELI"},
+    {n:"VIVIANE LOPES SILVA MARTINS",g:"F",r:"15",e:"MELI"},
+    {n:"WALISSON DOS SANTOS DANTAS",g:"M",r:"16",e:"MELI"},
+    {n:"WASHINGTON GABRIEL CELESTINO PACHECO",g:"M",r:"15",e:"MELI"},
+  ]
+};
+
+const GROUPS=['A','B','C','D'];
+const STORAGE_KEY='smg1_grupos_v3';
+const GROUP_COLORS={A:'#FFE600',B:'#3ECF8E',C:'#4DA6FF',D:'#FF6B9D'};
+const DEFAULT_PWD='smg1admin';
+
+// ── DB ──
+function loadDB(){try{const r=localStorage.getItem(STORAGE_KEY);if(r)return JSON.parse(r);}catch(e){}return{novatos:[],inativos:[],pwd:DEFAULT_PWD};}
+function saveDB(){localStorage.setItem(STORAGE_KEY,JSON.stringify(DB));}
+let DB=loadDB();
+if(!DB.pwd) DB.pwd=DEFAULT_PWD;
+
+// ── HELPERS ──
+function getAtivos(g){
+  const fixos=BASE_FIXA[g].filter(m=>!DB.inativos.some(i=>i.nome===m.n&&i.grupo===g)).map(m=>({...m,fixo:true}));
+  const novs=DB.novatos.filter(n=>n.grupo===g&&n.ativo).map(n=>({n:n.nome,g:n.genero,r:n.rota,e:n.empresa,fixo:false,id:n.id}));
+  return[...fixos,...novs];
+}
+function todos(){return GROUPS.flatMap(g=>getAtivos(g).map(m=>({...m,grupo:g})));}
+function countG(g,gen){return getAtivos(g).filter(m=>m.g===gen).length;}
+
+// ══ NAVEGAÇÃO ════════════════════════════════
+function showScreen(id){document.querySelectorAll('.screen').forEach(s=>{s.classList.remove('active');s.style.display='none';});const el=document.getElementById(id);el.style.display='flex';el.classList.add('active');}
+function goSelect(){showScreen('screen-select');}
+function goColab(){showScreen('screen-colab');document.getElementById('colab-input').focus();}
+function goLogin(){showScreen('screen-login');document.getElementById('login-pwd').value='';document.getElementById('login-err').style.display='none';}
+function logout(){showScreen('screen-select');}
+function goVisao(){showScreen('screen-visao');renderVisao();}
+
+// ══ VISÃO GERAL ══════════════════════════════
+function filtrarVisao(){renderVisao();}
+
+function renderVisao(){
+  const q = normalizar(document.getElementById('visao-search').value.trim());
+
+  // Stats globais
+  let tot=0,f=0,m=0,nov=0;
+  GROUPS.forEach(g=>{const a=getAtivos(g);tot+=a.length;f+=a.filter(x=>x.g==='F').length;m+=a.filter(x=>x.g==='M').length;nov+=DB.novatos.filter(n=>n.grupo===g&&n.ativo).length;});
+  document.getElementById('visao-stats').innerHTML=`
+    <div class="vg-stat"><div class="vs-val" style="color:var(--yellow);">${tot}</div><div class="vs-lbl">Ativos</div></div>
+    <div class="vg-stat"><div class="vs-val" style="color:var(--fem);">${f}</div><div class="vs-lbl">Feminino</div></div>
+    <div class="vg-stat"><div class="vs-val" style="color:var(--masc);">${m}</div><div class="vs-lbl">Masculino</div></div>
+    <div class="vg-stat"><div class="vs-val" style="color:var(--green);">${nov}</div><div class="vs-lbl">Novatos</div></div>
+    ${GROUPS.map(g=>{
+      const a=getAtivos(g),fC=a.filter(x=>x.g==='F').length,mC=a.filter(x=>x.g==='M').length,cor=GROUP_COLORS[g];
+      return`<div class="vg-stat" style="border-color:${cor}33;">
+        <div class="vs-val" style="color:${cor};">GRP ${g}</div>
+        <div class="vs-lbl" style="margin-top:4px;"><span style="color:var(--fem);">${fC}F</span> · <span style="color:var(--masc);">${mC}M</span> · <span style="color:var(--text);">${a.length}</span></div>
+      </div>`;
+    }).join('')}`;
+
+  // Cards dos grupos
+  const grid = document.getElementById('visao-grid');
+  grid.innerHTML='';
+  GROUPS.forEach(key=>{
+    const members = getAtivos(key).sort((a,b)=>a.n.localeCompare(b.n));
+    const fC=members.filter(m=>m.g==='F').length, mC=members.filter(m=>m.g==='M').length;
+    const tot=members.length, fPct=tot>0?Math.round(fC/tot*100):0;
+    const cor=GROUP_COLORS[key];
+    const novCount=members.filter(m=>!m.fixo).length;
+
+    const card=document.createElement('div');
+    card.className='vg-card';
+    card.style.borderColor=cor+'44';
+
+    const rowsHtml = members.map((m,i)=>{
+      const matched = q && normalizar(m.n).includes(q);
+      const dimmed  = q && !matched;
+      return`<div class="vg-row ${matched?'highlight':''} ${dimmed?'dimmed':''}">
+        <span class="vg-num">${String(i+1).padStart(2,'0')}</span>
+        <span class="vg-tag vg-tag-${m.g}">${m.g}</span>
+        <span class="vg-name">${q && matched ? highlight(m.n, q) : m.n}</span>
+        <span class="vg-rota">${m.r}</span>
+        <span class="vg-badge ${m.fixo?'badge-fixo':'badge-novo'}">${m.fixo?'●':'★'}</span>
+      </div>`;
+    }).join('');
+
+    card.innerHTML=`
+      <div class="vg-head" style="background:${cor}0a;">
+        <div style="display:flex;align-items:center;gap:10px;">
+          <div class="vg-letter" style="color:${cor};">${key}</div>
+          <div>
+            <div style="font-size:13px;font-weight:700;">Grupo ${key}</div>
+            <div style="font-size:10px;color:var(--muted2);margin-top:1px;">${novCount>0?`${novCount} novato${novCount>1?'s':''}`:''}</div>
+          </div>
+        </div>
+        <div class="vg-info">
+          <div class="vg-total" style="color:${cor};">${tot}</div>
+          <div class="vg-comp"><span style="color:var(--fem);">${fC}F</span> · <span style="color:var(--masc);">${mC}M</span></div>
+        </div>
+      </div>
+      <div class="vg-bar-row">
+        <span style="font-size:9px;color:var(--fem);">${fPct}%F</span>
+        <div class="vg-bar-track">
+          <div class="bar-f" style="width:${fPct}%"></div>
+          <div class="bar-m" style="width:${100-fPct}%"></div>
+        </div>
+        <span style="font-size:9px;color:var(--masc);">${100-fPct}%M</span>
+      </div>
+      <div class="vg-members">${rowsHtml||'<div class="empty">Vazio.</div>'}</div>
+      <div class="vg-foot">
+        <span class="vg-foot-stat">Fixos: <span>${members.filter(m=>m.fixo).length}</span></span>
+        <span class="vg-foot-stat">Novatos: <span style="color:var(--green);">${novCount}</span></span>
+        <span class="vg-foot-stat">Total: <span style="color:${cor};">${tot}</span></span>
+      </div>`;
+    grid.appendChild(card);
+  });
+}
+
+// ══ LOGIN ════════════════════════════════════
+function tentarLogin(){
+  const pwd=document.getElementById('login-pwd').value;
+  if(pwd===DB.pwd){showScreen('screen-admin');renderAll();}
+  else{const err=document.getElementById('login-err');err.style.display='block';setTimeout(()=>err.style.display='none',3000);}
+}
+
+function alterarSenha(){
+  const atual=document.getElementById('pwd-atual').value;
+  const nova=document.getElementById('pwd-nova').value;
+  const conf=document.getElementById('pwd-confirmar').value;
+  if(atual!==DB.pwd){toast('⚠️','Senha atual incorreta.');return;}
+  if(nova.length<4){toast('⚠️','Nova senha precisa ter pelo menos 4 caracteres.');return;}
+  if(nova!==conf){toast('⚠️','As senhas não coincidem.');return;}
+  DB.pwd=nova;saveDB();
+  document.getElementById('pwd-atual').value='';
+  document.getElementById('pwd-nova').value='';
+  document.getElementById('pwd-confirmar').value='';
+  toast('✅','Senha alterada com sucesso!');
+}
+
+// ══ VISÃO COLABORADOR ════════════════════════
+let acSelected=-1;
+function normalizar(s){return s.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toUpperCase();}
+
+function onColabInput(){
+  const val=document.getElementById('colab-input').value.trim();
+  const acList=document.getElementById('ac-list');
+  document.getElementById('colab-result').innerHTML='';
+  acSelected=-1;
+  if(val.length<3){acList.classList.remove('show');acList.innerHTML='';return;}
+  const q=normalizar(val);
+  const matches=todos().filter(m=>normalizar(m.n).includes(q)).slice(0,8);
+  if(!matches.length){acList.classList.remove('show');acList.innerHTML='';return;}
+  acList.innerHTML=matches.map((m,i)=>`<div class="ac-item" data-idx="${i}" onclick="selecionarColaborador('${m.n.replace(/'/g,"\\'")}','${m.grupo}')">${highlight(m.n,q)} <span style="color:var(--muted);font-size:11px;">— Grupo ${m.grupo}</span></div>`).join('');
+  acList.classList.add('show');
+}
+
+function highlight(nome,q){return nome.replace(new RegExp(q.replace(/[.*+?^${}()|[\]\\]/g,'\\$&'),'i'),s=>`<mark>${s}</mark>`);}
+
+function onColabKey(e){
+  const items=document.querySelectorAll('.ac-item');
+  if(e.key==='ArrowDown'){acSelected=Math.min(acSelected+1,items.length-1);items.forEach((el,i)=>el.style.background=i===acSelected?'rgba(255,230,0,0.07)':'');}
+  else if(e.key==='ArrowUp'){acSelected=Math.max(acSelected-1,0);items.forEach((el,i)=>el.style.background=i===acSelected?'rgba(255,230,0,0.07)':'');}
+  else if(e.key==='Enter'&&acSelected>=0){items[acSelected].click();}
+  else if(e.key==='Escape'){document.getElementById('ac-list').classList.remove('show');}
+}
+
+function selecionarColaborador(nome,grupo){
+  document.getElementById('colab-input').value=nome;
+  document.getElementById('ac-list').classList.remove('show');
+  const col=getAtivos(grupo).find(m=>m.n===nome);
+  if(!col){document.getElementById('colab-result').innerHTML=`<div class="colab-not-found"><div class="nf-icon">🔍</div><p>Colaborador não encontrado nos grupos ativos.</p></div>`;return;}
+  const cor=GROUP_COLORS[grupo];
+  const colegas=getAtivos(grupo).sort((a,b)=>a.n.localeCompare(b.n));
+  const fC=colegas.filter(x=>x.g==='F').length, mC=colegas.filter(x=>x.g==='M').length;
+  document.getElementById('colab-result').innerHTML=`
+    <div class="colab-card">
+      <div class="colab-card-banner" style="background:linear-gradient(135deg,${cor}18,${cor}06);">
+        <div class="group-big-letter" style="color:${cor};">${grupo}</div>
+        <div class="group-label" style="color:${cor};">Grupo ${grupo}</div>
+      </div>
+      <div class="colab-name">
+        <div class="cn-label">Você está aqui</div>
+        <div class="cn-nome">👤 ${nome}</div>
+      </div>
+      <div class="colab-meta">
+        <div class="meta-item"><div class="mi-lbl">Rota</div><div class="mi-val">${col.r}</div></div>
+        <div class="meta-item"><div class="mi-lbl">Empresa</div><div class="mi-val">${col.e}</div></div>
+        <div class="meta-item"><div class="mi-lbl">Total no grupo</div><div class="mi-val">${colegas.length} REPs</div></div>
+        <div class="meta-item"><div class="mi-lbl">Composição</div><div class="mi-val"><span style="color:var(--fem);">${fC}F</span> · <span style="color:var(--masc);">${mC}M</span></div></div>
+      </div>
+      <div class="colab-colegas">
+        <div class="cc-title">Todos do Grupo ${grupo}</div>
+        <div class="colega-list">
+          ${colegas.map(c=>`
+          <div class="colega-row ${c.n===nome?'destaque':''}">
+            <span class="cr-tag cr-${c.g}">${c.g}</span>
+            <span class="cr-nome">${c.n}</span>
+            ${c.n===nome?'<span class="cr-voce">← você</span>':''}
+          </div>`).join('')}
+        </div>
+      </div>
+    </div>`;
+}
+
+// ══ ADMIN: STATS ═════════════════════════════
+function renderStats(){
+  let tot=0,f=0,m=0,nov=0;
+  GROUPS.forEach(g=>{const a=getAtivos(g);tot+=a.length;f+=a.filter(x=>x.g==='F').length;m+=a.filter(x=>x.g==='M').length;nov+=DB.novatos.filter(n=>n.grupo===g&&n.ativo).length;});
+  const inat=DB.inativos.length+DB.novatos.filter(n=>!n.ativo).length;
+  document.getElementById('stat-row').innerHTML=`
+    <div class="stat-box"><div class="val val-y">${tot}</div><div class="lbl">Total Ativos</div></div>
+    <div class="stat-box"><div class="val val-f">${f}</div><div class="lbl">Feminino</div></div>
+    <div class="stat-box"><div class="val val-m">${m}</div><div class="lbl">Masculino</div></div>
+    <div class="stat-box"><div class="val val-g">${nov}</div><div class="lbl">Novatos</div></div>
+    <div class="stat-box"><div class="val val-r">${inat}</div><div class="lbl">Inativos</div></div>
+    ${GROUPS.map(g=>{const a=getAtivos(g),fC=a.filter(x=>x.g==='F').length,mC=a.filter(x=>x.g==='M').length;return`<div class="stat-box" style="border-color:${GROUP_COLORS[g]}33;"><div class="val" style="color:${GROUP_COLORS[g]};font-size:16px;">GRP ${g} <span style="font-size:20px;">${a.length}</span></div><div class="lbl" style="margin-top:4px;"><span style="color:var(--fem);">${fC}F</span> · <span style="color:var(--masc);">${mC}M</span></div></div>`;}).join('')}`;
+  const badge=document.getElementById('inativo-badge');
+  badge.style.display=inat>0?'inline':'none';if(inat>0)badge.textContent=inat;
+}
+
+// ══ ADMIN: GRUPOS ════════════════════════════
+function renderGroups(){
+  const grid=document.getElementById('groups-grid');grid.innerHTML='';
+  GROUPS.forEach(key=>{
+    const members=getAtivos(key).sort((a,b)=>a.n.localeCompare(b.n));
+    const fC=members.filter(m=>m.g==='F').length,mC=members.filter(m=>m.g==='M').length;
+    const tot=members.length,fPct=tot>0?Math.round(fC/tot*100):0;
+    const cor=GROUP_COLORS[key];
+    const card=document.createElement('div');card.className='gcard';
+    card.innerHTML=`
+      <div class="gcard-head" style="border-bottom-color:${cor}22;">
+        <div style="display:flex;align-items:center;">
+          <div class="gletter" style="color:${cor};">${key}</div>
+          <div class="gname">GRUPO ${key}</div>
+        </div>
+        <div class="gcount">${tot} REPs</div>
+      </div>
+      <div class="gbar-row">
+        <div class="bar-track"><div class="bar-f" style="width:${fPct}%"></div><div class="bar-m" style="width:${100-fPct}%"></div></div>
+        <div class="gleg"><span><span class="dot dot-f"></span>${fC}F</span><span><span class="dot dot-m"></span>${mC}M</span></div>
+      </div>
+      <div class="glist">
+        ${members.length===0?'<div class="empty">Grupo vazio.</div>':
+          members.map((m,i)=>`<div class="grow">
+            <span class="grow-num">${String(i+1).padStart(2,'0')}</span>
+            <span class="gtag gtag-${m.g}">${m.g}</span>
+            <span class="grow-name">${m.n}</span>
+            <span class="grow-rota">${m.r}</span>
+            <span class="grow-badge ${m.fixo?'badge-fixo':'badge-novo'}">${m.fixo?'●':'★'}</span>
+            <button class="inativo-btn" title="Inativar" onclick="inativar('${m.n.replace(/'/g,"\\'").replace(/"/g,'\\"')}','${key}',${m.fixo},${m.fixo?'null':`'${m.id}'`})">✕</button>
+          </div>`).join('')}
+      </div>`;
+    grid.appendChild(card);
+  });
+}
+
+// ══ ADMIN: INATIVOS ══════════════════════════
+function renderInativos(){
+  const list=document.getElementById('inativo-list');
+  const todos=[
+    ...DB.inativos.map(i=>({...i,tipo:'fixo'})),
+    ...DB.novatos.filter(n=>!n.ativo).map(n=>({nome:n.nome,grupo:n.grupo,genero:n.genero,id:n.id,tipo:'novato'}))
+  ].sort((a,b)=>a.nome.localeCompare(b.nome));
+  if(!todos.length){list.innerHTML='<div class="empty">Nenhum colaborador inativo.</div>';return;}
+  list.innerHTML=todos.map(i=>`<div class="inativo-row">
+    <span class="gtag gtag-${i.genero}">${i.genero}</span>
+    <span class="inativo-nome">${i.nome}</span>
+    <span style="font-size:10px;color:var(--muted);margin-right:4px;">GRP ${i.grupo}</span>
+    <span class="grow-badge ${i.tipo==='fixo'?'badge-fixo':'badge-novo'}" style="margin-right:8px;">${i.tipo==='fixo'?'●':'★'}</span>
+    <button class="reativar-btn" onclick="reativar('${i.nome.replace(/'/g,"\\'").replace(/"/g,'\\"')}','${i.grupo}','${i.tipo}',${i.tipo==='novato'?`'${i.id}'`:'null'})">Reativar</button>
+  </div>`).join('');
+}
+
+// ══ AÇÕES ADMIN ══════════════════════════════
+function inativar(nome,grupo,fixo,id){
+  if(!confirm(`Inativar "${nome}" do Grupo ${grupo}?`))return;
+  if(fixo){const gen=BASE_FIXA[grupo].find(m=>m.n===nome)?.g||'?';DB.inativos.push({nome,grupo,genero:gen});}
+  else{const n=DB.novatos.find(x=>x.id===id);if(n)n.ativo=false;}
+  saveDB();renderAll();toast('✅',`${nome} inativado.`);
+}
+
+function reativar(nome,grupo,tipo,id){
+  if(tipo==='fixo'){DB.inativos=DB.inativos.filter(i=>!(i.nome===nome&&i.grupo===grupo));}
+  else{const n=DB.novatos.find(x=>x.id===id);if(n)n.ativo=true;}
+  saveDB();renderAll();toast('🟢',`${nome} reativado no Grupo ${grupo}.`);
+}
+
+function limparInativosNovatos(){
+  const c=DB.novatos.filter(n=>!n.ativo).length;
+  if(!c){toast('ℹ️','Nenhum novato inativo.');return;}
+  if(!confirm(`Remover ${c} novato(s) inativo(s) permanentemente?`))return;
+  DB.novatos=DB.novatos.filter(n=>n.ativo);saveDB();renderAll();toast('🗑️',`${c} removido(s).`);
+}
+
+// ══ SUGESTÃO ═════════════════════════════════
+function sugerirGrupo(){
+  const nome=document.getElementById('inp-nome').value.trim();
+  const gen=document.getElementById('inp-genero').value;
+  const rota=document.getElementById('inp-rota').value.trim();
+  if(!nome){toast('⚠️','Digite o nome.');return;}
+  if(!gen){toast('⚠️','Selecione o gênero.');return;}
+  if(todos().some(m=>normalizar(m.n)===normalizar(nome))){toast('⚠️','Colaborador já está em um grupo ativo.');return;}
+  const counts=GROUPS.map(g=>({g,c:countG(g,gen),t:getAtivos(g).length}));
+  const minC=Math.min(...counts.map(x=>x.c));
+  const rec=counts.filter(x=>x.c===minC).sort((a,b)=>a.t-b.t)[0].g;
+  document.getElementById('suggestion-box').classList.add('show');
+  document.getElementById('sugg-options').innerHTML=GROUPS.map(g=>{
+    const c=counts.find(x=>x.g===g),isRec=g===rec;
+    return`<div class="sugg-chip ${isRec?'recommended':''}" onclick="adicionarNoGrupo('${g}','${nome}','${gen}','${rota}')">
+      <div class="sc-letter" style="color:${isRec?'var(--green)':GROUP_COLORS[g]};">${g}</div>
+      <div class="sc-info">${c.c}${gen} · ${c.t} total</div>
+      ${isRec?'<div class="sc-rec">✓ Recomendado</div>':''}
+    </div>`;
+  }).join('');
+}
+
+function adicionarNoGrupo(grupo,nome,genero,rota){
+  const empresa=document.getElementById('inp-empresa').value;
+  const id='nov_'+Date.now()+'_'+Math.random().toString(36).slice(2,6);
+  DB.novatos.push({id,nome,genero,rota:rota||'—',empresa,grupo,ativo:true,entrada:new Date().toLocaleDateString('pt-BR')});
+  saveDB();
+  document.getElementById('inp-nome').value='';
+  document.getElementById('inp-genero').value='';
+  document.getElementById('inp-rota').value='';
+  document.getElementById('suggestion-box').classList.remove('show');
+  renderAll();showAdminTab('grupos');toast('✅',`${nome} → Grupo ${grupo}!`);
+}
+
+// ══ EXPORT ═══════════════════════════════════
+function exportarTexto(){
+  let txt=`GRUPOS DE TRABALHO — SMG1 T2\n${new Date().toLocaleString('pt-BR')}\n${'─'.repeat(50)}\n\n`;
+  GROUPS.forEach(g=>{
+    const m=getAtivos(g).sort((a,b)=>a.n.localeCompare(b.n));
+    const fC=m.filter(x=>x.g==='F').length,mC=m.filter(x=>x.g==='M').length;
+    txt+=`GRUPO ${g}  |  ${m.length} REPs  (${fC}F / ${mC}M)\n`;
+    m.forEach((r,i)=>txt+=`  ${String(i+1).padStart(2,'0')}. [${r.g}] ${r.n}  —  Rota ${r.r}  ${r.fixo?'[FIXO]':'[NOVATO]'}\n`);
+    txt+='\n';
+  });
+  navigator.clipboard.writeText(txt).then(()=>toast('📋','Copiado para a área de transferência!'));
+}
+
+// ══ TABS ADMIN ═══════════════════════════════
+function showAdminTab(tab){
+  ['grupos','adicionar','inativos','senha'].forEach(t=>document.getElementById('atab-'+t).style.display='none');
+  document.querySelectorAll('.atab').forEach(el=>el.classList.remove('active'));
+  document.getElementById('atab-'+tab).style.display='block';
+  const idx={grupos:0,adicionar:1,inativos:2,senha:3};
+  document.querySelectorAll('.atab')[idx[tab]].classList.add('active');
+  if(tab==='inativos')renderInativos();
+}
+
+// ══ TOAST ════════════════════════════════════
+let toastTmr;
+function toast(icon,msg){
+  const el=document.getElementById('toast');
+  document.getElementById('toast-icon').textContent=icon;
+  document.getElementById('toast-msg').textContent=msg;
+  el.classList.add('show');clearTimeout(toastTmr);
+  toastTmr=setTimeout(()=>el.classList.remove('show'),3000);
+}
+
+function renderAll(){renderStats();renderGroups();renderInativos();}
+
+// INIT
+showScreen('screen-select');
+</script>
+</body>
+</html>
