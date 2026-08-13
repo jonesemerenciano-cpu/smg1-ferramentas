@@ -71,12 +71,12 @@ body{background:var(--dark);color:var(--text);font-family:'Inter',sans-serif;fon
 .colab-name .cn-label{font-size:10px;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);margin-bottom:4px;}
 .colab-name .cn-nome{font-size:15px;font-weight:600;}
 .colab-meta{padding:14px 28px;border-top:1px solid var(--border);display:flex;gap:20px;flex-wrap:wrap;}
-.meta-item{display:flex;flex-direction:column;gap:2px;}
-.meta-item .mi-lbl{font-size:10px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);}
-.meta-item .mi-val{font-size:12px;font-weight:600;}
+.meta-item{display:flex;flex-direction:column;gap:3px;}
+.meta-item .mi-lbl{font-size:10px;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);margin-bottom:1px;}
+.meta-item .mi-val{font-size:13px;font-weight:600;}
 .colab-colegas{padding:16px 28px;border-top:1px solid var(--border);}
 .colab-colegas .cc-title{font-size:11px;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);margin-bottom:10px;}
-.colega-list{display:flex;flex-direction:column;gap:4px;max-height:200px;overflow-y:auto;}
+.colega-list{display:flex;flex-direction:column;gap:4px;max-height:260px;overflow-y:auto;}
 .colega-row{display:flex;align-items:center;gap:8px;padding:5px 8px;border-radius:6px;}
 .colega-row.destaque{background:rgba(255,230,0,0.08);border:1px solid rgba(255,230,0,0.2);}
 .colega-row .cr-tag{font-size:9px;font-weight:700;border-radius:3px;padding:1px 5px;}
@@ -807,9 +807,10 @@ function selecionarColaborador(nome,grupo){
         <div class="cn-label">Você está aqui</div>
         <div class="cn-nome">👤 ${nome}</div>
       </div>
-      <div class="colab-meta">
-        <div class="meta-item"><div class="mi-lbl">Cargo</div><div class="mi-val" style="color:${cargoColor(col.c||'REP I')};font-weight:700;">${col.c||'REP I'}</div><div class="meta-item"><div class="mi-lbl">Rota</div><div class="mi-val">${col.r}</div></div>
-        <div class="meta-item"></div><div class="meta-item"><div class="mi-lbl">Empresa</div><div class="mi-val">${col.e}</div></div>
+      <div <div class="colab-meta">
+        <div class="meta-item"><div class="mi-lbl">Cargo</div><div class="mi-val" style="color:${cargoColor(col.c||'REP I')};font-weight:700;">${col.c||'REP I'}</div></div>
+        <div class="meta-item"><div class="mi-lbl">Rota</div><div class="mi-val">${col.r}</div></div>
+        <div class="meta-item"><div class="mi-lbl">Empresa</div><div class="mi-val">${col.e}</div></div>
         <div class="meta-item"><div class="mi-lbl">Total no grupo</div><div class="mi-val">${colegas.length} REPs</div></div>
         <div class="meta-item"><div class="mi-lbl">Composição</div><div class="mi-val"><span style="color:var(--fem);">${fC}F</span> · <span style="color:var(--masc);">${mC}M</span></div></div>
       </div>
