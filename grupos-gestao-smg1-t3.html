@@ -227,6 +227,63 @@ body{background:var(--dark);color:var(--text);font-family:'Inter',sans-serif;fon
 .vg-foot{padding:10px 18px;border-top:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;background:var(--mid);}
 .vg-foot-stat{font-size:10px;color:var(--muted2);}
 .vg-foot-stat span{font-weight:700;color:var(--text);}
+/* ── ESCALA ── */
+.mode-card.escala-card:hover{border-color:#BB86FC;}
+.escala-topbar{background:var(--mid);border-bottom:2px solid #BB86FC;padding:0 24px;display:flex;align-items:center;height:52px;gap:14px;}
+.escala-logo{background:#BB86FC;color:#000;font-family:'JetBrains Mono',monospace;font-weight:700;font-size:11px;padding:3px 10px;border-radius:4px;}
+.escala-filters{background:var(--mid);border-bottom:1px solid var(--border);padding:10px 24px;display:flex;gap:10px;align-items:center;flex-wrap:wrap;}
+.escala-stats{padding:12px 24px;display:flex;gap:10px;flex-wrap:wrap;border-bottom:1px solid var(--border);}
+.escala-stat-box{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:8px 14px;text-align:center;min-width:78px;}
+.escala-stat-box .esv{font-family:'JetBrains Mono',monospace;font-size:18px;font-weight:700;line-height:1;}
+.escala-stat-box .esl{font-size:9px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-top:3px;}
+.prox-wrap-e{padding:14px 24px;}
+.prox-title-e{font-size:11px;font-weight:600;color:var(--muted2);text-transform:uppercase;letter-spacing:.07em;margin-bottom:10px;}
+.prox-grid-e{display:flex;gap:8px;flex-wrap:wrap;}
+.prox-card-e{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:9px 12px;min-width:95px;text-align:center;}
+.prox-card-e.hoje-e{border-color:#BB86FC;background:rgba(187,134,252,0.06);}
+.prox-data-e{font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:700;margin-bottom:4px;}
+.prox-dia-e{font-size:9px;color:var(--muted);text-transform:uppercase;margin-bottom:6px;}
+.prox-time-row-e{display:flex;justify-content:space-between;align-items:center;gap:6px;font-size:10px;margin-bottom:2px;}
+.prox-badge-e{font-family:'JetBrains Mono',monospace;font-size:9px;font-weight:700;padding:1px 5px;border-radius:3px;}
+.resumo-grid-e{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px;padding:0 24px 14px;}
+.resumo-card-e{background:var(--card);border-radius:10px;overflow:hidden;}
+.resumo-head-e{padding:9px 13px;display:flex;align-items:center;justify-content:space-between;}
+.resumo-letra-e{font-family:'JetBrains Mono',monospace;font-size:20px;font-weight:800;}
+.resumo-body-e{padding:9px 13px;}
+.resumo-row-e{display:flex;justify-content:space-between;font-size:11px;margin-bottom:4px;}
+.resumo-row-e span:first-child{color:var(--muted2);}
+.resumo-row-e span:last-child{font-weight:600;font-family:'JetBrains Mono',monospace;}
+.cal-wrap-e{overflow-x:auto;padding:14px 24px 32px;}
+.cal-wrap-e::-webkit-scrollbar{height:5px;}
+.cal-wrap-e::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px;}
+.cal-table-e{border-collapse:collapse;min-width:max-content;}
+.eth-mes{font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700;color:#BB86FC;text-transform:uppercase;letter-spacing:.07em;padding:5px 8px;background:var(--mid);border:1px solid var(--border);text-align:center;}
+.eth-spacer{background:var(--dark);border:none;width:10px;}
+.eth-data{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--muted2);padding:3px 4px;text-align:center;border:1px solid var(--border);background:var(--mid);white-space:nowrap;min-width:36px;}
+.eth-data.fds-e{background:#222;}
+.eth-data.hoje-e{background:rgba(187,134,252,0.15);color:#BB86FC;font-weight:700;}
+.eth-dia{font-size:8px;color:var(--muted);padding:2px 4px;text-align:center;border:1px solid var(--border);background:var(--mid);}
+.eth-dia.fds-e{background:#222;}
+.eth-dia.hoje-e{color:#BB86FC;background:rgba(187,134,252,0.1);}
+.etd-time{font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;padding:8px 14px;text-align:center;border:1px solid var(--border);background:var(--card);white-space:nowrap;position:sticky;left:0;z-index:2;}
+.etd-turno{text-align:center;padding:7px 3px;border:1px solid var(--border);font-family:'JetBrains Mono',monospace;font-size:9px;font-weight:700;min-width:36px;cursor:default;}
+.etd-turno.eT{background:rgba(62,207,142,0.12);color:#3ECF8E;}
+.etd-turno.eDSR{background:rgba(255,82,82,0.08);color:#FF5252;}
+.etd-turno.fds-e.eT{background:rgba(62,207,142,0.05);}
+.etd-turno.fds-e.eDSR{background:rgba(255,82,82,0.04);}
+.etd-turno.hoje-e{outline:2px solid #BB86FC;outline-offset:-2px;}
+.escala-legenda{padding:10px 24px;display:flex;gap:16px;flex-wrap:wrap;align-items:center;background:var(--mid);border-top:1px solid var(--border);}
+.escala-leg-item{display:flex;align-items:center;gap:5px;font-size:11px;}
+.escala-leg-box{width:22px;height:14px;border-radius:3px;display:flex;align-items:center;justify-content:center;font-size:7px;font-weight:700;font-family:'JetBrains Mono',monospace;}
+.btn-escala-filter{background:var(--card);border:1px solid var(--border2);color:var(--muted2);border-radius:6px;padding:4px 12px;font-size:11px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;transition:all .15s;}
+.btn-escala-filter:hover{border-color:var(--text);color:var(--text);}
+.btn-escala-filter.ea{background:var(--A);color:#000;border-color:var(--A);}
+.btn-escala-filter.eb{background:var(--B);color:#000;border-color:var(--B);}
+.btn-escala-filter.ec{background:var(--C);color:#000;border-color:var(--C);}
+.btn-escala-filter.ed{background:var(--D);color:#000;border-color:var(--D);}
+.btn-escala-filter.eall{background:#BB86FC;color:#000;border-color:#BB86FC;}
+.today-btn-e{background:var(--card);border:1px solid #BB86FC;color:#BB86FC;border-radius:6px;padding:4px 12px;font-size:11px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;transition:all .15s;}
+.today-btn-e:hover{background:#BB86FC;color:#000;}
 </style>
 </head>
 <body>
@@ -250,6 +307,11 @@ body{background:var(--dark);color:var(--text);font-family:'Inter',sans-serif;fon
         <div class="mc-icon">📋</div>
         <div class="mc-title">Visão Geral</div>
         <div class="mc-desc">Veja todos os grupos lado a lado com composição completa de cada um.</div>
+      </div>
+      <div class="mode-card escala-card" onclick="goEscala()">
+        <div class="mc-icon">📅</div>
+        <div class="mc-title">Escala Rotativa</div>
+        <div class="mc-desc">Consulte os dias de trabalho e DSR de cada time de 02/08 a 24/10.</div>
       </div>
       <div class="mode-card admin-card" onclick="goLogin()">
         <div class="mc-icon">🔐</div>
@@ -292,6 +354,65 @@ body{background:var(--dark);color:var(--text);font-family:'Inter',sans-serif;fon
   </div>
   <!-- Grid dos grupos -->
   <div style="padding:16px 28px 28px;display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px;" id="visao-grid"></div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     TELA: ESCALA ROTATIVA
+══════════════════════════════════════════ -->
+<div class="screen" id="screen-escala">
+  <div class="escala-topbar">
+    <div class="escala-logo">SMG1 · T1</div>
+    <span style="font-size:14px;font-weight:600;">Escala Rotativa</span>
+    <span style="font-size:11px;color:var(--muted2);">02/08 a 24/10/2025</span>
+    <div style="margin-left:auto;display:flex;gap:8px;align-items:center;">
+      <button class="today-btn-e" onclick="escalaoHoje()">📅 Hoje</button>
+      <button class="back-btn" onclick="goSelect()">← Voltar</button>
+    </div>
+  </div>
+
+  <!-- Filtros -->
+  <div class="escala-filters">
+    <span style="font-size:10px;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);">Times:</span>
+    <button class="btn-escala-filter eall" id="ebt-all" onclick="escalaFiltrar('all')">Todos</button>
+    <button class="btn-escala-filter" id="ebt-A" onclick="escalaFiltrar('A')">Time A</button>
+    <button class="btn-escala-filter" id="ebt-B" onclick="escalaFiltrar('B')">Time B</button>
+    <button class="btn-escala-filter" id="ebt-C" onclick="escalaFiltrar('C')">Time C</button>
+    <button class="btn-escala-filter" id="ebt-D" onclick="escalaFiltrar('D')">Time D</button>
+    <span style="font-size:10px;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);margin-left:12px;">Mês:</span>
+    <button class="btn-escala-filter" onclick="escalaMes('08')">Agosto</button>
+    <button class="btn-escala-filter" onclick="escalaMes('09')">Setembro</button>
+    <button class="btn-escala-filter" onclick="escalaMes('10')">Outubro</button>
+  </div>
+
+  <!-- Stats hoje -->
+  <div class="escala-stats" id="escala-stats"></div>
+
+  <!-- Próximos 7 dias -->
+  <div class="prox-wrap-e">
+    <div class="prox-title-e">📅 Próximos 7 dias</div>
+    <div class="prox-grid-e" id="escala-prox"></div>
+  </div>
+
+  <!-- Resumo por time -->
+  <div class="resumo-grid-e" id="escala-resumo"></div>
+
+  <!-- Calendário -->
+  <div class="cal-wrap-e">
+    <table class="cal-table-e" id="escala-cal"></table>
+  </div>
+
+  <!-- Legenda -->
+  <div class="escala-legenda">
+    <span style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;">Legenda:</span>
+    <div class="escala-leg-item"><div class="escala-leg-box" style="background:rgba(62,207,142,0.15);color:#3ECF8E;">T</div><span style="color:#3ECF8E;">Trabalhando</span></div>
+    <div class="escala-leg-item"><div class="escala-leg-box" style="background:rgba(255,82,82,0.12);color:#FF5252;">DSR</div><span style="color:#FF5252;">Descanso</span></div>
+    <div class="escala-leg-item"><div class="escala-leg-box" style="background:rgba(187,134,252,0.2);color:#BB86FC;">★</div><span style="color:#BB86FC;">Hoje</span></div>
+    <span style="margin-left:12px;font-size:10px;color:var(--muted);">Grupos:</span>
+    <div class="escala-leg-item"><div class="escala-leg-box" style="background:#FFE60020;color:#FFE600;border:1px solid #FFE60040;">A</div><span>Time A</span></div>
+    <div class="escala-leg-item"><div class="escala-leg-box" style="background:#3ECF8E20;color:#3ECF8E;border:1px solid #3ECF8E40;">B</div><span>Time B</span></div>
+    <div class="escala-leg-item"><div class="escala-leg-box" style="background:#4DA6FF20;color:#4DA6FF;border:1px solid #4DA6FF40;">C</div><span>Time C</span></div>
+    <div class="escala-leg-item"><div class="escala-leg-box" style="background:#FF6B9D20;color:#FF6B9D;border:1px solid #FF6B9D40;">D</div><span>Time D</span></div>
+  </div>
 </div>
 
 <!-- ══════════════════════════════════════════
@@ -587,7 +708,7 @@ const BASE_FIXA = {
   ],
 }
 const GROUPS=['A','B','C','D'];
-const STORAGE_KEY='smg1_grupos_t3_v2';
+const STORAGE_KEY='smg1_grupos_t3_v3';
 const GROUP_COLORS={A:'#FFE600',B:'#3ECF8E',C:'#4DA6FF',D:'#FF6B9D'};
 const DEFAULT_PWD='smg1t3admin';
 
@@ -953,6 +1074,185 @@ function toast(icon,msg){
 }
 
 function renderAll(){renderStats();renderGroups();renderInativos();}
+
+// ══ ESCALA ROTATIVA ══════════════════════
+const E_DATAS=['02/08','03/08','04/08','05/08','06/08','07/08','08/08','09/08','10/08','11/08','12/08','13/08','14/08','15/08','16/08','17/08','18/08','19/08','20/08','21/08','22/08','23/08','24/08','25/08','26/08','27/08','28/08','29/08','30/08','31/08','01/09','02/09','03/09','04/09','05/09','06/09','07/09','08/09','09/09','10/09','11/09','12/09','13/09','14/09','15/09','16/09','17/09','18/09','19/09','20/09','21/09','22/09','23/09','24/09','25/09','26/09','27/09','28/09','29/09','30/09','01/10','02/10','03/10','04/10','05/10','06/10','07/10','08/10','09/10','10/10','11/10','12/10','13/10','14/10','15/10','16/10','17/10','18/10','19/10','20/10','21/10','22/10','23/10','24/10'];
+const E_DIAS=['Dom','Seg','Ter','Qua','Qui','Sex','Sáb','Dom','Seg','Ter','Qua','Qui','Sex','Sáb','Dom','Seg','Ter','Qua','Qui','Sex','Sáb','Dom','Seg','Ter','Qua','Qui','Sex','Sáb','Dom','Seg','Ter','Qua','Qui','Sex','Sáb','Dom','Seg','Ter','Qua','Qui','Sex','Sáb','Dom','Seg','Ter','Qua','Qui','Sex','Sáb','Dom','Seg','Ter','Qua','Qui','Sex','Sáb','Dom','Seg','Ter','Qua','Qui','Sex','Sáb','Dom','Seg','Ter','Qua','Qui','Sex','Sáb','Dom','Seg','Ter','Qua','Qui','Sex','Sáb','Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
+const E_ESCALA={
+  A:['DSR','DSR','T','T','T','DSR','T','T','T','T','DSR','DSR','T','T','T','T','DSR','T','T','T','T','DSR','T','T','T','T','T','DSR','DSR','DSR','T','T','T','DSR','T','T','T','T','DSR','DSR','T','T','T','T','DSR','T','T','T','T','DSR','T','T','T','T','T','DSR','DSR','DSR','T','T','T','DSR','T','T','T','T','DSR','DSR','T','T','T','T','DSR','T','T','T','T','DSR','T','T','T','T','T','DSR'],
+  B:['DSR','T','T','T','T','T','DSR','DSR','DSR','T','T','T','DSR','T','T','T','T','DSR','DSR','T','T','T','T','DSR','T','T','T','T','T','T','T','T','T','T','DSR','DSR','DSR','T','T','T','DSR','T','T','T','T','DSR','DSR','T','T','T','T','DSR','T','T','T','T','DSR','T','T','T','T','T','DSR','DSR','DSR','T','T','T','DSR','T','T','T','T','DSR','DSR','T','T','T','T','DSR','T','T','T','T'],
+  C:['T','T','DSR','T','T','T','T','DSR','T','T','T','T','T','DSR','DSR','DSR','T','T','T','DSR','T','T','T','T','DSR','DSR','T','T','T','T','DSR','T','T','T','T','DSR','T','T','T','T','T','DSR','DSR','DSR','T','T','T','DSR','T','T','T','T','DSR','DSR','T','T','T','T','DSR','T','T','T','T','DSR','T','T','T','T','T','DSR','DSR','DSR','T','T','T','DSR','T','T','T','T','DSR','DSR','T','T'],
+  D:['T','T','T','DSR','DSR','T','T','T','T','DSR','T','T','T','T','DSR','T','T','T','T','T','DSR','DSR','DSR','T','T','T','DSR','T','T','T','T','DSR','DSR','T','T','T','T','DSR','T','T','T','T','DSR','T','T','T','T','T','DSR','DSR','DSR','T','T','T','DSR','T','T','T','T','DSR','DSR','T','T','T','T','DSR','T','T','T','T','DSR','T','T','T','T','T','DSR','DSR','DSR','T','T','T','DSR','T'],
+};
+const E_TIMES=['A','B','C','D'];
+const E_COR={A:'#FFE600',B:'#3ECF8E',C:'#4DA6FF',D:'#FF6B9D'};
+const E_FDS=['Dom','Sáb'];
+const E_NOMES_MES={'08':'Agosto 2025','09':'Setembro 2025','10':'Outubro 2025'};
+let escalafiltro='all';
+
+function eHojeIdx(){
+  const h=new Date();
+  const s=`${String(h.getDate()).padStart(2,'0')}/${String(h.getMonth()+1).padStart(2,'0')}`;
+  return E_DATAS.indexOf(s);
+}
+
+function goEscala(){
+  showScreen('screen-escala');
+  renderEscalaAll();
+  setTimeout(()=>escalaoHoje(),400);
+}
+
+function renderEscalaAll(){
+  renderEscalaStats();
+  renderEscalaProx();
+  renderEscalaResumo();
+  renderEscalaCal();
+}
+
+function renderEscalaStats(){
+  const hi=eHojeIdx();
+  let h='';
+  if(hi>=0){
+    h+=`<div class="escala-stat-box"><div class="esv" style="color:#BB86FC;">${E_DATAS[hi]}</div><div class="esl">Hoje · ${E_DIAS[hi]}</div></div>`;
+    E_TIMES.forEach(t=>{
+      const s=E_ESCALA[t][hi];
+      const c=s==='T'?'#3ECF8E':'#FF5252';
+      h+=`<div class="escala-stat-box" style="border-color:${E_COR[t]}33;"><div class="esv" style="color:${c};">${s}</div><div class="esl" style="color:${E_COR[t]};">Time ${t}</div></div>`;
+    });
+    h+=`<div style="width:1px;background:var(--border);margin:0 4px;"></div>`;
+  }
+  const mesH=hi>=0?E_DATAS[hi].slice(3):'08';
+  E_TIMES.forEach(t=>{
+    const dt=E_DATAS.filter((d,i)=>d.endsWith('/'+mesH)&&E_ESCALA[t][i]==='T').length;
+    h+=`<div class="escala-stat-box"><div class="esv" style="color:${E_COR[t]};">${dt}</div><div class="esl">Dias T — Time ${t}</div></div>`;
+  });
+  document.getElementById('escala-stats').innerHTML=h;
+}
+
+function renderEscalaProx(){
+  const hi=eHojeIdx();
+  if(hi<0){document.getElementById('escala-prox').innerHTML='<span style="color:var(--muted);font-size:12px;">Período não ativo.</span>';return;}
+  let h='';
+  for(let i=hi;i<Math.min(hi+7,E_DATAS.length);i++){
+    const hoje=i===hi;
+    h+=`<div class="prox-card-e ${hoje?'hoje-e':''}">
+      <div class="prox-data-e" style="color:${hoje?'#BB86FC':'var(--text)'};">${E_DATAS[i]}${hoje?' ★':''}</div>
+      <div class="prox-dia-e">${E_DIAS[i]}</div>
+      <div>`;
+    E_TIMES.forEach(t=>{
+      if(escalafiltro!=='all'&&escalafiltro!==t)return;
+      const s=E_ESCALA[t][i];const c=s==='T'?'#3ECF8E':'#FF5252';
+      h+=`<div class="prox-time-row-e"><span style="color:${E_COR[t]};font-weight:700;">Time ${t}</span><span class="prox-badge-e" style="background:${c}22;color:${c};">${s}</span></div>`;
+    });
+    h+=`</div></div>`;
+  }
+  document.getElementById('escala-prox').innerHTML=h;
+}
+
+function renderEscalaResumo(){
+  const hi=eHojeIdx();
+  const mesH=hi>=0?E_DATAS[hi].slice(3):'08';
+  const nmMes={'08':'Agosto','09':'Setembro','10':'Outubro'};
+  let h='';
+  E_TIMES.forEach(t=>{
+    if(escalafiltro!=='all'&&escalafiltro!==t)return;
+    const dt=E_DATAS.filter((d,i)=>d.endsWith('/'+mesH)&&E_ESCALA[t][i]==='T').length;
+    const dd=E_DATAS.filter((d,i)=>d.endsWith('/'+mesH)&&E_ESCALA[t][i]==='DSR').length;
+    const pT=hi>=0?E_DATAS.slice(hi).findIndex((_,i)=>E_ESCALA[t][hi+i]==='T'):-1;
+    const pD=hi>=0?E_DATAS.slice(hi).findIndex((_,i)=>E_ESCALA[t][hi+i]==='DSR'):-1;
+    const statusHoje=hi>=0?E_ESCALA[t][hi]:'—';
+    const cHoje=statusHoje==='T'?'#3ECF8E':statusHoje==='DSR'?'#FF5252':'var(--muted)';
+    h+=`<div class="resumo-card-e" style="border-top:3px solid ${E_COR[t]};">
+      <div class="resumo-head-e" style="background:${E_COR[t]}11;">
+        <div><div class="resumo-letra-e" style="color:${E_COR[t]};">${t}</div><div style="font-size:11px;font-weight:600;">Time ${t}</div></div>
+        <div style="text-align:right;"><div style="font-family:'JetBrains Mono',monospace;font-size:18px;font-weight:800;color:${E_COR[t]};">${dt}</div><div style="font-size:9px;color:var(--muted);">dias T — ${nmMes[mesH]||mesH}</div></div>
+      </div>
+      <div class="resumo-body-e">
+        <div class="resumo-row-e"><span>Dias DSR no mês</span><span style="color:#FF5252;">${dd}</span></div>
+        <div class="resumo-row-e"><span>Próximo T</span><span style="color:#3ECF8E;">${pT>=0?E_DATAS[hi+pT]:'—'}</span></div>
+        <div class="resumo-row-e"><span>Próximo DSR</span><span style="color:#FF5252;">${pD>=0?E_DATAS[hi+pD]:'—'}</span></div>
+        <div class="resumo-row-e"><span>Hoje</span><span style="color:${cHoje};">${statusHoje}</span></div>
+      </div>
+    </div>`;
+  });
+  document.getElementById('escala-resumo').innerHTML=h;
+}
+
+function renderEscalaCal(){
+  const hi=eHojeIdx();
+  const tv=escalafiltro==='all'?E_TIMES:[escalafiltro];
+  // Agrupar meses em ordem correta
+  const mesOrdem=['08','09','10'];
+  const meses={};
+  E_DATAS.forEach((d,i)=>{const m=d.slice(3);if(!meses[m])meses[m]=[];meses[m].push(i);});
+  let h='';
+  // Header meses — ordem garantida
+  h+='<tr><th style="background:var(--dark);border:none;min-width:80px;"></th>';
+  mesOrdem.forEach(m=>{
+    if(!meses[m])return;
+    h+=`<th class="eth-mes" colspan="${meses[m].length}">${E_NOMES_MES[m]||m}</th><th class="eth-spacer"></th>`;
+  });
+  h+='</tr>';
+  // Header datas
+  h+='<tr><th class="eth-data" style="text-align:left;padding-left:8px;font-size:9px;color:var(--muted);">TIME</th>';
+  E_DATAS.forEach((d,i)=>{
+    if(i>0&&d.slice(3)!==E_DATAS[i-1].slice(3))h+='<th class="eth-spacer"></th>';
+    const fds=E_FDS.includes(E_DIAS[i]);
+    const hj=i===hi;
+    h+=`<th class="eth-data${fds?' fds-e':''}${hj?' hoje-e':''}">${d}</th>`;
+  });
+  h+='</tr>';
+  // Header dias
+  h+='<tr><th class="eth-dia"></th>';
+  E_DATAS.forEach((d,i)=>{
+    if(i>0&&d.slice(3)!==E_DATAS[i-1].slice(3))h+='<th class="eth-spacer"></th>';
+    const fds=E_FDS.includes(E_DIAS[i]);const hj=i===hi;
+    h+=`<th class="eth-dia${fds?' fds-e':''}${hj?' hoje-e':''}">${E_DIAS[i]}</th>`;
+  });
+  h+='</tr>';
+  // Linhas dos times
+  tv.forEach(t=>{
+    h+=`<tr><td class="etd-time" style="border-left:3px solid ${E_COR[t]};color:${E_COR[t]};">Time ${t}</td>`;
+    E_DATAS.forEach((d,i)=>{
+      if(i>0&&d.slice(3)!==E_DATAS[i-1].slice(3))h+='<td style="background:var(--dark);border:none;width:10px;"></td>';
+      const s=E_ESCALA[t][i];
+      const fds=E_FDS.includes(E_DIAS[i]);const hj=i===hi;
+      h+=`<td class="etd-turno e${s}${fds?' fds-e':''}${hj?' hoje-e':''}" title="${d} (${E_DIAS[i]}) — Time ${t}: ${s}">${s}</td>`;
+    });
+    h+='</tr>';
+  });
+  document.getElementById('escala-cal').innerHTML=h;
+}
+
+function escalaFiltrar(t){
+  escalafiltro=t;
+  const mapa={all:'eall',A:'ea',B:'eb',C:'ec',D:'ed'};
+  document.querySelectorAll('.btn-escala-filter').forEach(b=>{
+    if(['eall','ea','eb','ec','ed'].some(c=>b.classList.contains(c))){
+      ['eall','ea','eb','ec','ed'].forEach(c=>b.classList.remove(c));
+    }
+  });
+  const btn=document.getElementById('ebt-'+t);
+  if(btn)btn.classList.add(mapa[t]);
+  renderEscalaProx();renderEscalaResumo();renderEscalaCal();
+}
+
+function escalaoHoje(){
+  const hi=eHojeIdx();
+  if(hi<0){toast('⚠️','Hoje não está no período da escala.');return;}
+  const cells=document.querySelectorAll('.etd-turno.hoje-e,.eth-data.hoje-e');
+  if(cells.length>0)cells[0].scrollIntoView({behavior:'smooth',block:'nearest',inline:'center'});
+  toast('📅',`Hoje: ${E_DATAS[hi]} (${E_DIAS[hi]})`);
+}
+
+function escalaMes(m){
+  const idx=E_DATAS.findIndex(d=>d.endsWith('/'+m));
+  if(idx<0)return;
+  setTimeout(()=>{
+    const all=document.querySelectorAll('.cal-table-e .eth-data');
+    if(all[idx])all[idx].scrollIntoView({behavior:'smooth',inline:'start'});
+  },100);
+}
 
 // INIT
 showScreen('screen-select');
