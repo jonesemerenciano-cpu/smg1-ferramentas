@@ -280,6 +280,17 @@ body{background:var(--dark);color:var(--text);font-family:'Inter',sans-serif;fon
   <!-- Stats rápidas -->
   <div style="padding:16px 28px 0;display:flex;gap:10px;flex-wrap:wrap;" id="visao-stats"></div>
 
+
+  <div style="padding:0 28px 10px;display:flex;gap:14px;flex-wrap:wrap;align-items:center;">
+    <span style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;">Cargos:</span>
+    <span style="font-size:11px;color:#E8722A;font-weight:700;">● OPL 3</span>
+    <span style="font-size:11px;color:#3ECF8E;font-weight:700;">● OPL 2</span>
+    <span style="font-size:11px;color:#FFE600;font-weight:700;">● REP II</span>
+    <span style="font-size:11px;color:#BB86FC;font-weight:700;">⏳ Temporário</span>
+    <span style="font-size:11px;color:var(--text);">● REP I</span>
+    <span style="font-size:11px;color:var(--fem);">● Feminino</span>
+    <span style="font-size:11px;color:var(--masc);">● Masculino</span>
+  </div>
   <!-- Grid dos grupos -->
   <div style="padding:16px 28px 28px;display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px;" id="visao-grid"></div>
 </div>
@@ -347,7 +358,18 @@ body{background:var(--dark);color:var(--text);font-family:'Inter',sans-serif;fon
 
   <div class="admin-content" id="atab-grupos">
     <div class="stat-row" id="stat-row"></div>
-    <div class="groups-grid" id="groups-grid"></div>
+    <div style="display:flex;gap:12px;flex-wrap:wrap;align-items:center;margin-bottom:16px;background:var(--card);border:1px solid var(--border);border-radius:8px;padding:10px 16px;">
+    <span style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;">Cargos:</span>
+    <span style="font-size:11px;color:#E8722A;font-weight:700;">● OPL 3</span>
+    <span style="font-size:11px;color:#3ECF8E;font-weight:700;">● OPL 2</span>
+    <span style="font-size:11px;color:#FFE600;font-weight:700;">● REP II</span>
+    <span style="font-size:11px;color:#BB86FC;font-weight:700;">⏳ Temporário</span>
+    <span style="font-size:11px;color:var(--text);">● REP I</span>
+    <span style="font-size:11px;color:var(--fem);">● F</span>
+    <span style="font-size:11px;color:var(--masc);">● M</span>
+    <span style="font-size:9px;color:var(--muted);">● = Fixo &nbsp; ★ = Novato</span>
+  </div>
+  <div class="groups-grid" id="groups-grid"></div>
   </div>
 
   <div class="admin-content" id="atab-adicionar" style="display:none;max-width:680px;">
@@ -368,6 +390,16 @@ body{background:var(--dark);color:var(--text);font-family:'Inter',sans-serif;fon
         </div>
       </div>
       <div class="form-row">
+        <div class="form-field">
+          <label>Cargo</label>
+          <select id="inp-cargo" style="background:var(--mid);border:1px solid var(--border2);color:var(--text);border-radius:7px;padding:8px 12px;font-size:12px;font-family:'Inter',sans-serif;outline:none;">
+            <option value="REP I">REP I</option>
+            <option value="REP II">REP II</option>
+            <option value="OPL 2">OPL 2</option>
+            <option value="OPL 3">OPL 3</option>
+            <option value="TEMPORARIO">⏳ Temporário</option>
+          </select>
+        </div>
         <div class="form-field">
           <label>Rota</label>
           <input type="text" id="inp-rota" placeholder="Ex: 15, 16EX, 100" oninput="this.value=this.value.toUpperCase()">
@@ -446,129 +478,147 @@ body{background:var(--dark);color:var(--text);font-family:'Inter',sans-serif;fon
 // ══════════════════════════════════════════════════
 const BASE_FIXA = {
   A:[
-    {n:"ANDRESSA ISOLANI CAMILO DOS SANTOS",g:"F",r:"26",e:"MELI"},
-    {n:"CLAUDILENE DOS SANTOS ALVES",g:"F",r:"26",e:"MELI"},
-    {n:"DARDANE KELLY DOS SANTOS",g:"F",r:"26",e:"MELI"},
-    {n:"DIEGO GABRIEL SOUZA NASCIMENTO",g:"M",r:"15",e:"MELI"},
-    {n:"EDUARDO OLIVEIRA DE LANA",g:"M",r:"16",e:"MELI"},
-    {n:"FABIANA PEREIRA ROCHA",g:"F",r:"16",e:"MELI"},
-    {n:"GABRIELLA CIRILO",g:"F",r:"15",e:"RANDSTAD"},
-    {n:"GUILHERME DE JESUS PORTO",g:"M",r:"26",e:"MELI"},
-    {n:"GUILHERME OLIVEIRA DUARTE",g:"M",r:"16",e:"MELI"},
-    {n:"GUILHERME RODRIGUES MARTINS SOARES",g:"M",r:"18EX",e:"MELI"},
-    {n:"INGRID DE ARAUJO MARTINS BATISTA",g:"F",r:"18EX",e:"MELI"},
-    {n:"IZABELLY EDUARDA DA SILVA CORDEIRO",g:"F",r:"18",e:"MELI"},
-    {n:"JESSICA OLIVEIRA DA SILVA BRITO",g:"F",r:"15",e:"MELI"},
-    {n:"JOAO PAULO LUIZ VALADARES DA SILVA",g:"M",r:"16",e:"MELI"},
-    {n:"JOSE APARECIDO DE JESUS",g:"M",r:"16",e:"MELI"},
-    {n:"LIDIANA MEIRELES BURI",g:"F",r:"18",e:"MELI"},
-    {n:"LORENA EMANUELE LUIZA GOMES DOS SANTOS",g:"F",r:"100",e:"MELI"},
-    {n:"LUIZ INACIO SANTOS ARAUJO",g:"M",r:"18EX",e:"MELI"},
-    {n:"MARCIA FERREIRA DOS SANTOS",g:"F",r:"26",e:"MELI"},
-    {n:"MARIA DENISLANE SANTOS BATISTA DE SOUSA",g:"F",r:"15",e:"MELI"},
-    {n:"MARLON FERREIRA BARBOSA",g:"M",r:"15EX",e:"MELI"},
-    {n:"OMAR JOSE GOMEZ RUBIO",g:"M",r:"15",e:"MELI"},
-    {n:"PAULO SERGIO PEREIRA",g:"M",r:"26",e:"MELI"},
-    {n:"POLIANA MENDES DE PAULA",g:"F",r:"18",e:"MELI"},
-    {n:"RAMON FELIPE MEIRA ANTUNES",g:"M",r:"15",e:"MELI"},
-    {n:"RENATA GUIMARAES DE ALMEIDA",g:"F",r:"26",e:"MELI"},
-    {n:"VANESSA DANTAS DOS SANTOS",g:"F",r:"15",e:"MELI"},
-    {n:"VANESSA PAES LANDIM",g:"F",r:"16",e:"MELI"},
-    {n:"VITORIA GOMES VIEIRA",g:"F",r:"18",e:"MELI"},
+    {n:"BRUNO CARDOSO GAMA",g:"M",r:"18",e:"MELI",c:"OPL 3"},
+    {n:"KETLEY LORRAYNE DE SOUZA SANTOS",g:"F",r:"15",e:"MELI",c:"OPL 2"},
+    {n:"ILMARA DOS SANTOS SOUSA FELIZARDO",g:"F",r:"15",e:"MELI",c:"REP II"},
+    {n:"REGINA APARECIDA SOUZA SILVA",g:"F",r:"15",e:"MELI",c:"REP II"},
+    {n:"CARLOS HENRIQUE SILVA",g:"M",r:"15",e:"MELI",c:"REP II"},
+    {n:"ANDRESSA ISOLANI CAMILO DOS SANTOS",g:"F",r:"26",e:"MELI",c:"REP I"},
+    {n:"BARBARA RODRIGUES SANTIAGO",g:"F",r:"15",e:"MELI",c:"REP I"},
+    {n:"DANIELE LOPES BARBOSA",g:"F",r:"16EX",e:"MELI",c:"REP I"},
+    {n:"FABIANA LIMA DE OLIVEIRA",g:"F",r:"16",e:"MELI",c:"REP I"},
+    {n:"GABRIELLA CIRILO",g:"F",r:"15",e:"RANDSTAD",c:"TEMPORARIO"},
+    {n:"HARIEL HELENA DE ARAUJO",g:"F",r:"16EX",e:"MELI",c:"REP I"},
+    {n:"ISABELLE RAMOS DE OLIVEIRA",g:"F",r:"15",e:"MELI",c:"REP I"},
+    {n:"IZABELLY EDUARDA DA SILVA CORDEIRO",g:"F",r:"18",e:"MELI",c:"REP I"},
+    {n:"JHULLY YASMIM DE SOUZA DAMASCENO",g:"F",r:"100",e:"MELI",c:"REP I"},
+    {n:"KAILAYNE VITORIA BARROSO TEIXEIRA",g:"F",r:"15EX",e:"MELI",c:"REP I"},
+    {n:"LEIA JOANNA DOS SANTOS",g:"F",r:"18",e:"MELI",c:"REP I"},
+    {n:"MARA DO CARMO DA SILVA",g:"F",r:"16EX",e:"MELI",c:"REP I"},
+    {n:"MARIA DENISLANE SANTOS BATISTA DE SOUSA",g:"F",r:"15",e:"MELI",c:"REP I"},
+    {n:"MICHELE DO NASCIMENTO COSTA",g:"F",r:"26",e:"MELI",c:"REP I"},
+    {n:"RENATA GUIMARAES DE ALMEIDA",g:"F",r:"26",e:"MELI",c:"REP I"},
+    {n:"SABRINA DA SILVA PURCINO CASTRO",g:"F",r:"26",e:"RANDSTAD",c:"TEMPORARIO"},
+    {n:"STEFANE VITORIA DOS ANJOS SILVA",g:"F",r:"15",e:"MELI",c:"REP I"},
+    {n:"VALDEENE DAS GRACAS PEREIRA DOS SANTOS",g:"F",r:"15",e:"MELI",c:"REP I"},
+    {n:"VERONICA REGINA ALVES DA SILVA",g:"F",r:"15",e:"MELI",c:"REP I"},
+    {n:"ALEXANDRE MOISES SILVA DOMINGOS",g:"M",r:"15",e:"MELI",c:"REP I"},
+    {n:"CARLOS HENRIQUE DA SILVA",g:"M",r:"18EX",e:"MELI",c:"REP I"},
+    {n:"DIEGO GABRIEL SOUZA NASCIMENTO",g:"M",r:"15",e:"MELI",c:"REP I"},
+    {n:"GUILHERME OLIVEIRA DUARTE",g:"M",r:"16",e:"MELI",c:"REP I"},
+    {n:"JOÃO MIGUEL CAMPOS SOARES",g:"M",r:"18",e:"MELI",c:"REP I"},
+    {n:"LUCAS AUGUSTO DOLARIS",g:"M",r:"16EX",e:"MELI",c:"REP I"},
+    {n:"PAULO SERGIO PEREIRA",g:"M",r:"26",e:"MELI",c:"REP I"},
+    {n:"RAMON FELIPE MEIRA ANTUNES",g:"M",r:"15",e:"MELI",c:"REP I"},
+    {n:"WALISSON DOS SANTOS DANTAS",g:"M",r:"16",e:"MELI",c:"REP I"},
   ],
   B:[
-    {n:"ALEXANDRE MOISES SILVA DOMINGOS",g:"M",r:"15",e:"MELI"},
-    {n:"ANNA CAROLINE DE AQUINO",g:"F",r:"18EX",e:"MELI"},
-    {n:"CARLOS BERNARDO FERNANDES GOMES DA SILVA",g:"M",r:"100",e:"MELI"},
-    {n:"CRISTIANA DOS SANTOS CASSIANO",g:"F",r:"16EX",e:"MELI"},
-    {n:"DEYSY CRISTINA LOPES PEREIRA",g:"F",r:"16",e:"MELI"},
-    {n:"EBER SOUZA DA SILVA",g:"M",r:"15",e:"MELI"},
-    {n:"EVA VILMA PEREIRA ALVES",g:"F",r:"18",e:"MELI"},
-    {n:"GERSINETE DOS SANTOS NASCIMENTO",g:"F",r:"16",e:"MELI"},
-    {n:"ITALO HENRIQUE VIEIRA DE SOUZA",g:"M",r:"15EX",e:"MELI"},
-    {n:"JULIANA PEREIRA DE SOUZA",g:"F",r:"16",e:"MELI"},
-    {n:"JULIO HENRIQUE CIPRIANO BARBOSA",g:"M",r:"15",e:"GI GROUP"},
-    {n:"KAILAYNE VITORIA BARROSO TEIXEIRA",g:"F",r:"15EX",e:"MELI"},
-    {n:"KALINE PRAZERES DA CONCEICAO",g:"F",r:"100",e:"MELI"},
-    {n:"KELLY SILVA DOS SANTOS MACIEL",g:"F",r:"15",e:"MELI"},
-    {n:"KENNEDY ROBERTO MEDEIROS",g:"M",r:"16EX",e:"MELI"},
-    {n:"LEIA JOANNA DOS SANTOS",g:"F",r:"18",e:"MELI"},
-    {n:"LIVIA OLIVEIRA SILVA",g:"F",r:"26",e:"MELI"},
-    {n:"LUCIANE DOS SANTOS CARVALHO PEREIRA",g:"F",r:"15",e:"MELI"},
-    {n:"MATEUS FILIPE DA COSTA MARCAL",g:"M",r:"15",e:"MELI"},
-    {n:"MATHEUS HENRIQUE DE PAULA SILVA",g:"M",r:"15EX",e:"MELI"},
-    {n:"PEDRO LUCAS LIMA SANTOS",g:"M",r:"26",e:"MELI"},
-    {n:"RAQUEL LOURENCO DE SOUZA",g:"F",r:"15",e:"MELI"},
-    {n:"RICARDO AUGUSTO CRUZ",g:"M",r:"16",e:"MELI"},
-    {n:"ROSIMENE DEROT",g:"F",r:"16",e:"MELI"},
-    {n:"RUTHIELLE KEITHY RIBEIRO DE OLIVEIRA",g:"F",r:"16EX",e:"MELI"},
-    {n:"SAMUEL MARCOS RODRIGUES DA SILVA",g:"M",r:"26",e:"MELI"},
-    {n:"STEFANE VITORIA DOS ANJOS SILVA",g:"F",r:"15",e:"MELI"},
-    {n:"VITORIA CARVALHO DA SILVA",g:"F",r:"15",e:"MELI"},
-    {n:"WELBERT WAGNER SILVA",g:"M",r:"15",e:"RANDSTAD"},
+    {n:"PAMELLA FALCAO MARTINS",g:"F",r:"26",e:"MELI",c:"OPL 2"},
+    {n:"ISRAEL BISPO DA SILVA",g:"M",r:"11",e:"MELI",c:"REP II"},
+    {n:"RONALDO DE OLIVEIRA E SILVA",g:"M",r:"18",e:"MELI",c:"REP II"},
+    {n:"SIDNEY CIRILO GONÇALVES",g:"M",r:"16",e:"MELI",c:"REP II"},
+    {n:"ANA CLARA LOPES DE OLIVEIRA",g:"F",r:"18",e:"MELI",c:"REP I"},
+    {n:"CAMILLA OLIVEIRA DOS SANTOS",g:"F",r:"15",e:"MELI",c:"REP I"},
+    {n:"CLAUDILENE DOS SANTOS ALVES",g:"F",r:"26",e:"MELI",c:"REP I"},
+    {n:"DARDANE KELLY DOS SANTOS",g:"F",r:"26",e:"MELI",c:"REP I"},
+    {n:"FABIANA PEREIRA ROCHA",g:"F",r:"16",e:"MELI",c:"REP I"},
+    {n:"GERSINETE DOS SANTOS NASCIMENTO",g:"F",r:"16",e:"MELI",c:"REP I"},
+    {n:"HELEN CAROLINE PEREIRA DE JESUS",g:"F",r:"15",e:"MELI",c:"REP I"},
+    {n:"JACKLINE FIDELIS RODRIGUES",g:"F",r:"16EX",e:"MELI",c:"REP I"},
+    {n:"JULIANA PEREIRA DE SOUZA",g:"F",r:"16",e:"MELI",c:"REP I"},
+    {n:"KALINE PRAZERES DA CONCEICAO",g:"F",r:"100",e:"MELI",c:"REP I"},
+    {n:"LIDIANA MEIRELES BURI",g:"F",r:"18",e:"MELI",c:"REP I"},
+    {n:"LUCIANE DOS SANTOS CARVALHO PEREIRA",g:"F",r:"15",e:"MELI",c:"REP I"},
+    {n:"RAQUEL LOURENCO DE SOUZA",g:"F",r:"15",e:"MELI",c:"REP I"},
+    {n:"SAMIRI COIMBRA DE ARAUJO",g:"F",r:"16",e:"MELI",c:"REP I"},
+    {n:"STEPHANNY MAYRA PEREIRA DOS REIS",g:"F",r:"18",e:"MELI",c:"REP I"},
+    {n:"VALERIA BARBOSA LIMA CORDEIRO",g:"F",r:"26",e:"MELI",c:"REP I"},
+    {n:"VITORIA CARVALHO DA SILVA",g:"F",r:"15",e:"MELI",c:"REP I"},
+    {n:"ANDREY GABRIEL FREITAS LOPES",g:"M",r:"18EX",e:"MELI",c:"REP I"},
+    {n:"EBER SOUZA DA SILVA",g:"M",r:"15",e:"MELI",c:"REP I"},
+    {n:"GUILHERME RODRIGUES MARTINS SOARES",g:"M",r:"18EX",e:"MELI",c:"REP I"},
+    {n:"ISRAEL ALVES BRAGA",g:"M",r:"18",e:"MELI",c:"REP I"},
+    {n:"JOAO PAULO LUIZ VALADARES DA SILVA",g:"M",r:"16",e:"MELI",c:"REP I"},
+    {n:"MARCELO ALCINDO DA SILVA",g:"M",r:"18",e:"MELI",c:"REP I"},
+    {n:"MARLON FERREIRA BARBOSA",g:"M",r:"15EX",e:"MELI",c:"REP I"},
+    {n:"OMAR JOSE GOMEZ RUBIO",g:"M",r:"15",e:"MELI",c:"REP I"},
+    {n:"PEDRO LUCAS LIMA SANTOS",g:"M",r:"26",e:"MELI",c:"REP I"},
+    {n:"RICARDO AUGUSTO CRUZ",g:"M",r:"16",e:"MELI",c:"REP I"},
+    {n:"WANDERSON TOMAZ ROCHA",g:"M",r:"16EX",e:"MELI",c:"REP I"},
   ],
   C:[
-    {n:"ANDRESA CRISTINA GONCALVES DE LIMA",g:"F",r:"16EX",e:"MELI"},
-    {n:"ANDREY GABRIEL FREITAS LOPES",g:"M",r:"18EX",e:"MELI"},
-    {n:"CARINA APARECIDA DE OLIVEIRA ROSA",g:"F",r:"15EX",e:"MELI"},
-    {n:"CARLOS HENRIQUE DA SILVA",g:"M",r:"18EX",e:"MELI"},
-    {n:"CLAUDIO JUNIO RIBEIRO DE ARAUJO",g:"M",r:"15",e:"MELI"},
-    {n:"DENIAN CESAR SOARES FARIA",g:"M",r:"18",e:"MELI"},
-    {n:"FRANCIELLE ADRIANE OLIVEIRA SILVA",g:"F",r:"26",e:"MELI"},
-    {n:"GUSTAVO RODRIGUES LIMA",g:"M",r:"15",e:"MELI"},
-    {n:"HARIEL HELENA DE ARAUJO",g:"F",r:"16EX",e:"MELI"},
-    {n:"HELEN CAROLINE PEREIRA DE JESUS",g:"F",r:"15",e:"MELI"},
-    {n:"ISAAC PIRES ROCHA",g:"M",r:"26",e:"MELI"},
-    {n:"ISABELLE RAMOS DE OLIVEIRA",g:"F",r:"15",e:"MELI"},
-    {n:"IURI JONATAN SANTOS DA SILVA",g:"M",r:"18",e:"MELI"},
-    {n:"JACKLINE FIDELIS RODRIGUES",g:"F",r:"16EX",e:"MELI"},
-    {n:"JHULLY YASMIM DE SOUZA DAMASCENO",g:"F",r:"100",e:"MELI"},
-    {n:"JOAO PEDRO REIS TECLO DE MIRANDA",g:"M",r:"18EX",e:"MELI"},
-    {n:"LUCILENE DA COSTA CAMPOS DE JESUS",g:"F",r:"26",e:"MELI"},
-    {n:"MARA DO CARMO DA SILVA",g:"F",r:"16EX",e:"MELI"},
-    {n:"MARCOS ANDRE FERNANDES MORIKAWA",g:"M",r:"16",e:"GI GROUP"},
-    {n:"MICHELE DO NASCIMENTO COSTA",g:"F",r:"26",e:"MELI"},
-    {n:"PABLO RODRIGO DOS SANTOS COELHO",g:"M",r:"15",e:"MELI"},
-    {n:"RENATA DAMARIS VERDE",g:"F",r:"18",e:"MELI"},
-    {n:"SABRINA DA SILVA PURCINO CASTRO",g:"F",r:"26",e:"RANDSTAD"},
-    {n:"SARAH GABRIELE DA SILVA AGUIAR",g:"F",r:"16",e:"MELI"},
-    {n:"THAIS EDUARDA LOPES INACIO",g:"F",r:"15",e:"MELI"},
-    {n:"VERONICA REGINA ALVES DA SILVA",g:"F",r:"15",e:"MELI"},
-    {n:"WANDERSON TOMAZ ROCHA",g:"M",r:"16EX",e:"MELI"},
+    {n:"CIBELE BARBOSA DOS SANTOS",g:"M",r:"16",e:"MELI",c:"OPL 3"},
+    {n:"JENIFFER VITORIA PRATES RODRIGUES",g:"F",r:"26",e:"MELI",c:"OPL 2"},
+    {n:"LORENA VITÓRIA DE OLIVEIRA PAES",g:"F",r:"26",e:"MELI",c:"OPL 2"},
+    {n:"FABIANA BARROS DE MORAIS",g:"F",r:"15",e:"MELI",c:"REP II"},
+    {n:"WARLEY DE SOUZA SILVA",g:"M",r:"18",e:"MELI",c:"REP II"},
+    {n:"ANDREA RIBEIRO DOS SANTOS",g:"F",r:"15EX",e:"MELI",c:"REP I"},
+    {n:"ANNA CAROLINE DE AQUINO",g:"F",r:"18EX",e:"MELI",c:"REP I"},
+    {n:"CARINA APARECIDA DE OLIVEIRA ROSA",g:"F",r:"15EX",e:"MELI",c:"REP I"},
+    {n:"FRANCIELE MARIA DE OLIVEIRA",g:"F",r:"16EX",e:"MELI",c:"REP I"},
+    {n:"INGRID DE ARAUJO MARTINS BATISTA",g:"F",r:"18EX",e:"MELI",c:"REP I"},
+    {n:"JACQUELINE CRISTINA DA SILVA",g:"F",r:"15",e:"MELI",c:"REP I"},
+    {n:"KELLY SILVA DOS SANTOS MACIEL",g:"F",r:"15",e:"MELI",c:"REP I"},
+    {n:"LIVIA OLIVEIRA SILVA",g:"F",r:"26",e:"MELI",c:"REP I"},
+    {n:"LUCILENE DA COSTA CAMPOS DE JESUS",g:"F",r:"26",e:"MELI",c:"REP I"},
+    {n:"MARCIA FERREIRA DOS SANTOS",g:"F",r:"26",e:"MELI",c:"REP I"},
+    {n:"POLIANA MENDES DE PAULA",g:"F",r:"18",e:"MELI",c:"REP I"},
+    {n:"REJANE PAULA DE OLIVEIRA",g:"F",r:"26",e:"MELI",c:"REP I"},
+    {n:"ROSIMENE DEROT",g:"F",r:"16",e:"MELI",c:"REP I"},
+    {n:"THAIS EDUARDA LOPES INACIO",g:"F",r:"15",e:"MELI",c:"REP I"},
+    {n:"VANESSA DANTAS DOS SANTOS",g:"F",r:"15",e:"MELI",c:"REP I"},
+    {n:"VITORIA GOMES VIEIRA",g:"F",r:"18",e:"MELI",c:"REP I"},
+    {n:"CLAUDIO JUNIO RIBEIRO DE ARAUJO",g:"M",r:"15",e:"MELI",c:"REP I"},
+    {n:"DENIAN CESAR SOARES FARIA",g:"M",r:"18",e:"MELI",c:"REP I"},
+    {n:"EDUARDO OLIVEIRA DE LANA",g:"M",r:"16",e:"MELI",c:"REP I"},
+    {n:"GETULIO JOSE MAGALHAES",g:"M",r:"26",e:"MELI",c:"REP I"},
+    {n:"GUSTAVO RAMOS FERREIRA",g:"M",r:"18",e:"MELI",c:"REP I"},
+    {n:"ITALO HENRIQUE VIEIRA DE SOUZA",g:"M",r:"15EX",e:"MELI",c:"REP I"},
+    {n:"JOAO PEDRO REIS TECLO DE MIRANDA",g:"M",r:"18EX",e:"MELI",c:"REP I"},
+    {n:"JULIO HENRIQUE CIPRIANO BARBOSA",g:"M",r:"15",e:"GI GROUP",c:"TEMPORARIO"},
+    {n:"MATEUS FILIPE DA COSTA MARCAL",g:"M",r:"15",e:"MELI",c:"REP I"},
+    {n:"PABLO RODRIGO DOS SANTOS COELHO",g:"M",r:"15",e:"MELI",c:"REP I"},
+    {n:"SAMUEL MARCOS RODRIGUES DA SILVA",g:"M",r:"26",e:"MELI",c:"REP I"},
+    {n:"WASHINGTON GABRIEL CELESTINO PACHECO",g:"M",r:"15",e:"MELI",c:"REP I"},
   ],
   D:[
-    {n:"ANA CLARA LOPES DE OLIVEIRA",g:"F",r:"18",e:"MELI"},
-    {n:"ANDREA RIBEIRO DOS SANTOS",g:"F",r:"15EX",e:"MELI"},
-    {n:"ARTHUR VICTOR",g:"M",r:"16EX",e:"MELI"},
-    {n:"BARBARA RODRIGUES SANTIAGO",g:"F",r:"15",e:"MELI"},
-    {n:"CAMILLA OLIVEIRA DOS SANTOS",g:"F",r:"15",e:"MELI"},
-    {n:"DANIELE LOPES BARBOSA",g:"F",r:"16EX",e:"MELI"},
-    {n:"FABIANA LIMA DE OLIVEIRA",g:"F",r:"16",e:"MELI"},
-    {n:"FRANCIELE MARIA DE OLIVEIRA",g:"F",r:"16EX",e:"MELI"},
-    {n:"GETULIO JOSE MAGALHAES",g:"M",r:"26",e:"MELI"},
-    {n:"GUSTAVO RAMOS FERREIRA",g:"M",r:"18",e:"MELI"},
-    {n:"ISRAEL ALVES BRAGA",g:"M",r:"18",e:"MELI"},
-    {n:"JACQUELINE CRISTINA DA SILVA",g:"F",r:"15",e:"MELI"},
-    {n:"JOAO MIGUEL CAMPOS SOARES",g:"M",r:"18",e:"MELI"},
-    {n:"KAILA VITORIA FAUSTINA BARRETO BISPO",g:"F",r:"16EX",e:"MELI"},
-    {n:"LUCAS AUGUSTO DOLARIS",g:"M",r:"16EX",e:"MELI"},
-    {n:"MARCELO ALCINDO DA SILVA",g:"M",r:"18",e:"MELI"},
-    {n:"PAULO SERGIO DE SOUSA ALECRIM",g:"M",r:"16",e:"MELI"},
-    {n:"RAFAEL SIQUEIRA",g:"M",r:"16EX",e:"MELI"},
-    {n:"REJANE PAULA DE OLIVEIRA",g:"F",r:"26",e:"MELI"},
-    {n:"SAMIRI COIMBRA DE ARAUJO",g:"F",r:"16",e:"MELI"},
-    {n:"STEPHANNY MAYRA PEREIRA DOS REIS",g:"F",r:"18",e:"MELI"},
-    {n:"THAMIRIS VITORIA VIEIRA PEREIRA",g:"F",r:"18",e:"MELI"},
-    {n:"VALDEENE DAS GRACAS PEREIRA DOS SANTOS",g:"F",r:"15",e:"MELI"},
-    {n:"VALERIA BARBOSA LIMA CORDEIRO",g:"F",r:"26",e:"MELI"},
-    {n:"VIVIANE LOPES SILVA MARTINS",g:"F",r:"15",e:"MELI"},
-    {n:"WALISSON DOS SANTOS DANTAS",g:"M",r:"16",e:"MELI"},
-    {n:"WASHINGTON GABRIEL CELESTINO PACHECO",g:"M",r:"15",e:"MELI"},
-  ]
-};
-
+    {n:"JOÃO VICTOR GOMES DAS DORES",g:"M",r:"16",e:"MELI",c:"OPL 2"},
+    {n:"MARCELO AUGUSTO CARDOSO LOPES",g:"M",r:"16",e:"MELI",c:"OPL 2"},
+    {n:"LUISA DE OLIVEIRA RODRIGUES",g:"F",r:"16",e:"MELI",c:"REP II"},
+    {n:"MIRIAN BATISTA SANTOS",g:"F",r:"15",e:"MELI",c:"REP II"},
+    {n:"PRISCILA DOS SANTOS TOBIAS",g:"F",r:"16",e:"MELI",c:"REP II"},
+    {n:"ANDRESA CRISTINA GONCALVES DE LIMA",g:"F",r:"16EX",e:"MELI",c:"REP I"},
+    {n:"CRISTIANA DOS SANTOS CASSIANO",g:"F",r:"16EX",e:"MELI",c:"REP I"},
+    {n:"DEYSY CRISTINA LOPES PEREIRA",g:"F",r:"16",e:"MELI",c:"REP I"},
+    {n:"EVA VILMA PEREIRA ALVES",g:"F",r:"18",e:"MELI",c:"REP I"},
+    {n:"FRANCIELLE ADRIANE OLIVEIRA SILVA",g:"F",r:"26",e:"MELI",c:"REP I"},
+    {n:"JESSICA OLIVEIRA DA SILVA BRITO",g:"F",r:"15",e:"MELI",c:"REP I"},
+    {n:"KAILA VITORIA FAUSTINA BARRETO BISPO",g:"F",r:"16EX",e:"MELI",c:"REP I"},
+    {n:"LORENA EMANUELE LUIZA GOMES DOS SANTOS",g:"F",r:"100",e:"MELI",c:"REP I"},
+    {n:"RENATA DAMARIS VERDE",g:"F",r:"18",e:"MELI",c:"REP I"},
+    {n:"RUTHIELLE KEITHY RIBEIRO DE OLIVEIRA",g:"F",r:"16EX",e:"MELI",c:"REP I"},
+    {n:"SARAH GABRIELE DA SILVA AGUIAR",g:"F",r:"16",e:"MELI",c:"REP I"},
+    {n:"THAMIRIS VITORIA VIEIRA PEREIRA",g:"F",r:"18",e:"MELI",c:"REP I"},
+    {n:"VANESSA PAES LANDIM",g:"F",r:"16",e:"MELI",c:"REP I"},
+    {n:"VIVIANE LOPES SILVA MARTINS",g:"F",r:"15",e:"MELI",c:"REP I"},
+    {n:"ARTHUR VICTOR",g:"M",r:"16EX",e:"MELI",c:"REP I"},
+    {n:"CARLOS BERNARDO FERNANDES GOMES DA SILVA",g:"M",r:"100",e:"MELI",c:"REP I"},
+    {n:"GUILHERME DE JESUS PORTO",g:"M",r:"26",e:"MELI",c:"REP I"},
+    {n:"GUSTAVO RODRIGUES LIMA",g:"M",r:"15",e:"MELI",c:"REP I"},
+    {n:"ISAAC PIRES ROCHA",g:"M",r:"26",e:"MELI",c:"REP I"},
+    {n:"IURI JONATAN SANTOS DA SILVA",g:"M",r:"18",e:"MELI",c:"REP I"},
+    {n:"JOSE APARECIDO DE JESUS",g:"M",r:"16",e:"MELI",c:"REP I"},
+    {n:"KENNEDY ROBERTO MEDEIROS",g:"M",r:"16EX",e:"MELI",c:"REP I"},
+    {n:"LUIZ INACIO SANTOS ARAUJO",g:"M",r:"18EX",e:"MELI",c:"REP I"},
+    {n:"MARCOS ANDRE FERNANDES MORIKAWA",g:"M",r:"16",e:"GI GROUP",c:"TEMPORARIO"},
+    {n:"MATHEUS HENRIQUE DE PAULA SILVA",g:"M",r:"15EX",e:"MELI",c:"REP I"},
+    {n:"PAULO SERGIO DE SOUSA ALECRIM",g:"M",r:"16",e:"MELI",c:"REP I"},
+    {n:"RAFAEL SIQUEIRA",g:"M",r:"16EX",e:"MELI",c:"REP I"},
+    {n:"WELBERT WAGNER SILVA",g:"M",r:"15",e:"RANDSTAD",c:"TEMPORARIO"},
+  ],
+}
 const GROUPS=['A','B','C','D'];
-const STORAGE_KEY='smg1_grupos_v3';
+const STORAGE_KEY='smg1_grupos_v6';
 const GROUP_COLORS={A:'#FFE600',B:'#3ECF8E',C:'#4DA6FF',D:'#FF6B9D'};
 const DEFAULT_PWD='smg1admin';
 
@@ -581,7 +631,7 @@ if(!DB.pwd) DB.pwd=DEFAULT_PWD;
 // ── HELPERS ──
 function getAtivos(g){
   const fixos=BASE_FIXA[g].filter(m=>!DB.inativos.some(i=>i.nome===m.n&&i.grupo===g)).map(m=>({...m,fixo:true}));
-  const novs=DB.novatos.filter(n=>n.grupo===g&&n.ativo).map(n=>({n:n.nome,g:n.genero,r:n.rota,e:n.empresa,fixo:false,id:n.id}));
+  const novs=DB.novatos.filter(n=>n.grupo===g&&n.ativo).map(n=>({n:n.nome,g:n.genero,r:n.rota,c:n.c||'REP I',e:n.empresa,fixo:false,id:n.id}));
   return[...fixos,...novs];
 }
 function todos(){return GROUPS.flatMap(g=>getAtivos(g).map(m=>({...m,grupo:g})));}
@@ -596,14 +646,29 @@ function logout(){showScreen('screen-select');}
 function goVisao(){showScreen('screen-visao');renderVisao();}
 
 // ══ VISÃO GERAL ══════════════════════════════
+
+function cargoColor(c){
+  if(c==='OPL 3') return '#E8722A';
+  if(c==='OPL 2') return '#3ECF8E';
+  if(c==='REP II') return '#FFE600';
+  if(c==='TEMPORARIO') return '#BB86FC';
+  return 'var(--text)';
+}
+function cargoBadge(c){
+  if(c==='OPL 3') return 'OPL3';
+  if(c==='OPL 2') return 'OPL2';
+  if(c==='REP II') return 'RII';
+  if(c==='TEMPORARIO') return '⏳';
+  return 'RI';
+}
 function filtrarVisao(){renderVisao();}
 
 function renderVisao(){
   const q = normalizar(document.getElementById('visao-search').value.trim());
 
   // Stats globais
-  let tot=0,f=0,m=0,nov=0;
-  GROUPS.forEach(g=>{const a=getAtivos(g);tot+=a.length;f+=a.filter(x=>x.g==='F').length;m+=a.filter(x=>x.g==='M').length;nov+=DB.novatos.filter(n=>n.grupo===g&&n.ativo).length;});
+  let tot=0,f=0,m=0,nov=0,temp=0;
+  GROUPS.forEach(g=>{const a=getAtivos(g);tot+=a.length;f+=a.filter(x=>x.g==='F').length;m+=a.filter(x=>x.g==='M').length;nov+=DB.novatos.filter(n=>n.grupo===g&&n.ativo).length;temp+=a.filter(x=>(x.c||'REP I')==='TEMPORARIO').length;});
   document.getElementById('visao-stats').innerHTML=`
     <div class="vg-stat"><div class="vs-val" style="color:var(--yellow);">${tot}</div><div class="vs-lbl">Ativos</div></div>
     <div class="vg-stat"><div class="vs-val" style="color:var(--fem);">${f}</div><div class="vs-lbl">Feminino</div></div>
@@ -621,7 +686,7 @@ function renderVisao(){
   const grid = document.getElementById('visao-grid');
   grid.innerHTML='';
   GROUPS.forEach(key=>{
-    const members = getAtivos(key).sort((a,b)=>a.n.localeCompare(b.n));
+    const members = getAtivos(key).sort((a,b)=>{const o={'OPL 3':0,'OPL 2':1,'REP II':2,'TEMPORARIO':3,'REP I':4};const oa=o[a.c||'REP I']??3,ob=o[b.c||'REP I']??3;if(oa!==ob)return oa-ob;return a.n.localeCompare(b.n);});
     const fC=members.filter(m=>m.g==='F').length, mC=members.filter(m=>m.g==='M').length;
     const tot=members.length, fPct=tot>0?Math.round(fC/tot*100):0;
     const cor=GROUP_COLORS[key];
@@ -639,6 +704,7 @@ function renderVisao(){
         <span class="vg-tag vg-tag-${m.g}">${m.g}</span>
         <span class="vg-name">${q && matched ? highlight(m.n, q) : m.n}</span>
         <span class="vg-rota">${m.r}</span>
+        <span style="font-size:8px;font-weight:700;color:${cargoColor(m.c||'REP I')}">${cargoBadge(m.c||'REP I')}</span>
         <span class="vg-badge ${m.fixo?'badge-fixo':'badge-novo'}">${m.fixo?'●':'★'}</span>
       </div>`;
     }).join('');
@@ -729,7 +795,7 @@ function selecionarColaborador(nome,grupo){
   const col=getAtivos(grupo).find(m=>m.n===nome);
   if(!col){document.getElementById('colab-result').innerHTML=`<div class="colab-not-found"><div class="nf-icon">🔍</div><p>Colaborador não encontrado nos grupos ativos.</p></div>`;return;}
   const cor=GROUP_COLORS[grupo];
-  const colegas=getAtivos(grupo).sort((a,b)=>a.n.localeCompare(b.n));
+  const colegas=getAtivos(grupo).sort((a,b)=>{const o={'OPL 3':0,'OPL 2':1,'REP II':2,'TEMPORARIO':3,'REP I':4};const oa=o[a.c||'REP I']??3,ob=o[b.c||'REP I']??3;if(oa!==ob)return oa-ob;return a.n.localeCompare(b.n);});
   const fC=colegas.filter(x=>x.g==='F').length, mC=colegas.filter(x=>x.g==='M').length;
   document.getElementById('colab-result').innerHTML=`
     <div class="colab-card">
@@ -742,8 +808,8 @@ function selecionarColaborador(nome,grupo){
         <div class="cn-nome">👤 ${nome}</div>
       </div>
       <div class="colab-meta">
-        <div class="meta-item"><div class="mi-lbl">Rota</div><div class="mi-val">${col.r}</div></div>
-        <div class="meta-item"><div class="mi-lbl">Empresa</div><div class="mi-val">${col.e}</div></div>
+        <div class="meta-item"><div class="mi-lbl">Cargo</div><div class="mi-val" style="color:${cargoColor(col.c||'REP I')};font-weight:700;">${col.c||'REP I'}</div><div class="meta-item"><div class="mi-lbl">Rota</div><div class="mi-val">${col.r}</div></div>
+        <div class="meta-item"></div><div class="meta-item"><div class="mi-lbl">Empresa</div><div class="mi-val">${col.e}</div></div>
         <div class="meta-item"><div class="mi-lbl">Total no grupo</div><div class="mi-val">${colegas.length} REPs</div></div>
         <div class="meta-item"><div class="mi-lbl">Composição</div><div class="mi-val"><span style="color:var(--fem);">${fC}F</span> · <span style="color:var(--masc);">${mC}M</span></div></div>
       </div>
@@ -763,14 +829,15 @@ function selecionarColaborador(nome,grupo){
 
 // ══ ADMIN: STATS ═════════════════════════════
 function renderStats(){
-  let tot=0,f=0,m=0,nov=0;
-  GROUPS.forEach(g=>{const a=getAtivos(g);tot+=a.length;f+=a.filter(x=>x.g==='F').length;m+=a.filter(x=>x.g==='M').length;nov+=DB.novatos.filter(n=>n.grupo===g&&n.ativo).length;});
+  let tot=0,f=0,m=0,nov=0,temp=0;
+  GROUPS.forEach(g=>{const a=getAtivos(g);tot+=a.length;f+=a.filter(x=>x.g==='F').length;m+=a.filter(x=>x.g==='M').length;nov+=DB.novatos.filter(n=>n.grupo===g&&n.ativo).length;temp+=a.filter(x=>(x.c||'REP I')==='TEMPORARIO').length;});
   const inat=DB.inativos.length+DB.novatos.filter(n=>!n.ativo).length;
   document.getElementById('stat-row').innerHTML=`
     <div class="stat-box"><div class="val val-y">${tot}</div><div class="lbl">Total Ativos</div></div>
     <div class="stat-box"><div class="val val-f">${f}</div><div class="lbl">Feminino</div></div>
     <div class="stat-box"><div class="val val-m">${m}</div><div class="lbl">Masculino</div></div>
     <div class="stat-box"><div class="val val-g">${nov}</div><div class="lbl">Novatos</div></div>
+    <div class="stat-box"><div class="val" style="color:#BB86FC;font-family:'JetBrains Mono',monospace;font-size:22px;font-weight:700;line-height:1;">${temp}</div><div class="lbl">Temporários</div></div>
     <div class="stat-box"><div class="val val-r">${inat}</div><div class="lbl">Inativos</div></div>
     ${GROUPS.map(g=>{const a=getAtivos(g),fC=a.filter(x=>x.g==='F').length,mC=a.filter(x=>x.g==='M').length;return`<div class="stat-box" style="border-color:${GROUP_COLORS[g]}33;"><div class="val" style="color:${GROUP_COLORS[g]};font-size:16px;">GRP ${g} <span style="font-size:20px;">${a.length}</span></div><div class="lbl" style="margin-top:4px;"><span style="color:var(--fem);">${fC}F</span> · <span style="color:var(--masc);">${mC}M</span></div></div>`;}).join('')}`;
   const badge=document.getElementById('inativo-badge');
@@ -781,7 +848,7 @@ function renderStats(){
 function renderGroups(){
   const grid=document.getElementById('groups-grid');grid.innerHTML='';
   GROUPS.forEach(key=>{
-    const members=getAtivos(key).sort((a,b)=>a.n.localeCompare(b.n));
+    const members=getAtivos(key).sort((a,b)=>{const o={'OPL 3':0,'OPL 2':1,'REP II':2,'TEMPORARIO':3,'REP I':4};const oa=o[a.c||'REP I']??3,ob=o[b.c||'REP I']??3;if(oa!==ob)return oa-ob;return a.n.localeCompare(b.n);});
     const fC=members.filter(m=>m.g==='F').length,mC=members.filter(m=>m.g==='M').length;
     const tot=members.length,fPct=tot>0?Math.round(fC/tot*100):0;
     const cor=GROUP_COLORS[key];
@@ -805,6 +872,7 @@ function renderGroups(){
             <span class="gtag gtag-${m.g}">${m.g}</span>
             <span class="grow-name">${m.n}</span>
             <span class="grow-rota">${m.r}</span>
+            <span style="font-size:9px;font-weight:700;color:${cargoColor(m.c||'REP I')};min-width:28px;">${cargoBadge(m.c||'REP I')}</span>
             <span class="grow-badge ${m.fixo?'badge-fixo':'badge-novo'}">${m.fixo?'●':'★'}</span>
             <button class="inativo-btn" title="Inativar" onclick="inativar('${m.n.replace(/'/g,"\\'").replace(/"/g,'\\"')}','${key}',${m.fixo},${m.fixo?'null':`'${m.id}'`})">✕</button>
           </div>`).join('')}
@@ -876,7 +944,7 @@ function sugerirGrupo(){
 function adicionarNoGrupo(grupo,nome,genero,rota){
   const empresa=document.getElementById('inp-empresa').value;
   const id='nov_'+Date.now()+'_'+Math.random().toString(36).slice(2,6);
-  DB.novatos.push({id,nome,genero,rota:rota||'—',empresa,grupo,ativo:true,entrada:new Date().toLocaleDateString('pt-BR')});
+  const cargo=document.getElementById('inp-cargo')?document.getElementById('inp-cargo').value:'REP I';DB.novatos.push({id,nome,genero,rota:rota||'—',c:cargo,empresa,grupo,ativo:true,entrada:new Date().toLocaleDateString('pt-BR')});
   saveDB();
   document.getElementById('inp-nome').value='';
   document.getElementById('inp-genero').value='';
@@ -889,7 +957,7 @@ function adicionarNoGrupo(grupo,nome,genero,rota){
 function exportarTexto(){
   let txt=`GRUPOS DE TRABALHO — SMG1 T1\n${new Date().toLocaleString('pt-BR')}\n${'─'.repeat(50)}\n\n`;
   GROUPS.forEach(g=>{
-    const m=getAtivos(g).sort((a,b)=>a.n.localeCompare(b.n));
+    const m=getAtivos(g).sort((a,b)=>{const o={'OPL 3':0,'OPL 2':1,'REP II':2,'TEMPORARIO':3,'REP I':4};const oa=o[a.c||'REP I']??3,ob=o[b.c||'REP I']??3;if(oa!==ob)return oa-ob;return a.n.localeCompare(b.n);});
     const fC=m.filter(x=>x.g==='F').length,mC=m.filter(x=>x.g==='M').length;
     txt+=`GRUPO ${g}  |  ${m.length} REPs  (${fC}F / ${mC}M)\n`;
     m.forEach((r,i)=>txt+=`  ${String(i+1).padStart(2,'0')}. [${r.g}] ${r.n}  —  Rota ${r.r}  ${r.fixo?'[FIXO]':'[NOVATO]'}\n`);
