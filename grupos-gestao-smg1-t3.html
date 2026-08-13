@@ -587,7 +587,7 @@ const BASE_FIXA = {
   ],
 }
 const GROUPS=['A','B','C','D'];
-const STORAGE_KEY='smg1_grupos_t3_v1';
+const STORAGE_KEY='smg1_grupos_t3_v2';
 const GROUP_COLORS={A:'#FFE600',B:'#3ECF8E',C:'#4DA6FF',D:'#FF6B9D'};
 const DEFAULT_PWD='smg1t3admin';
 
@@ -655,7 +655,7 @@ function renderVisao(){
   const grid = document.getElementById('visao-grid');
   grid.innerHTML='';
   GROUPS.forEach(key=>{
-    const members = getAtivos(key).sort((a,b)=>a.n.localeCompare(b.n));
+    const members = getAtivos(key).sort((a,b)=>{const o={'OPL 3':0,'OPL 2':1,'REP II':2,'TEMPORARIO':3,'REP I':4};const oa=o[a.c||'REP I']??4,ob=o[b.c||'REP I']??4;if(oa!==ob)return oa-ob;return a.n.localeCompare(b.n);});
     const fC=members.filter(m=>m.g==='F').length, mC=members.filter(m=>m.g==='M').length;
     const tot=members.length, fPct=tot>0?Math.round(fC/tot*100):0;
     const cor=GROUP_COLORS[key];
@@ -763,7 +763,7 @@ function selecionarColaborador(nome,grupo){
   const col=getAtivos(grupo).find(m=>m.n===nome);
   if(!col){document.getElementById('colab-result').innerHTML=`<div class="colab-not-found"><div class="nf-icon">🔍</div><p>Colaborador não encontrado nos grupos ativos.</p></div>`;return;}
   const cor=GROUP_COLORS[grupo];
-  const colegas=getAtivos(grupo).sort((a,b)=>a.n.localeCompare(b.n));
+  const colegas=getAtivos(grupo).sort((a,b)=>{const o={'OPL 3':0,'OPL 2':1,'REP II':2,'TEMPORARIO':3,'REP I':4};const oa=o[a.c||'REP I']??4,ob=o[b.c||'REP I']??4;if(oa!==ob)return oa-ob;return a.n.localeCompare(b.n);});
   const fC=colegas.filter(x=>x.g==='F').length, mC=colegas.filter(x=>x.g==='M').length;
   document.getElementById('colab-result').innerHTML=`
     <div class="colab-card">
@@ -815,7 +815,7 @@ function renderStats(){
 function renderGroups(){
   const grid=document.getElementById('groups-grid');grid.innerHTML='';
   GROUPS.forEach(key=>{
-    const members=getAtivos(key).sort((a,b)=>a.n.localeCompare(b.n));
+    const members=getAtivos(key).sort((a,b)=>{const o={'OPL 3':0,'OPL 2':1,'REP II':2,'TEMPORARIO':3,'REP I':4};const oa=o[a.c||'REP I']??4,ob=o[b.c||'REP I']??4;if(oa!==ob)return oa-ob;return a.n.localeCompare(b.n);});
     const fC=members.filter(m=>m.g==='F').length,mC=members.filter(m=>m.g==='M').length;
     const tot=members.length,fPct=tot>0?Math.round(fC/tot*100):0;
     const cor=GROUP_COLORS[key];
@@ -923,7 +923,7 @@ function adicionarNoGrupo(grupo,nome,genero,rota){
 function exportarTexto(){
   let txt=`GRUPOS DE TRABALHO — SMG1 T3\n${new Date().toLocaleString('pt-BR')}\n${'─'.repeat(50)}\n\n`;
   GROUPS.forEach(g=>{
-    const m=getAtivos(g).sort((a,b)=>a.n.localeCompare(b.n));
+    const m=getAtivos(g).sort((a,b)=>{const o={'OPL 3':0,'OPL 2':1,'REP II':2,'TEMPORARIO':3,'REP I':4};const oa=o[a.c||'REP I']??4,ob=o[b.c||'REP I']??4;if(oa!==ob)return oa-ob;return a.n.localeCompare(b.n);});
     const fC=m.filter(x=>x.g==='F').length,mC=m.filter(x=>x.g==='M').length;
     txt+=`GRUPO ${g}  |  ${m.length} REPs  (${fC}F / ${mC}M)\n`;
     m.forEach((r,i)=>txt+=`  ${String(i+1).padStart(2,'0')}. [${r.g}] ${r.n}  —  ${r.r}  ${r.fixo?'[FIXO]':'[NOVATO]'}\n`);
