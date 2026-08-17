@@ -578,6 +578,40 @@ body{background:var(--dark);color:var(--text);font-family:'Inter',sans-serif;fon
 // ══════════════════════════════════════════════════
 // BASE FIXA T3
 // ══════════════════════════════════════════════════
+
+// ══ BANCO DE DADOS — GOOGLE SHEETS ══════
+const SCRIPT_URL = 'https://script.google.com/a/macros/mercadolivre.com/s/AKfycbyn8NYVeoDK8YBekVGyunnOFdp0QePWVrse9TlnPXYocFyWknh4lAmga8tDrN4HdA4l/exec';
+const TURNO = 'T3';
+let DB = { novatos: [], inativos: [], pwd: 'smg1t3admin' };
+let DB_LOADED = false;
+
+async function loadDB() {
+  try {
+    const r = await fetch(SCRIPT_URL + '?turno=' + TURNO);
+    const data = await r.json();
+    DB = data;
+    DB_LOADED = true;
+  } catch(e) {
+    // fallback localStorage
+    const raw = localStorage.getItem('smg1_' + TURNO + '_backup');
+    if (raw) DB = JSON.parse(raw);
+    DB_LOADED = true;
+  }
+}
+
+async function saveDB() {
+  try {
+    localStorage.setItem('smg1_' + TURNO + '_backup', JSON.stringify(DB));
+    await fetch(SCRIPT_URL + '?turno=' + TURNO, {
+      method: 'POST',
+      body: JSON.stringify(DB),
+      headers: { 'Content-Type': 'application/json' }
+    });
+  } catch(e) {
+    // salvo apenas no localStorage como backup
+  }
+}
+
 const BASE_FIXA = {
   A:[
     {n:"ELIENAI SOARES SCHUENGUE",g:"F",c:"OPL 3"},
@@ -710,15 +744,15 @@ const BASE_FIXA = {
 };
 
 const GROUPS=['A','B','C','D'];
-const STORAGE_KEY='smg1_grupos_t3_v3';
+
 const GROUP_COLORS={A:'#FFE600',B:'#3ECF8E',C:'#4DA6FF',D:'#FF6B9D'};
-const DEFAULT_PWD='smg1t3admin';
+
 
 // ── DB ──
-function loadDB(){try{const r=localStorage.getItem(STORAGE_KEY);if(r)return JSON.parse(r);}catch(e){}return{novatos:[],inativos:[],pwd:DEFAULT_PWD};}
-function saveDB(){localStorage.setItem(STORAGE_KEY,JSON.stringify(DB));}
-let DB=loadDB();
-if(!DB.pwd)DB.pwd=DEFAULT_PWD;
+
+
+
+
 
 // ── HELPERS ──
 function getAtivos(g){
@@ -760,14 +794,14 @@ function tentarLogin(){
   if(pwd===DB.pwd){showScreen('screen-admin');renderAll();}
   else{const err=document.getElementById('login-err');err.style.display='block';setTimeout(()=>err.style.display='none',3000);}
 }
-function alterarSenha(){
+async function alterarSenha(){
   const atual=document.getElementById('pwd-atual').value;
   const nova=document.getElementById('pwd-nova').value;
   const conf=document.getElementById('pwd-confirmar').value;
   if(atual!==DB.pwd){toast('⚠️','Senha atual incorreta.');return;}
   if(nova.length<4){toast('⚠️','Nova senha precisa ter pelo menos 4 caracteres.');return;}
   if(nova!==conf){toast('⚠️','As senhas não coincidem.');return;}
-  DB.pwd=nova;saveDB();
+  DB.pwd=nova;await saveDB();
   document.getElementById('pwd-atual').value='';
   document.getElementById('pwd-nova').value='';
   document.getElementById('pwd-confirmar').value='';
@@ -951,22 +985,22 @@ function renderInativos(){
 }
 
 // ══ AÇÕES ADMIN ════
-function inativar(nome,grupo,fixo,id){
+async function inativar(nome,grupo,fixo,id){
   if(!confirm(`Inativar "${nome}" do Grupo ${grupo}?`))return;
   if(fixo){const gen=BASE_FIXA[grupo].find(m=>m.n===nome)?.g||'?';DB.inativos.push({nome,grupo,genero:gen});}
   else{const n=DB.novatos.find(x=>x.id===id);if(n)n.ativo=false;}
-  saveDB();renderAll();toast('✅',`${nome} inativado.`);
+  await saveDB();renderAll();toast('✅',`${nome} inativado.`);
 }
-function reativar(nome,grupo,tipo,id){
+async function reativar(nome,grupo,tipo,id){
   if(tipo==='fixo'){DB.inativos=DB.inativos.filter(i=>!(i.nome===nome&&i.grupo===grupo));}
   else{const n=DB.novatos.find(x=>x.id===id);if(n)n.ativo=true;}
-  saveDB();renderAll();toast('🟢',`${nome} reativado no Grupo ${grupo}.`);
+  await saveDB();renderAll();toast('🟢',`${nome} reativado no Grupo ${grupo}.`);
 }
-function limparInativosNovatos(){
+async function limparInativosNovatos(){
   const c=DB.novatos.filter(n=>!n.ativo).length;
   if(!c){toast('ℹ️','Nenhum novato inativo.');return;}
   if(!confirm(`Remover ${c} novato(s) inativo(s) permanentemente?`))return;
-  DB.novatos=DB.novatos.filter(n=>n.ativo);saveDB();renderAll();toast('🗑️',`${c} removido(s).`);
+  DB.novatos=DB.novatos.filter(n=>n.ativo);await saveDB();renderAll();toast('🗑️',`${c} removido(s).`);
 }
 
 // ══ SUGESTÃO ════
@@ -990,12 +1024,12 @@ function sugerirGrupo(){
     </div>`;
   }).join('');
 }
-function adicionarNoGrupo(grupo,nome,genero,rota){
+async function adicionarNoGrupo(grupo,nome,genero,rota){
   const empresa=document.getElementById('inp-empresa').value;
   const cargo=document.getElementById('inp-cargo')?document.getElementById('inp-cargo').value:'REP I';
   const id='nov_'+Date.now()+'_'+Math.random().toString(36).slice(2,6);
   DB.novatos.push({id,nome,genero,rota:rota||'—',c:cargo,empresa,grupo,ativo:true,entrada:new Date().toLocaleDateString('pt-BR')});
-  saveDB();
+  await saveDB();
   document.getElementById('inp-nome').value='';
   document.getElementById('inp-genero').value='';
   document.getElementById('inp-rota').value='';
@@ -1140,8 +1174,12 @@ function escalaMes(m){
 
 // ══ INIT ════
 document.getElementById('topbar-date')&&(document.getElementById('topbar-date').textContent=new Date().toLocaleDateString('pt-BR',{weekday:'short',day:'2-digit',month:'short'}));
-renderAll();
 showScreen('screen-select');
+// Mostrar loading e carregar dados
+(async () => {
+  await loadDB();
+  renderAll();
+})();
 
 </script>
 </body>
