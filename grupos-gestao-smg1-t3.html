@@ -581,7 +581,7 @@ body{background:var(--dark);color:var(--text);font-family:'Inter',sans-serif;fon
 
 
 // ══ BANCO DE DADOS — GOOGLE SHEETS (TEMPO REAL) ══
-const SCRIPT_URL = 'https://script.google.com/a/macros/mercadolivre.com/s/AKfycbwjnuA9pWS_ibAgQqph8AWN6BEAb048aSA8uu0Lr9h1wM3el8afLO85_CE4FXrYBtSb/exec';
+const SCRIPT_URL = 'https://script.google.com/a/macros/mercadolivre.com/s/AKfycby4ShSgtRSveJ73XslDmH-MHiX6iFNqU_r0l7FgZjhNqBfRM6V0Yqej0n7neGut5kWZ/exec';
 const TURNO = 'T3';
 let DB = { novatos: [], inativos: [], pwd: 'smg1t3admin', ts: 0 };
 let lastTs = 0;
@@ -627,8 +627,8 @@ function showSyncStatus(status) {
 async function loadDB() {
   try {
     showSyncStatus('syncing');
-    const r = await fetch(SCRIPT_URL + '?turno=' + TURNO + '&t=' + Date.now());
-    const data = await r.json();
+    // Usar callback JSONP para contornar bloqueio CORS corporativo
+    const data = await fetchWithJsonp(SCRIPT_URL + '?turno=' + TURNO + '&t=' + Date.now());
     DB = data;
     lastTs = data.ts || 0;
     localStorage.setItem('smg1_' + TURNO + '_backup', JSON.stringify(DB));
@@ -646,13 +646,7 @@ async function saveDB() {
   try {
     showSyncStatus('syncing');
     localStorage.setItem('smg1_' + TURNO + '_backup', JSON.stringify(DB));
-    const r = await fetch(SCRIPT_URL + '?turno=' + TURNO, {
-      method: 'POST',
-      body: JSON.stringify(DB),
-      headers: { 'Content-Type': 'application/json' }
-    });
-    const res = await r.json();
-    if (res.ts) lastTs = res.ts;
+    await fetchWithJsonp(SCRIPT_URL + '?turno=' + TURNO + '&method=POST&data=' + encodeURIComponent(JSON.stringify(DB)));
     showSyncStatus('ok');
   } catch(e) {
     showSyncStatus('error');
@@ -661,24 +655,53 @@ async function saveDB() {
   }
 }
 
-// Polling a cada 5 segundos — detecta mudanças de outros dispositivos
 async function checkUpdates() {
   if (isSaving) return;
   try {
-    const r = await fetch(SCRIPT_URL + '?turno=' + TURNO + '&t=' + Date.now());
-    const data = await r.json();
+    const data = await fetchWithJsonp(SCRIPT_URL + '?turno=' + TURNO + '&t=' + Date.now());
     const remoteTs = data.ts || 0;
     if (remoteTs > lastTs) {
-      // Há dados mais novos — atualizar silenciosamente
       DB = data;
       lastTs = remoteTs;
       localStorage.setItem('smg1_' + TURNO + '_backup', JSON.stringify(DB));
-      renderAll(); // atualiza a tela
+      renderAll();
       showSyncStatus('updated');
     }
-  } catch(e) {
-    // silencioso em caso de erro no polling
-  }
+  } catch(e) {}
+}
+
+// JSONP — contorna bloqueio CORS
+function fetchWithJsonp(url) {
+  return new Promise((resolve, reject) => {
+    const cb = 'cb_' + Date.now();
+    const script = document.createElement('script');
+    const timeout = setTimeout(() => {
+      delete window[cb];
+      document.body.removeChild(script);
+      // Fallback: tentar fetch normal
+      fetch(url)
+        .then(r => r.json())
+        .then(resolve)
+        .catch(reject);
+    }, 5000);
+    window[cb] = (data) => {
+      clearTimeout(timeout);
+      delete window[cb];
+      document.body.removeChild(script);
+      resolve(data);
+    };
+    script.src = url + '&callback=' + cb;
+    script.onerror = () => {
+      clearTimeout(timeout);
+      delete window[cb];
+      // Fallback fetch
+      fetch(url.replace('&callback='+cb,''))
+        .then(r => r.json())
+        .then(resolve)
+        .catch(reject);
+    };
+    document.body.appendChild(script);
+  });
 }
 
 function startSync() {
