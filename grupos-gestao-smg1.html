@@ -601,13 +601,13 @@ body{background:var(--dark);color:var(--text);font-family:'Inter',sans-serif;fon
 
 
 
+
 // ══ BANCO DE DADOS — JSONBIN.IO (TEMPO REAL) ══
 const JSONBIN_KEY = '$2a$10$XpAO0mtM5N8ldrosT.HzvOzqrnknWcCX8PUWxleGme1WzEnDWsm/u';
 const TURNO = 'T1';
-const BIN_NAME = 'SMG1-' + TURNO;
+const BIN_ID = '6a84aa56f5f4af5e29258bf0';
 let DB = { novatos: [], inativos: [], pwd: 'smg1admin', ts: 0 };
 let lastTs = 0;
-let BIN_ID = localStorage.getItem('smg1_bin_' + TURNO) || null;
 let isSaving = false;
 let syncInterval = null;
 
@@ -616,69 +616,31 @@ function showSyncStatus(status) {
   if (!el) {
     el = document.createElement('div');
     el.id = 'sync-status';
-    el.style.cssText = 'position:fixed;bottom:60px;right:20px;font-size:10px;padding:4px 10px;border-radius:20px;font-family:Inter,sans-serif;z-index:9998;transition:all .3s;';
+    el.style.cssText = 'position:fixed;bottom:60px;right:20px;font-size:10px;padding:4px 10px;border-radius:20px;font-family:Inter,sans-serif;z-index:9998;transition:all .3s;opacity:1;';
     document.body.appendChild(el);
   }
   if (status === 'syncing') {
-    el.style.cssText += 'background:rgba(255,230,0,0.15);color:#FFE600;border:1px solid rgba(255,230,0,0.3);opacity:1;';
+    el.style.background='rgba(255,230,0,0.15)';el.style.color='#FFE600';el.style.border='1px solid rgba(255,230,0,0.3)';el.style.opacity='1';
     el.textContent = '⟳ Sincronizando...';
   } else if (status === 'ok') {
-    el.style.cssText += 'background:rgba(62,207,142,0.15);color:#3ECF8E;border:1px solid rgba(62,207,142,0.3);opacity:1;';
+    el.style.background='rgba(62,207,142,0.15)';el.style.color='#3ECF8E';el.style.border='1px solid rgba(62,207,142,0.3)';el.style.opacity='1';
     el.textContent = '✓ Sincronizado';
-    setTimeout(() => el.style.opacity = '0', 2000);
+    setTimeout(() => { el.style.opacity = '0'; }, 2000);
   } else if (status === 'error') {
-    el.style.cssText += 'background:rgba(255,82,82,0.15);color:#FF5252;border:1px solid rgba(255,82,82,0.3);opacity:1;';
+    el.style.background='rgba(255,82,82,0.15)';el.style.color='#FF5252';el.style.border='1px solid rgba(255,82,82,0.3)';el.style.opacity='1';
     el.textContent = '✗ Sem conexão';
   } else if (status === 'updated') {
-    el.style.cssText += 'background:rgba(77,166,255,0.15);color:#4DA6FF;border:1px solid rgba(77,166,255,0.3);opacity:1;';
+    el.style.background='rgba(77,166,255,0.15)';el.style.color='#4DA6FF';el.style.border='1px solid rgba(77,166,255,0.3)';el.style.opacity='1';
     el.textContent = '↻ Atualizado!';
-    setTimeout(() => el.style.opacity = '0', 3000);
+    setTimeout(() => { el.style.opacity = '0'; }, 3000);
   }
-}
-
-async function getBinId() {
-  if (BIN_ID) return BIN_ID;
-  // Buscar bin pelo nome
-  try {
-    const r = await fetch('https://api.jsonbin.io/v3/b?name=' + BIN_NAME, {
-      headers: { 'X-Master-Key': JSONBIN_KEY }
-    });
-    const data = await r.json();
-    if (data && data.metadata && data.metadata.id) {
-      BIN_ID = data.metadata.id;
-      localStorage.setItem('smg1_bin_' + TURNO, BIN_ID);
-      return BIN_ID;
-    }
-  } catch(e) {}
-  // Criar bin novo se não existir
-  try {
-    const r = await fetch('https://api.jsonbin.io/v3/b', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-Master-Key': JSONBIN_KEY,
-        'X-Bin-Name': BIN_NAME,
-        'X-Bin-Private': 'false'
-      },
-      body: JSON.stringify(DB)
-    });
-    const data = await r.json();
-    if (data && data.metadata && data.metadata.id) {
-      BIN_ID = data.metadata.id;
-      localStorage.setItem('smg1_bin_' + TURNO, BIN_ID);
-      return BIN_ID;
-    }
-  } catch(e) {}
-  return null;
 }
 
 async function loadDB() {
   try {
     showSyncStatus('syncing');
-    const id = await getBinId();
-    if (!id) throw new Error('Sem bin');
-    const r = await fetch(`https://api.jsonbin.io/v3/b/${id}/latest`, {
-      headers: { 'X-Master-Key': JSONBIN_KEY }
+    const r = await fetch('https://api.jsonbin.io/v3/b/' + BIN_ID + '/latest', {
+      headers: { 'X-Master-Key': JSONBIN_KEY, 'X-Bin-Meta': 'false' }
     });
     const data = await r.json();
     if (data && data.record) {
@@ -686,6 +648,8 @@ async function loadDB() {
       lastTs = DB.ts || 0;
       localStorage.setItem('smg1_' + TURNO + '_backup', JSON.stringify(DB));
       showSyncStatus('ok');
+    } else {
+      throw new Error('Sem dados');
     }
   } catch(e) {
     const raw = localStorage.getItem('smg1_' + TURNO + '_backup');
@@ -701,9 +665,7 @@ async function saveDB() {
     showSyncStatus('syncing');
     DB.ts = Date.now();
     localStorage.setItem('smg1_' + TURNO + '_backup', JSON.stringify(DB));
-    const id = await getBinId();
-    if (!id) throw new Error('Sem bin');
-    await fetch(`https://api.jsonbin.io/v3/b/${id}`, {
+    const r = await fetch('https://api.jsonbin.io/v3/b/' + BIN_ID, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
@@ -711,8 +673,13 @@ async function saveDB() {
       },
       body: JSON.stringify(DB)
     });
-    lastTs = DB.ts;
-    showSyncStatus('ok');
+    const res = await r.json();
+    if (res && res.record) {
+      lastTs = DB.ts;
+      showSyncStatus('ok');
+    } else {
+      throw new Error('Erro ao salvar');
+    }
   } catch(e) {
     showSyncStatus('error');
   } finally {
@@ -723,10 +690,8 @@ async function saveDB() {
 async function checkUpdates() {
   if (isSaving) return;
   try {
-    const id = await getBinId();
-    if (!id) return;
-    const r = await fetch(`https://api.jsonbin.io/v3/b/${id}/latest`, {
-      headers: { 'X-Master-Key': JSONBIN_KEY }
+    const r = await fetch('https://api.jsonbin.io/v3/b/' + BIN_ID + '/latest', {
+      headers: { 'X-Master-Key': JSONBIN_KEY, 'X-Bin-Meta': 'false' }
     });
     const data = await r.json();
     if (data && data.record) {
@@ -746,6 +711,7 @@ function startSync() {
   if (syncInterval) clearInterval(syncInterval);
   syncInterval = setInterval(checkUpdates, 5000);
 }
+
 
 
 const BASE_FIXA = {
