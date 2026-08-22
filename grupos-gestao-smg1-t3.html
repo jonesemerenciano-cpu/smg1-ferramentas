@@ -311,7 +311,7 @@ body{background:var(--dark);color:var(--text);font-family:'Inter',sans-serif;fon
       <div class="mode-card escala-card" onclick="goEscala()">
         <div class="mc-icon">📅</div>
         <div class="mc-title">Escala Rotativa</div>
-        <div class="mc-desc">Consulte os dias de trabalho e DSR de cada time de 23/08 a 14/11/2026.</div>
+        <div class="mc-desc">Consulte os dias de trabalho e DSR de cada time de 24/08 a 14/11/2026.</div>
       </div>
       <div class="mode-card admin-card" onclick="goLogin()">
         <div class="mc-icon">🔐</div>
@@ -361,9 +361,9 @@ body{background:var(--dark);color:var(--text);font-family:'Inter',sans-serif;fon
 ══════════════════════════════════════════ -->
 <div class="screen" id="screen-escala">
   <div class="escala-topbar">
-    <div class="escala-logo">SMG1 · T1</div>
+    <div class="escala-logo">SMG1 · T3</div>
     <span style="font-size:14px;font-weight:600;">Escala Rotativa</span>
-    <span style="font-size:11px;color:var(--muted2);">23/08 a 14/11/2026</span>
+    <span style="font-size:11px;color:var(--muted2);">24/08 a 14/11/2026</span>
     <div style="margin-left:auto;display:flex;gap:8px;align-items:center;">
       <button class="today-btn-e" onclick="escalaoHoje()">📅 Hoje</button>
       <button class="back-btn" onclick="goSelect()">← Voltar</button>
@@ -1175,13 +1175,13 @@ function toast(icon,msg){
 function renderAll(){renderStats();renderGroups();renderInativos();}
 
 // ══ ESCALA ROTATIVA ════
-const E_DATAS=["23/08", "24/08", "25/08", "26/08", "27/08", "28/08", "29/08", "30/08", "31/08", "01/09", "02/09", "03/09", "04/09", "05/09", "06/09", "07/09", "08/09", "09/09", "10/09", "11/09", "12/09", "13/09", "14/09", "15/09", "16/09", "17/09", "18/09", "19/09", "20/09", "21/09", "22/09", "23/09", "24/09", "25/09", "26/09", "27/09", "28/09", "29/09", "30/09", "01/10", "02/10", "03/10", "04/10", "05/10", "06/10", "07/10", "08/10", "09/10", "10/10", "11/10", "12/10", "13/10", "14/10", "15/10", "16/10", "17/10", "18/10", "19/10", "20/10", "21/10", "22/10", "23/10", "24/10", "25/10", "26/10", "27/10", "28/10", "29/10", "30/10", "31/10", "01/11", "02/11", "03/11", "04/11", "05/11", "06/11", "07/11", "08/11", "09/11", "10/11", "11/11", "12/11", "13/11", "14/11"];
-const E_DIAS=["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb", "Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb", "Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb", "Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb", "Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb", "Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb", "Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb", "Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb", "Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb", "Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb", "Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb", "Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"];
+const E_DATAS=["24/08", "25/08", "26/08", "27/08", "28/08", "29/08", "30/08", "31/08", "01/09", "02/09", "03/09", "04/09", "05/09", "06/09", "07/09", "08/09", "09/09", "10/09", "11/09", "12/09", "13/09", "14/09", "15/09", "16/09", "17/09", "18/09", "19/09", "20/09", "21/09", "22/09", "23/09", "24/09", "25/09", "26/09", "27/09", "28/09", "29/09", "30/09", "01/10", "02/10", "03/10", "04/10", "05/10", "06/10", "07/10", "08/10", "09/10", "10/10", "11/10", "12/10", "13/10", "14/10", "15/10", "16/10", "17/10", "18/10", "19/10", "20/10", "21/10", "22/10", "23/10", "24/10", "25/10", "26/10", "27/10", "28/10", "29/10", "30/10", "31/10", "01/11", "02/11", "03/11", "04/11", "05/11", "06/11", "07/11", "08/11", "09/11", "10/11", "11/11", "12/11", "13/11", "14/11"];
+const E_DIAS=["Seg", "Ter", "Qua", "Qui", "Sex", "Sáb", "Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb", "Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb", "Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb", "Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb", "Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb", "Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb", "Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb", "Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb", "Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb", "Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb", "Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"];
 const E_ESCALA={
-  A:["DSR", "DSR", "T", "T", "T", "DSR", "T", "T", "T", "T", "DSR", "DSR", "T", "T", "T", "T", "DSR", "T", "T", "T", "T", "DSR", "T", "T", "T", "T", "T", "DSR", "DSR", "DSR", "T", "T", "T", "DSR", "T", "T", "T", "T", "DSR", "DSR", "T", "T", "T", "T", "DSR", "T", "T", "T", "T", "DSR", "T", "T", "T", "T", "T", "DSR", "DSR", "DSR", "T", "T", "T", "DSR", "T", "T", "T", "T", "DSR", "DSR", "T", "T", "T", "T", "DSR", "T", "T", "T", "T", "DSR", "T", "T", "T", "T", "T", "DSR"],
-  B:["DSR", "T", "T", "T", "T", "T", "DSR", "DSR", "DSR", "T", "T", "T", "DSR", "T", "T", "T", "T", "DSR", "DSR", "T", "T", "T", "T", "DSR", "T", "T", "T", "T", "DSR", "T", "T", "T", "T", "T", "DSR", "DSR", "DSR", "T", "T", "T", "DSR", "T", "T", "T", "T", "DSR", "DSR", "T", "T", "T", "T", "DSR", "T", "T", "T", "T", "DSR", "T", "T", "T", "T", "T", "DSR", "DSR", "DSR", "T", "T", "T", "DSR", "T", "T", "T", "T", "DSR", "DSR", "T", "T", "T", "T", "DSR", "T", "T", "T", "T"],
-  C:["T", "T", "DSR", "T", "T", "T", "T", "DSR", "T", "T", "T", "T", "T", "DSR", "DSR", "DSR", "T", "T", "T", "DSR", "T", "T", "T", "T", "DSR", "DSR", "T", "T", "T", "T", "DSR", "T", "T", "T", "T", "DSR", "T", "T", "T", "T", "T", "DSR", "DSR", "DSR", "T", "T", "T", "DSR", "T", "T", "T", "T", "DSR", "DSR", "T", "T", "T", "T", "DSR", "T", "T", "T", "T", "DSR", "T", "T", "T", "T", "T", "DSR", "DSR", "DSR", "T", "T", "T", "DSR", "T", "T", "T", "T", "DSR", "DSR", "T", "T"],
-  D:["T", "T", "T", "DSR", "DSR", "T", "T", "T", "T", "DSR", "T", "T", "T", "T", "DSR", "T", "T", "T", "T", "T", "DSR", "DSR", "DSR", "T", "T", "T", "DSR", "T", "T", "T", "T", "DSR", "DSR", "T", "T", "T", "T", "DSR", "T", "T", "T", "T", "DSR", "T", "T", "T", "T", "T", "DSR", "DSR", "DSR", "T", "T", "T", "DSR", "T", "T", "T", "T", "DSR", "DSR", "T", "T", "T", "T", "DSR", "T", "T", "T", "T", "DSR", "T", "T", "T", "T", "T", "DSR", "DSR", "DSR", "T", "T", "T", "DSR", "T"],
+  A:["DSR", "T", "T", "T", "DSR", "T", "T", "T", "T", "DSR", "DSR", "T", "T", "T", "T", "DSR", "T", "T", "T", "T", "DSR", "T", "T", "T", "T", "T", "DSR", "DSR", "DSR", "T", "T", "T", "DSR", "T", "T", "T", "T", "DSR", "DSR", "T", "T", "T", "T", "DSR", "T", "T", "T", "T", "DSR", "T", "T", "T", "T", "T", "DSR", "DSR", "DSR", "T", "T", "T", "DSR", "T", "T", "T", "T", "DSR", "DSR", "T", "T", "T", "T", "DSR", "T", "T", "T", "T", "DSR", "T", "T", "T", "T", "T", "DSR"],
+  B:["T", "T", "T", "T", "T", "DSR", "DSR", "DSR", "T", "T", "T", "DSR", "T", "T", "T", "T", "DSR", "DSR", "T", "T", "T", "T", "DSR", "T", "T", "T", "T", "DSR", "T", "T", "T", "T", "T", "DSR", "DSR", "DSR", "T", "T", "T", "DSR", "T", "T", "T", "T", "DSR", "DSR", "T", "T", "T", "T", "DSR", "T", "T", "T", "T", "DSR", "T", "T", "T", "T", "T", "DSR", "DSR", "DSR", "T", "T", "T", "DSR", "T", "T", "T", "T", "DSR", "DSR", "T", "T", "T", "T", "DSR", "T", "T", "T", "T"],
+  C:["T", "DSR", "T", "T", "T", "T", "DSR", "T", "T", "T", "T", "T", "DSR", "DSR", "DSR", "T", "T", "T", "DSR", "T", "T", "T", "T", "DSR", "DSR", "T", "T", "T", "T", "DSR", "T", "T", "T", "T", "DSR", "T", "T", "T", "T", "T", "DSR", "DSR", "DSR", "T", "T", "T", "DSR", "T", "T", "T", "T", "DSR", "DSR", "T", "T", "T", "T", "DSR", "T", "T", "T", "T", "DSR", "T", "T", "T", "T", "T", "DSR", "DSR", "DSR", "T", "T", "T", "DSR", "T", "T", "T", "T", "DSR", "DSR", "T", "T"],
+  D:["T", "T", "DSR", "DSR", "T", "T", "T", "T", "DSR", "T", "T", "T", "T", "DSR", "T", "T", "T", "T", "T", "DSR", "DSR", "DSR", "T", "T", "T", "DSR", "T", "T", "T", "T", "DSR", "DSR", "T", "T", "T", "T", "DSR", "T", "T", "T", "T", "DSR", "T", "T", "T", "T", "T", "DSR", "DSR", "DSR", "T", "T", "T", "DSR", "T", "T", "T", "T", "DSR", "DSR", "T", "T", "T", "T", "DSR", "T", "T", "T", "T", "DSR", "T", "T", "T", "T", "T", "DSR", "DSR", "DSR", "T", "T", "T", "DSR", "T"],
 };
 const E_TIMES=['A','B','C','D'];
 const E_COR={A:'#FFE600',B:'#3ECF8E',C:'#4DA6FF',D:'#FF6B9D'};
