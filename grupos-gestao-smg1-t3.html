@@ -581,95 +581,65 @@ body{background:var(--dark);color:var(--text);font-family:'Inter',sans-serif;fon
 
 
 
+
+
 // ══ BANCO DE DADOS — JSONBIN.IO (TEMPO REAL) ══
 const JSONBIN_KEY = '$2a$10$XpAO0mtM5N8ldrosT.HzvOzqrnknWcCX8PUWxleGme1WzEnDWsm/u';
 const TURNO = 'T3';
-const BIN_NAME = 'SMG1-' + TURNO;
+const BIN_ID = '6a84b3c5f5f4af5e2925ad01';
 let DB = { novatos: [], inativos: [], pwd: 'smg1t3admin', ts: 0 };
 let lastTs = 0;
-let BIN_ID = localStorage.getItem('smg1_bin_' + TURNO) || null;
 let isSaving = false;
 let syncInterval = null;
+
+const JHEADERS = {
+  'X-Master-Key': JSONBIN_KEY,
+  'X-Access-Key': JSONBIN_KEY,
+  'Content-Type': 'application/json'
+};
 
 function showSyncStatus(status) {
   let el = document.getElementById('sync-status');
   if (!el) {
     el = document.createElement('div');
     el.id = 'sync-status';
-    el.style.cssText = 'position:fixed;bottom:60px;right:20px;font-size:10px;padding:4px 10px;border-radius:20px;font-family:Inter,sans-serif;z-index:9998;transition:all .3s;';
+    el.style.cssText = 'position:fixed;bottom:60px;right:20px;font-size:10px;padding:4px 10px;border-radius:20px;font-family:Inter,sans-serif;z-index:9998;transition:opacity .3s;opacity:1;';
     document.body.appendChild(el);
   }
-  if (status === 'syncing') {
-    el.style.cssText += 'background:rgba(255,230,0,0.15);color:#FFE600;border:1px solid rgba(255,230,0,0.3);opacity:1;';
-    el.textContent = '⟳ Sincronizando...';
-  } else if (status === 'ok') {
-    el.style.cssText += 'background:rgba(62,207,142,0.15);color:#3ECF8E;border:1px solid rgba(62,207,142,0.3);opacity:1;';
-    el.textContent = '✓ Sincronizado';
-    setTimeout(() => el.style.opacity = '0', 2000);
-  } else if (status === 'error') {
-    el.style.cssText += 'background:rgba(255,82,82,0.15);color:#FF5252;border:1px solid rgba(255,82,82,0.3);opacity:1;';
-    el.textContent = '✗ Sem conexão';
-  } else if (status === 'updated') {
-    el.style.cssText += 'background:rgba(77,166,255,0.15);color:#4DA6FF;border:1px solid rgba(77,166,255,0.3);opacity:1;';
-    el.textContent = '↻ Atualizado!';
-    setTimeout(() => el.style.opacity = '0', 3000);
-  }
-}
-
-async function getBinId() {
-  if (BIN_ID) return BIN_ID;
-  // Buscar bin pelo nome
-  try {
-    const r = await fetch('https://api.jsonbin.io/v3/b?name=' + BIN_NAME, {
-      headers: { 'X-Master-Key': JSONBIN_KEY }
-    });
-    const data = await r.json();
-    if (data && data.metadata && data.metadata.id) {
-      BIN_ID = data.metadata.id;
-      localStorage.setItem('smg1_bin_' + TURNO, BIN_ID);
-      return BIN_ID;
-    }
-  } catch(e) {}
-  // Criar bin novo se não existir
-  try {
-    const r = await fetch('https://api.jsonbin.io/v3/b', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-Master-Key': JSONBIN_KEY,
-        'X-Bin-Name': BIN_NAME,
-        'X-Bin-Private': 'false'
-      },
-      body: JSON.stringify(DB)
-    });
-    const data = await r.json();
-    if (data && data.metadata && data.metadata.id) {
-      BIN_ID = data.metadata.id;
-      localStorage.setItem('smg1_bin_' + TURNO, BIN_ID);
-      return BIN_ID;
-    }
-  } catch(e) {}
-  return null;
+  const styles = {
+    syncing: ['rgba(255,230,0,0.15)','#FFE600','rgba(255,230,0,0.3)','⟳ Sincronizando...'],
+    ok:      ['rgba(62,207,142,0.15)','#3ECF8E','rgba(62,207,142,0.3)','✓ Sincronizado'],
+    error:   ['rgba(255,82,82,0.15)','#FF5252','rgba(255,82,82,0.3)','✗ Sem conexão'],
+    updated: ['rgba(77,166,255,0.15)','#4DA6FF','rgba(77,166,255,0.3)','↻ Atualizado!'],
+  };
+  const [bg,color,border,text] = styles[status]||styles.error;
+  el.style.background=bg; el.style.color=color;
+  el.style.border=`1px solid ${border}`; el.style.opacity='1';
+  el.textContent=text;
+  if(status==='ok') setTimeout(()=>el.style.opacity='0',2000);
+  if(status==='updated') setTimeout(()=>el.style.opacity='0',3000);
 }
 
 async function loadDB() {
   try {
     showSyncStatus('syncing');
-    const id = await getBinId();
-    if (!id) throw new Error('Sem bin');
-    const r = await fetch(`https://api.jsonbin.io/v3/b/${id}/latest`, {
-      headers: { 'X-Master-Key': JSONBIN_KEY }
+    const r = await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}/latest`, {
+      headers: JHEADERS
     });
+    if (!r.ok) throw new Error(`HTTP ${r.status}`);
     const data = await r.json();
     if (data && data.record) {
       DB = data.record;
       lastTs = DB.ts || 0;
       localStorage.setItem('smg1_' + TURNO + '_backup', JSON.stringify(DB));
       showSyncStatus('ok');
+      return;
     }
+    throw new Error('Sem record');
   } catch(e) {
+    console.warn('loadDB erro:', e);
     const raw = localStorage.getItem('smg1_' + TURNO + '_backup');
-    if (raw) DB = JSON.parse(raw);
+    if (raw) { try { DB = JSON.parse(raw); } catch(_){} }
     showSyncStatus('error');
   }
 }
@@ -681,19 +651,16 @@ async function saveDB() {
     showSyncStatus('syncing');
     DB.ts = Date.now();
     localStorage.setItem('smg1_' + TURNO + '_backup', JSON.stringify(DB));
-    const id = await getBinId();
-    if (!id) throw new Error('Sem bin');
-    await fetch(`https://api.jsonbin.io/v3/b/${id}`, {
+    const r = await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}`, {
       method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-Master-Key': JSONBIN_KEY
-      },
+      headers: JHEADERS,
       body: JSON.stringify(DB)
     });
+    if (!r.ok) throw new Error(`HTTP ${r.status}`);
     lastTs = DB.ts;
     showSyncStatus('ok');
   } catch(e) {
+    console.warn('saveDB erro:', e);
     showSyncStatus('error');
   } finally {
     isSaving = false;
@@ -703,11 +670,10 @@ async function saveDB() {
 async function checkUpdates() {
   if (isSaving) return;
   try {
-    const id = await getBinId();
-    if (!id) return;
-    const r = await fetch(`https://api.jsonbin.io/v3/b/${id}/latest`, {
-      headers: { 'X-Master-Key': JSONBIN_KEY }
+    const r = await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}/latest`, {
+      headers: JHEADERS
     });
+    if (!r.ok) return;
     const data = await r.json();
     if (data && data.record) {
       const remoteTs = data.record.ts || 0;
@@ -728,136 +694,156 @@ function startSync() {
 }
 
 
+
+
 const BASE_FIXA = {
   A:[
-    {n:"ELIENAI SOARES SCHUENGUE",g:"F",c:"OPL 3"},
-    {n:"ARYANA DA SILVA GOMES",g:"F",c:"OPL 2"},
-    {n:"GEOVANA DOS SANTOS CARVALHO",g:"F",c:"REP II"},
-    {n:"VITOR HENRIQUE GOMES DA SILVA BERNARDO",g:"M",c:"REP II"},
-    {n:"AMANDA STEFANIE JESSICA LANSIQUOT",g:"F",c:"REP I"},
-    {n:"ANA CAROLINA FERREIRA DA SILVA REIS",g:"F",c:"REP I"},
-    {n:"ANA PAULA KELEN SANTOS RODRIGUES",g:"F",c:"REP I"},
-    {n:"ANGELA MARIA DE PAULA",g:"F",c:"REP I"},
-    {n:"ANNA VITORIA HONORATO",g:"F",c:"TEMPORARIO"},
-    {n:"DAYSE MARIA FERNANDES PEREIRA DA SILVA",g:"F",c:"REP I"},
-    {n:"DEYSE JANICE APARECIDA ROCHA",g:"F",c:"REP I"},
-    {n:"EDVANIA MARCIA ALVES",g:"F",c:"REP I"},
-    {n:"FERNANDA MIRIAN DE PAULA",g:"F",c:"REP I"},
-    {n:"MARIANA DE JESUS DOS SANTOS",g:"F",c:"REP I"},
-    {n:"PATRICIA DIAS BORGES",g:"F",c:"REP I"},
-    {n:"RAISSA APARECIDA BENTO",g:"F",c:"REP I"},
-    {n:"TAIS APARECIDA INACIO",g:"F",c:"REP I"},
-    {n:"TAMARA PAULA DA SILVA BRAGA",g:"F",c:"REP I"},
-    {n:"ADRIAN VICTOR GONÇALVES MOREIRA",g:"M",c:"REP I"},
-    {n:"CARLOS RENATO MARTINS",g:"M",c:"REP I"},
-    {n:"DANTE EDUARDO PEDROZA RESENDE",g:"M",c:"REP I"},
-    {n:"FABRICIO VIANA OLIVEIRA",g:"M",c:"REP I"},
-    {n:"FREDERICO PINTO DUARTE",g:"M",c:"TEMPORARIO"},
-    {n:"GLAUBERT GIL VILELA DE OLIVEIRA SEDLMAIER",g:"M",c:"REP I"},
-    {n:"JEZIEL CALEBE ALVES OLIVEIRA",g:"M",c:"REP I"},
-    {n:"KAIQUE RAPHAEL SIQUEIRA FERNANDES",g:"M",c:"REP I"},
-    {n:"MATHEUS RANIERI DE OLIVEIRA PEREIRA",g:"M",c:"REP I"},
-    {n:"NIVAIR JUNIO CASTRO PACHECO",g:"M",c:"REP I"},
-    {n:"REGINALDO MARCAL RAMOS",g:"M",c:"REP I"},
-    {n:"WANDERSON GONCALVES FERNANDES",g:"M",c:"REP I"},
+    {n:"ELIENAI SOARES SCHUENGUE",g:"F",r:"—",e:"MELI",c:"OPL 3"},
+    {n:"ARYANA DA SILVA GOMES",g:"F",r:"11",e:"MELI",c:"OPL 2"},
+    {n:"GEOVANA DOS SANTOS CARVALHO",g:"F",r:"21",e:"MELI",c:"REP II"},
+    {n:"VITOR HENRIQUE GOMES DA SILVA BERNARDO",g:"M",r:"100",e:"MELI",c:"REP II"},
+    {n:"AMANDA STEFANIE JESSICA LANSIQUOT",g:"F",r:"100",e:"MELI",c:"REP I"},
+    {n:"ANA CAROLINA FERREIRA DA SILVA REIS",g:"F",r:"25EX",e:"MELI",c:"REP I"},
+    {n:"ANDREA LUCIA DIAS PENNACCHIA RODRIGUES",g:"F",r:"100",e:"MELI",c:"REP I"},
+    {n:"ANGELA MARIA DE PAULA",g:"F",r:"11",e:"MELI",c:"REP I"},
+    {n:"DAYSE MARIA FERNANDES PEREIRA DA SILVA",g:"F",r:"11EX",e:"MELI",c:"REP I"},
+    {n:"DEYSE JANICE APARECIDA ROCHA",g:"F",r:"25",e:"MELI",c:"REP I"},
+    {n:"EDVANIA MARCIA ALVES",g:"F",r:"11EX",e:"MELI",c:"REP I"},
+    {n:"ESTELINY SHAIANE LANGAMER BATISTA",g:"F",r:"25EX",e:"MELI",c:"REP I"},
+    {n:"FERNANDA MIRIAN DE PAULA",g:"F",r:"25EX",e:"MELI",c:"REP I"},
+    {n:"KAIQUE RAPHAEL SIQUEIRA FERNANDES",g:"F",r:"21",e:"MELI",c:"REP I"},
+    {n:"MARIANA DE JESUS DOS SANTOS",g:"F",r:"11",e:"MELI",c:"REP I"},
+    {n:"RAISSA APARECIDA BENTO",g:"F",r:"25",e:"MELI",c:"REP I"},
+    {n:"REBECCA EVELLYN DA SILVEIRA EGIDIO",g:"F",r:"10",e:"MELI",c:"REP I"},
+    {n:"TAIS APARECIDA INACIO",g:"F",r:"11",e:"MELI",c:"REP I"},
+    {n:"TAMARA PAULA DA SILVA BRAGA",g:"F",r:"10EX",e:"MELI",c:"REP I"},
+    {n:"ADRIAN VICTOR GONÇALVES MOREIRA",g:"M",r:"11",e:"MELI",c:"REP I"},
+    {n:"CARLOS RENATO MARTINS",g:"M",r:"10EX",e:"MELI",c:"REP I"},
+    {n:"DANTE EDUARDO PEDROZA RESENDE",g:"M",r:"10EX",e:"MELI",c:"REP I"},
+    {n:"FABRICIO VIANA OLIVEIRA",g:"M",r:"10",e:"MELI",c:"REP I"},
+    {n:"GLAUBERT GIL VILELA DE OLIVEIRA SEDLMAIER",g:"M",r:"100",e:"MELI",c:"REP I"},
+    {n:"HUDSON JUNIOR FERNANDES",g:"M",r:"25",e:"MELI",c:"REP I"},
+    {n:"JEZIEL CALEBE ALVES OLIVEIRA",g:"M",r:"100",e:"MELI",c:"REP I"},
+    {n:"JULIO CESAR MACHADO FERREIRA",g:"M",r:"25EX",e:"MELI",c:"REP I"},
+    {n:"LEONARDO MONTEIRO DA SILVA",g:"M",r:"10EX",e:"MELI",c:"REP I"},
+    {n:"LUCAS SOUZA COSTA",g:"M",r:"2",e:"MELI",c:"REP I"},
+    {n:"MATHEUS RANIERI DE OLIVEIRA PEREIRA",g:"M",r:"10EX",e:"MELI",c:"REP I"},
+    {n:"RAFAEL DE MENDONCA SILVA",g:"M",r:"21EX",e:"MELI",c:"REP I"},
+    {n:"REGINALDO MARCAL RAMOS",g:"M",r:"25EX",e:"MELI",c:"REP I"},
+    {n:"SAMUEL MACHADO FERRARI",g:"M",r:"25EX",e:"CARPE DIEM",c:"REP I"},
+    {n:"WASHINGTON JUNIO GONCALVES DE OLIVEIRA",g:"M",r:"25EX",e:"MELI",c:"REP I"},
+    {n:"YURI FELIPE DA SILVA VIEIRA",g:"M",r:"100",e:"MELI",c:"REP I"},
   ],
   B:[
-    {n:"DAVI HENRIQUE SANTOS PARDIM",g:"M",c:"OPL 2"},
-    {n:"ERNANI GLICERIO PENA REZENDE REIS",g:"M",c:"REP II"},
-    {n:"FERNANDO DA CONCEICAO FERREIRA",g:"M",c:"REP II"},
-    {n:"MATEUS HENRIQUE ROSA DOS SANTOS",g:"M",c:"REP II"},
-    {n:"DIONATHAN GABRIEL DE JESUS GONCALVES",g:"M",c:"REP II"},
-    {n:"ANA CAROLINA DE JESUS GOMES",g:"F",c:"REP I"},
-    {n:"ANA CAROLINA RAMOS PESSOA",g:"F",c:"REP I"},
-    {n:"ELENICE TAMIRIS DE SOUZA",g:"F",c:"REP I"},
-    {n:"FABIOLA VITORIA ALVES DA SILVA",g:"F",c:"REP I"},
-    {n:"IRÍS RIBEIRO PIMENTEL DE CARVALHO",g:"F",c:"TEMPORARIO"},
-    {n:"JACQUELINE FRANCISCA DA SILVA",g:"F",c:"REP I"},
-    {n:"JULIA KATHLEN DE OLIVEIRA BONFIM",g:"F",c:"REP I"},
-    {n:"LETICIA RIBEIRO FERREIRA DOS SANTOS",g:"F",c:"REP I"},
-    {n:"LILIAN CRISTINY CUNHA BARBOSA",g:"F",c:"REP I"},
-    {n:"MARIANA KELLY DA SILVA OLIVEIRA",g:"F",c:"REP I"},
-    {n:"MARTA TOMAZ PIRES PEREIRA",g:"F",c:"REP I"},
-    {n:"RAISSA GOMES DUARTE",g:"F",c:"REP I"},
-    {n:"REBECCA EVELLYN DA SILVEIRA EGIDIO",g:"F",c:"REP I"},
-    {n:"STEFHANE SOARES DA CRUZ",g:"F",c:"REP I"},
-    {n:"ALEX CUNHA",g:"M",c:"REP I"},
-    {n:"ARTHUR FELIPE ALVES DE OLIVEIRA",g:"M",c:"REP I"},
-    {n:"DAVID RABELO DE SOUZA",g:"M",c:"REP I"},
-    {n:"DIOGO FERNANDO DOS SANTOS",g:"M",c:"REP I"},
-    {n:"EIQUE FONTES DA SILVA",g:"M",c:"TEMPORARIO"},
-    {n:"GUSTAVO AUGUSTO SILVA PASSOS",g:"M",c:"REP I"},
-    {n:"JOÃO VITOR MONTEIRO ANTÔNIO",g:"M",c:"REP I"},
-    {n:"LUCAS COSTA",g:"M",c:"REP I"},
-    {n:"RICARDO VERISSIMO DE OLIVEIRA",g:"M",c:"REP I"},
-    {n:"SAMUEL ISAQUE CORREA DE ASSIS SILVA",g:"M",c:"REP I"},
+    {n:"DAVI HENRIQUE SANTOS PARDIM",g:"M",r:"22",e:"MELI",c:"OPL 2"},
+    {n:"DIONATHAN GABRIEL DE JESUS GONCALVES",g:"M",r:"11",e:"MELI",c:"REP II"},
+    {n:"FERNANDO DA CONCEICAO FERREIRA",g:"M",r:"25",e:"MELI",c:"REP II"},
+    {n:"MATEUS HENRIQUE ROSA DOS SANTOS",g:"M",r:"25",e:"MELI",c:"REP II"},
+    {n:"ANA CAROLINA DE JESUS GOMES",g:"F",r:"21EX",e:"MELI",c:"REP I"},
+    {n:"ANA CAROLINA RAMOS PESSOA",g:"F",r:"100",e:"MELI",c:"REP I"},
+    {n:"CIBELE LOPES MACHADO",g:"F",r:"4",e:"MELI",c:"REP I"},
+    {n:"DIEGO GABRIEL",g:"F",r:"25EX",e:"MELI",c:"REP I"},
+    {n:"ELENICE TAMIRIS DE SOUZA",g:"F",r:"11",e:"MELI",c:"REP I"},
+    {n:"ESTER VIEIRA DE AVILA",g:"F",r:"2",e:"MELI",c:"REP I"},
+    {n:"FABIOLA VITORIA ALVES DA SILVA",g:"F",r:"100",e:"MELI",c:"REP I"},
+    {n:"IRÍS RIBEIRO PIMENTEL DE CARVALHO",g:"F",r:"11",e:"GI GROUP",c:"REP I"},
+    {n:"JACQUELINE FRANCISCA DA SILVA",g:"F",r:"21",e:"MELI",c:"REP I"},
+    {n:"JULIA KATHLEN DE OLIVEIRA BONFIM",g:"F",r:"25EX",e:"MELI",c:"REP I"},
+    {n:"LETICIA RIBEIRO FERREIRA DOS SANTOS",g:"F",r:"10",e:"MELI",c:"REP I"},
+    {n:"LILIAN CRISTINY CUNHA BARBOSA",g:"F",r:"25",e:"MELI",c:"REP I"},
+    {n:"MARIANA KELLY DA SILVA OLIVEIRA",g:"F",r:"11",e:"MELI",c:"REP I"},
+    {n:"MILLENA KIMBERLY ANDRADE",g:"F",r:"10EX",e:"MELI",c:"REP I"},
+    {n:"NINIVE CAILANE COUTO SANTOS",g:"F",r:"25",e:"MELI",c:"REP I"},
+    {n:"RAISSA GOMES DUARTE",g:"F",r:"25",e:"MELI",c:"REP I"},
+    {n:"SABRINA VITORIA DOS SANTOS",g:"F",r:"10EX",e:"MELI",c:"REP I"},
+    {n:"STEFHANE SOARES DA CRUZ",g:"F",r:"11EX",e:"MELI",c:"REP I"},
+    {n:"ALEX CUNHA",g:"M",r:"11",e:"MELI",c:"REP I"},
+    {n:"ARTHUR FELIPE ALVES DE OLIVEIRA",g:"M",r:"10",e:"MELI",c:"REP I"},
+    {n:"DAVID RABELO DE SOUZA",g:"M",r:"11EX",e:"MELI",c:"REP I"},
+    {n:"DIOGO FERNANDO DOS SANTOS",g:"M",r:"11EX",e:"MELI",c:"REP I"},
+    {n:"EIQUE FONTES DA SILVA",g:"M",r:"11",e:"RANDSTAD",c:"REP I"},
+    {n:"ERNANI GLICERIO PENA REZENDE REIS",g:"M",r:"100",e:"MELI",c:"REP I"},
+    {n:"GUSTAVO AUGUSTO SILVA PASSOS",g:"M",r:"10",e:"MELI",c:"REP I"},
+    {n:"JOÃO VITOR MONTEIRO ANTÔNIO",g:"M",r:"100",e:"MELI",c:"REP I"},
+    {n:"LUCAS COSTA",g:"M",r:"10",e:"MELI",c:"REP I"},
+    {n:"LUCAS OLIVEIRA SANTOS",g:"M",r:"25",e:"MELI",c:"REP I"},
+    {n:"PEDRO AUGUSTO FERRARI",g:"M",r:"2",e:"MELI",c:"REP I"},
+    {n:"SAMUEL ISAQUE CORREA DE ASSIS SILVA",g:"M",r:"25EX",e:"MELI",c:"REP I"},
+    {n:"WILIAN APARECIDO BARBOSA",g:"M",r:"11EX",e:"MELI",c:"REP I"},
   ],
   C:[
-    {n:"MATEUS DE JESUS SOARES",g:"M",c:"OPL 2"},
-    {n:"EDUARDA ARIANE DE PAULA DOS SANTOS",g:"F",c:"REP II"},
-    {n:"GABRIELA CRISTHYNE BOAVENTURA PEREIRA",g:"F",c:"REP II"},
-    {n:"SAMARA EMANUELLE DE SOUZA",g:"F",c:"REP II"},
-    {n:"ISRAEL ALVES DE SOUZA",g:"M",c:"REP II"},
-    {n:"ALINE MARIA DOS SANTOS",g:"F",c:"REP I"},
-    {n:"ANA JULIA NASCIMENTO DIAS",g:"F",c:"REP I"},
-    {n:"ANA PAULA COELHO DA SILVA MODESTO",g:"F",c:"REP I"},
-    {n:"ELZI MARIA DE JESUS",g:"F",c:"REP I"},
-    {n:"HELEN KETLEN BATISTA",g:"F",c:"REP I"},
-    {n:"JOYCE GEOVANA MURCA MANSUR SOARES",g:"F",c:"REP I"},
-    {n:"JULIANA MACHADO DA SILVA",g:"F",c:"REP I"},
-    {n:"JULIO HENRIQUE CIPRIANO BARBOSA",g:"M",c:"TEMPORARIO"},
-    {n:"KERCIA GUEDES FERREIRA DA CRUZ",g:"F",c:"REP I"},
-    {n:"LUCIANA REZENDE LIMA",g:"F",c:"REP I"},
-    {n:"MARIA DE FATIMA FREITAS",g:"F",c:"REP I"},
-    {n:"REBECA DE JESUS ANDRADE",g:"F",c:"TEMPORARIO"},
-    {n:"ROSILENE SIQUEIRA DE SOUZA SILVA",g:"F",c:"REP I"},
-    {n:"STEFANI DE SOUZA GOMES",g:"F",c:"REP I"},
-    {n:"EZEQUIEL JONATAS DO NASCIMENTO SANTOS",g:"M",c:"REP I"},
-    {n:"JOSE EDUARDO RESENDE FELISMINO JUNIOR",g:"M",c:"REP I"},
-    {n:"KAUA KELVIN PAULA MOTA",g:"M",c:"REP I"},
-    {n:"LUIZ FILLIPE FERREIRA JACOB",g:"M",c:"REP I"},
-    {n:"MARCELO RYAN DOMINGOS DE SOUZA",g:"M",c:"TEMPORARIO"},
-    {n:"MATHEUS AVELINO PAZ FERREIRA",g:"M",c:"TEMPORARIO"},
-    {n:"MAYCON ANGELO DA SILVA SOUZA",g:"M",c:"REP I"},
-    {n:"NARCISO NOGUEIRA NASSIF",g:"M",c:"REP I"},
-    {n:"NILO PENIDO SANTOS",g:"M",c:"REP I"},
-    {n:"PABLO OLIVEIRA SILVA COSTA",g:"M",c:"REP I"},
-    {n:"ROGER LUCAS DA SILVA ROCHA PEREIRA",g:"M",c:"REP I"},
-    {n:"WARLEY SOARES MAIA",g:"M",c:"REP I"},
+    {n:"MATEUS DE JESUS SOARES",g:"M",r:"11",e:"MELI",c:"OPL 2"},
+    {n:"EDUARDA ARIANE DE PAULA DOS SANTOS",g:"F",r:"11",e:"MELI",c:"REP II"},
+    {n:"GABRIELA CRISTHYNE BOAVENTURA PEREIRA",g:"F",r:"25",e:"MELI",c:"REP II"},
+    {n:"SAMARA EMANUELLE DE SOUZA",g:"F",r:"21",e:"MELI",c:"REP II"},
+    {n:"ISRAEL ALVES DE SOUZA",g:"M",r:"11",e:"MELI",c:"REP II"},
+    {n:"ANA JULIA NASCIMENTO DIAS",g:"F",r:"25",e:"MELI",c:"REP I"},
+    {n:"ANA PAULA COELHO DA SILVA MODESTO",g:"F",r:"11",e:"MELI",c:"REP I"},
+    {n:"ELZI MARIA DE JESUS",g:"F",r:"25EX",e:"MELI",c:"REP I"},
+    {n:"FERNANDA BATISTA SILVA MAGELA",g:"F",r:"2",e:"MELI",c:"REP I"},
+    {n:"HELEN KETLEN BATISTA",g:"F",r:"21",e:"MELI",c:"REP I"},
+    {n:"JULIANA MACHADO DA SILVA",g:"F",r:"25",e:"MELI",c:"REP I"},
+    {n:"KERCIA GUEDES FERREIRA DA CRUZ",g:"F",r:"25",e:"MELI",c:"REP I"},
+    {n:"LETICIA FERNANDA MENDANHA CARVALHO",g:"F",r:"11EX",e:"MELI",c:"REP I"},
+    {n:"LUCIANA REZENDE LIMA",g:"F",r:"11",e:"MELI",c:"REP I"},
+    {n:"MARIA DE FATIMA FREITAS",g:"F",r:"25",e:"MELI",c:"REP I"},
+    {n:"NICOLI GINO DE SOUZA",g:"F",r:"25EX",e:"MELI",c:"REP I"},
+    {n:"ROSILENE SIQUEIRA DE SOUZA SILVA",g:"F",r:"10",e:"MELI",c:"REP I"},
+    {n:"STEFANI DE SOUZA GOMES",g:"F",r:"25",e:"MELI",c:"REP I"},
+    {n:"AGNELO JACINTO TEIXEIRA FILHO",g:"M",r:"25",e:"MELI",c:"REP I"},
+    {n:"EZEQUIEL JONATAS DO NASCIMENTO SANTOS",g:"M",r:"10",e:"MELI",c:"REP I"},
+    {n:"ISAAC CADETTE CALCADO",g:"M",r:"11EX",e:"MELI",c:"REP I"},
+    {n:"JOSE EDUARDO RESENDE FELISMINO JUNIOR",g:"M",r:"11EX",e:"MELI",c:"REP I"},
+    {n:"KAUA KELVIN PAULA MOTA",g:"M",r:"11EX",e:"MELI",c:"REP I"},
+    {n:"MARCELO RYAN DOMINGOS DE SOUZA",g:"M",r:"11EX",e:"GI GROUP",c:"REP I"},
+    {n:"MATHEUS AVELINO PAZ FERREIRA",g:"M",r:"11",e:"ADECCO",c:"REP I"},
+    {n:"MAYCON ANGELO DA SILVA SOUZA",g:"M",r:"25",e:"MELI",c:"REP I"},
+    {n:"NARCISO NOGUEIRA NASSIF",g:"M",r:"100",e:"MELI",c:"REP I"},
+    {n:"NILO PENIDO SANTOS",g:"M",r:"10",e:"MELI",c:"REP I"},
+    {n:"PABLO OLIVEIRA SILVA COSTA",g:"M",r:"21",e:"MELI",c:"REP I"},
+    {n:"PEDRO LUCA DA SILVA CORREA",g:"M",r:"100",e:"MELI",c:"REP I"},
+    {n:"ROGER LUCAS DA SILVA ROCHA PEREIRA",g:"M",r:"11EX",e:"MELI",c:"REP I"},
+    {n:"VALDINER JUNIO LIMA DE CASTRO OLIVEIRA",g:"M",r:"21EX",e:"MELI",c:"REP I"},
+    {n:"WARLEY SOARES MAIA",g:"M",r:"21EX",e:"MELI",c:"REP I"},
   ],
   D:[
-    {n:"STANLEY CELLITON MATOS SILVA",g:"M",c:"OPL 3"},
-    {n:"ALEXSANDER JUNIO MOZONI",g:"M",c:"REP II"},
-    {n:"EDER CARLOS ALVES COSTA",g:"M",c:"REP II"},
-    {n:"LUCAS GABRIEL DOS SANTOS MOTTA",g:"M",c:"REP II"},
-    {n:"PAULO LAERTE ALVES VIEIRA JUNIOR",g:"M",c:"REP II"},
-    {n:"DANIEL BARBOSA CESAR",g:"M",c:"TEMPORARIO"},
-    {n:"EVELIN DANIELE DOS SANTOS SILVA",g:"F",c:"REP I"},
-    {n:"INGRID VITORIA VIEIRA DE MORAES",g:"F",c:"REP I"},
-    {n:"IZADORA LAIS DE SOUZA ROBERTO",g:"F",c:"REP I"},
-    {n:"JANE RAYANE DOS SANTOS",g:"F",c:"REP I"},
-    {n:"JENIFER RIBEIRO PIRES",g:"F",c:"REP I"},
-    {n:"JULIA NEYDER SILVA",g:"F",c:"REP I"},
-    {n:"JUNIA PEDROSO DA ROCHA",g:"F",c:"REP I"},
-    {n:"LARA MORAES JARDIM",g:"F",c:"REP I"},
-    {n:"LENIR SOARES DA SILVA",g:"F",c:"REP I"},
-    {n:"LORRAYNE KETHLEN DE OLIVEIRA ARAUJO",g:"F",c:"REP I"},
-    {n:"MARIA DA CONCEIÇÃO MARÇAL DA COSTA RODRIGUES",g:"F",c:"REP I"},
-    {n:"PAMELLA CRISTINA MIRANDA NEVES",g:"F",c:"REP I"},
-    {n:"PRISCILA BARBOSA DE SOUZA",g:"F",c:"REP I"},
-    {n:"WELLINGTON DOS SANTOS SILVA",g:"M",c:"TEMPORARIO"},
-    {n:"ZAELIA ZILMAR DA SILVA",g:"F",c:"REP I"},
-    {n:"DANIEL LOPES DOS SANTOS",g:"M",c:"REP I"},
-    {n:"EDSON LUIS DA SILVA",g:"M",c:"REP I"},
-    {n:"FELIPPE RODRIGUES GOMES SANTOS",g:"M",c:"REP I"},
-    {n:"LUIZ EDUARDO FIALHO",g:"M",c:"REP I"},
-    {n:"MARCOS ANTONIO MALTA LOURENCO DOS SANTOS",g:"M",c:"REP I"},
-    {n:"NARDELI VALERIO PEREIRA DOS SANTOS",g:"M",c:"REP I"},
-    {n:"VICTOR DANIEL AMANCIO DA SILVA",g:"M",c:"REP I"},
-    {n:"VICTOR EMANNUEL ALVES DA SILVA",g:"M",c:"REP I"},
-    {n:"WANDERSON DA SILVA MOREIRA",g:"M",c:"REP I"},
+    {n:"STANLEY CELLITON MATOS SILVA",g:"M",r:"—",e:"MELI",c:"OPL 3"},
+    {n:"ALEXSANDER JUNIO MOZONI",g:"M",r:"21",e:"MELI",c:"REP II"},
+    {n:"EDER CARLOS ALVES COSTA",g:"M",r:"10",e:"MELI",c:"REP II"},
+    {n:"LUCAS GABRIEL DOS SANTOS MOTTA",g:"M",r:"11",e:"MELI",c:"REP II"},
+    {n:"PAULO LAERTE ALVES VIEIRA JUNIOR",g:"M",r:"25",e:"MELI",c:"REP II"},
+    {n:"DEBORA DE MOURA PEREIRA",g:"F",r:"2",e:"MELI",c:"REP I"},
+    {n:"EVELIN DANIELE DOS SANTOS SILVA",g:"F",r:"21",e:"MELI",c:"REP I"},
+    {n:"INGRID VITORIA VIEIRA DE MORAES",g:"F",r:"10EX",e:"MELI",c:"REP I"},
+    {n:"IZADORA LAIS DE SOUZA ROBERTO",g:"F",r:"11",e:"MELI",c:"REP I"},
+    {n:"JANAINA FERNANDA SCHUBERT DE SOUSA OLIVEIRA",g:"F",r:"21",e:"MELI",c:"REP I"},
+    {n:"JANE RAYANE DOS SANTOS",g:"F",r:"21EX",e:"MELI",c:"REP I"},
+    {n:"JENIFER RIBEIRO PIRES",g:"F",r:"11EX",e:"MELI",c:"REP I"},
+    {n:"JULIA NEYDER SILVA",g:"F",r:"11",e:"MELI",c:"REP I"},
+    {n:"JUNIA PEDROSO DA ROCHA",g:"F",r:"22",e:"MELI",c:"REP I"},
+    {n:"LARA MORAES JARDIM",g:"F",r:"100",e:"MELI",c:"REP I"},
+    {n:"LORRAYNE KETHLEN DE OLIVEIRA ARAUJO",g:"F",r:"11",e:"MELI",c:"REP I"},
+    {n:"MARIA DA CONCEIÇÃO MARÇAL DA COSTA RODRIGUES",g:"F",r:"25",e:"MELI",c:"REP I"},
+    {n:"PAMELLA CRISTINA MIRANDA NEVES",g:"F",r:"100",e:"MELI",c:"REP I"},
+    {n:"PRISCILA BARBOSA DE SOUZA",g:"F",r:"10",e:"MELI",c:"REP I"},
+    {n:"RAYANNE KELLY SILVA BATISTA",g:"F",r:"25",e:"MELI",c:"REP I"},
+    {n:"SIDNEA ANDRADE CRUZ DOS SANTOS",g:"F",r:"100",e:"MELI",c:"REP I"},
+    {n:"SIRLEIA ANTONIO DOS SANTOS DE FREITAS",g:"F",r:"100",e:"MELI",c:"REP I"},
+    {n:"ZAELIA ZILMAR DA SILVA",g:"F",r:"10",e:"MELI",c:"REP I"},
+    {n:"DANIEL BARBOSA CESAR",g:"M",r:"11",e:"GI GROUP",c:"REP I"},
+    {n:"EDSON LUIS DA SILVA",g:"M",r:"10EX",e:"MELI",c:"REP I"},
+    {n:"JOAO PAULO DE SOUZA PINTO",g:"M",r:"2",e:"MELI",c:"REP I"},
+    {n:"LUCAS JUNIO DA SILVA ALVES",g:"M",r:"100",e:"MELI",c:"REP I"},
+    {n:"LUIZ EDUARDO FIALHO",g:"M",r:"25EX",e:"MELI",c:"REP I"},
+    {n:"MARCOS ANTONIO MALTA LOURENCO DOS SANTOS",g:"M",r:"10",e:"MELI",c:"REP I"},
+    {n:"MARLON FELIPE RODRIGUES FERNANDES",g:"M",r:"25EX",e:"CARPE DIEM",c:"REP I"},
+    {n:"NARDELI VALERIO PEREIRA DOS SANTOS",g:"M",r:"25",e:"MELI",c:"REP I"},
+    {n:"VICTOR DANIEL AMANCIO DA SILVA",g:"M",r:"25",e:"MELI",c:"REP I"},
+    {n:"VICTOR EMANNUEL ALVES DA SILVA",g:"M",r:"11",e:"MELI",c:"REP I"},
+    {n:"WANDERSON DA SILVA MOREIRA",g:"M",r:"100",e:"MELI",c:"REP I"},
+    {n:"WELLINGTON DOS SANTOS SILVA",g:"M",r:"25",e:"CARPE DIEM",c:"REP I"},
   ],
-};
+}
 
 const GROUPS=['A','B','C','D'];
 
