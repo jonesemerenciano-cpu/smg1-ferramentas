@@ -312,7 +312,7 @@ body{background:var(--dark);color:var(--text);font-family:'Inter',sans-serif;fon
       <div class="mode-card escala-card" onclick="goEscala()">
         <div class="mc-icon">📅</div>
         <div class="mc-title">Escala Rotativa</div>
-        <div class="mc-desc">Consulte os dias de trabalho e DSR de cada time de 23/08 a 14/11/2026.</div>
+        <div class="mc-desc">Consulte os dias de trabalho e DSR de cada time de 24/08 a 14/11/2026.</div>
       </div>
       <div class="mode-card admin-card" onclick="goLogin()">
         <div class="mc-icon">🔐</div>
@@ -365,7 +365,7 @@ body{background:var(--dark);color:var(--text);font-family:'Inter',sans-serif;fon
   <div class="escala-topbar">
     <div class="escala-logo">SMG1 · T1</div>
     <span style="font-size:14px;font-weight:600;">Escala Rotativa</span>
-    <span style="font-size:11px;color:var(--muted2);">23/08 a 14/11/2026</span>
+    <span style="font-size:11px;color:var(--muted2);">24/08 a 14/11/2026</span>
     <div style="margin-left:auto;display:flex;gap:8px;align-items:center;">
       <button class="today-btn-e" onclick="escalaoHoje()">📅 Hoje</button>
       <button class="back-btn" onclick="goSelect()">← Voltar</button>
@@ -602,58 +602,64 @@ body{background:var(--dark);color:var(--text);font-family:'Inter',sans-serif;fon
 
 
 
+
 // ══ BANCO DE DADOS — JSONBIN.IO (TEMPO REAL) ══
 const JSONBIN_KEY = '$2a$10$XpAO0mtM5N8ldrosT.HzvOzqrnknWcCX8PUWxleGme1WzEnDWsm/u';
 const TURNO = 'T1';
-const BIN_ID = '6a84aa56f5f4af5e29258bf0';
+const BIN_ID = '6a84b3a2da38895dfef41ce4';
 let DB = { novatos: [], inativos: [], pwd: 'smg1admin', ts: 0 };
 let lastTs = 0;
 let isSaving = false;
 let syncInterval = null;
+
+const JHEADERS = {
+  'X-Master-Key': JSONBIN_KEY,
+  'X-Access-Key': JSONBIN_KEY,
+  'Content-Type': 'application/json'
+};
 
 function showSyncStatus(status) {
   let el = document.getElementById('sync-status');
   if (!el) {
     el = document.createElement('div');
     el.id = 'sync-status';
-    el.style.cssText = 'position:fixed;bottom:60px;right:20px;font-size:10px;padding:4px 10px;border-radius:20px;font-family:Inter,sans-serif;z-index:9998;transition:all .3s;opacity:1;';
+    el.style.cssText = 'position:fixed;bottom:60px;right:20px;font-size:10px;padding:4px 10px;border-radius:20px;font-family:Inter,sans-serif;z-index:9998;transition:opacity .3s;opacity:1;';
     document.body.appendChild(el);
   }
-  if (status === 'syncing') {
-    el.style.background='rgba(255,230,0,0.15)';el.style.color='#FFE600';el.style.border='1px solid rgba(255,230,0,0.3)';el.style.opacity='1';
-    el.textContent = '⟳ Sincronizando...';
-  } else if (status === 'ok') {
-    el.style.background='rgba(62,207,142,0.15)';el.style.color='#3ECF8E';el.style.border='1px solid rgba(62,207,142,0.3)';el.style.opacity='1';
-    el.textContent = '✓ Sincronizado';
-    setTimeout(() => { el.style.opacity = '0'; }, 2000);
-  } else if (status === 'error') {
-    el.style.background='rgba(255,82,82,0.15)';el.style.color='#FF5252';el.style.border='1px solid rgba(255,82,82,0.3)';el.style.opacity='1';
-    el.textContent = '✗ Sem conexão';
-  } else if (status === 'updated') {
-    el.style.background='rgba(77,166,255,0.15)';el.style.color='#4DA6FF';el.style.border='1px solid rgba(77,166,255,0.3)';el.style.opacity='1';
-    el.textContent = '↻ Atualizado!';
-    setTimeout(() => { el.style.opacity = '0'; }, 3000);
-  }
+  const styles = {
+    syncing: ['rgba(255,230,0,0.15)','#FFE600','rgba(255,230,0,0.3)','⟳ Sincronizando...'],
+    ok:      ['rgba(62,207,142,0.15)','#3ECF8E','rgba(62,207,142,0.3)','✓ Sincronizado'],
+    error:   ['rgba(255,82,82,0.15)','#FF5252','rgba(255,82,82,0.3)','✗ Sem conexão'],
+    updated: ['rgba(77,166,255,0.15)','#4DA6FF','rgba(77,166,255,0.3)','↻ Atualizado!'],
+  };
+  const [bg,color,border,text] = styles[status]||styles.error;
+  el.style.background=bg; el.style.color=color;
+  el.style.border=`1px solid ${border}`; el.style.opacity='1';
+  el.textContent=text;
+  if(status==='ok') setTimeout(()=>el.style.opacity='0',2000);
+  if(status==='updated') setTimeout(()=>el.style.opacity='0',3000);
 }
 
 async function loadDB() {
   try {
     showSyncStatus('syncing');
-    const r = await fetch('https://api.jsonbin.io/v3/b/' + BIN_ID + '/latest', {
-      headers: { 'X-Master-Key': JSONBIN_KEY, 'X-Bin-Meta': 'false' }
+    const r = await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}/latest`, {
+      headers: JHEADERS
     });
+    if (!r.ok) throw new Error(`HTTP ${r.status}`);
     const data = await r.json();
     if (data && data.record) {
       DB = data.record;
       lastTs = DB.ts || 0;
       localStorage.setItem('smg1_' + TURNO + '_backup', JSON.stringify(DB));
       showSyncStatus('ok');
-    } else {
-      throw new Error('Sem dados');
+      return;
     }
+    throw new Error('Sem record');
   } catch(e) {
+    console.warn('loadDB erro:', e);
     const raw = localStorage.getItem('smg1_' + TURNO + '_backup');
-    if (raw) DB = JSON.parse(raw);
+    if (raw) { try { DB = JSON.parse(raw); } catch(_){} }
     showSyncStatus('error');
   }
 }
@@ -665,22 +671,16 @@ async function saveDB() {
     showSyncStatus('syncing');
     DB.ts = Date.now();
     localStorage.setItem('smg1_' + TURNO + '_backup', JSON.stringify(DB));
-    const r = await fetch('https://api.jsonbin.io/v3/b/' + BIN_ID, {
+    const r = await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}`, {
       method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-Master-Key': JSONBIN_KEY
-      },
+      headers: JHEADERS,
       body: JSON.stringify(DB)
     });
-    const res = await r.json();
-    if (res && res.record) {
-      lastTs = DB.ts;
-      showSyncStatus('ok');
-    } else {
-      throw new Error('Erro ao salvar');
-    }
+    if (!r.ok) throw new Error(`HTTP ${r.status}`);
+    lastTs = DB.ts;
+    showSyncStatus('ok');
   } catch(e) {
+    console.warn('saveDB erro:', e);
     showSyncStatus('error');
   } finally {
     isSaving = false;
@@ -690,9 +690,10 @@ async function saveDB() {
 async function checkUpdates() {
   if (isSaving) return;
   try {
-    const r = await fetch('https://api.jsonbin.io/v3/b/' + BIN_ID + '/latest', {
-      headers: { 'X-Master-Key': JSONBIN_KEY, 'X-Bin-Meta': 'false' }
+    const r = await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}/latest`, {
+      headers: JHEADERS
     });
+    if (!r.ok) return;
     const data = await r.json();
     if (data && data.record) {
       const remoteTs = data.record.ts || 0;
@@ -714,18 +715,17 @@ function startSync() {
 
 
 
+
 const BASE_FIXA = {
-  A:[
-    {n:"BRUNO CARDOSO GAMA",g:"M",r:"18",e:"MELI",c:"OPL 3"},
+  A:[    {n:"BRUNO CARDOSO GAMA",g:"M",r:"18",e:"MELI",c:"OPL 3"},
     {n:"KETLEY LORRAYNE DE SOUZA SANTOS",g:"F",r:"15",e:"MELI",c:"OPL 2"},
     {n:"ILMARA DOS SANTOS SOUSA FELIZARDO",g:"F",r:"15",e:"MELI",c:"REP II"},
     {n:"REGINA APARECIDA SOUZA SILVA",g:"F",r:"15",e:"MELI",c:"REP II"},
     {n:"CARLOS HENRIQUE SILVA",g:"M",r:"15",e:"MELI",c:"REP II"},
-    {n:"ANDRESSA ISOLANI CAMILO DOS SANTOS",g:"F",r:"26",e:"MELI",c:"REP I"},
     {n:"BARBARA RODRIGUES SANTIAGO",g:"F",r:"15",e:"MELI",c:"REP I"},
     {n:"DANIELE LOPES BARBOSA",g:"F",r:"16EX",e:"MELI",c:"REP I"},
     {n:"FABIANA LIMA DE OLIVEIRA",g:"F",r:"16",e:"MELI",c:"REP I"},
-    {n:"GABRIELLA CIRILO",g:"F",r:"15",e:"RANDSTAD",c:"TEMPORARIO"},
+    {n:"GABRIELLA CIRILO",g:"F",r:"15",e:"RANDSTAD",c:"REP I"},
     {n:"HARIEL HELENA DE ARAUJO",g:"F",r:"16EX",e:"MELI",c:"REP I"},
     {n:"ISABELLE RAMOS DE OLIVEIRA",g:"F",r:"15",e:"MELI",c:"REP I"},
     {n:"IZABELLY EDUARDA DA SILVA CORDEIRO",g:"F",r:"18",e:"MELI",c:"REP I"},
@@ -736,7 +736,7 @@ const BASE_FIXA = {
     {n:"MARIA DENISLANE SANTOS BATISTA DE SOUSA",g:"F",r:"15",e:"MELI",c:"REP I"},
     {n:"MICHELE DO NASCIMENTO COSTA",g:"F",r:"26",e:"MELI",c:"REP I"},
     {n:"RENATA GUIMARAES DE ALMEIDA",g:"F",r:"26",e:"MELI",c:"REP I"},
-    {n:"SABRINA DA SILVA PURCINO CASTRO",g:"F",r:"26",e:"RANDSTAD",c:"TEMPORARIO"},
+    {n:"SABRINA DA SILVA PURCINO CASTRO",g:"F",r:"26",e:"RANDSTAD",c:"REP I"},
     {n:"STEFANE VITORIA DOS ANJOS SILVA",g:"F",r:"15",e:"MELI",c:"REP I"},
     {n:"VALDEENE DAS GRACAS PEREIRA DOS SANTOS",g:"F",r:"15",e:"MELI",c:"REP I"},
     {n:"VERONICA REGINA ALVES DA SILVA",g:"F",r:"15",e:"MELI",c:"REP I"},
@@ -750,14 +750,13 @@ const BASE_FIXA = {
     {n:"RAMON FELIPE MEIRA ANTUNES",g:"M",r:"15",e:"MELI",c:"REP I"},
     {n:"WALISSON DOS SANTOS DANTAS",g:"M",r:"16",e:"MELI",c:"REP I"},
   ],
-  B:[
-    {n:"PAMELLA FALCAO MARTINS",g:"F",r:"26",e:"MELI",c:"OPL 2"},
-    {n:"ISRAEL BISPO DA SILVA",g:"M",r:"11",e:"MELI",c:"REP II"},
+  B:[    {n:"PAMELLA FALCAO MARTINS",g:"F",r:"26",e:"MELI",c:"OPL 2"},
+    {n:"ISRAEL BISPO DA SILVA",g:"M",r:"16EX",e:"MELI",c:"REP II"},
     {n:"RONALDO DE OLIVEIRA E SILVA",g:"M",r:"18",e:"MELI",c:"REP II"},
     {n:"SIDNEY CIRILO GONÇALVES",g:"M",r:"16",e:"MELI",c:"REP II"},
     {n:"ANA CLARA LOPES DE OLIVEIRA",g:"F",r:"18",e:"MELI",c:"REP I"},
     {n:"CAMILLA OLIVEIRA DOS SANTOS",g:"F",r:"15",e:"MELI",c:"REP I"},
-    {n:"CLAUDILENE DOS SANTOS ALVES",g:"F",r:"26",e:"MELI",c:"REP I"},
+    {n:"CLAUDILENE DOS SANTOS ALVES",g:"F",r:"100",e:"MELI",c:"REP I"},
     {n:"DARDANE KELLY DOS SANTOS",g:"F",r:"26",e:"MELI",c:"REP I"},
     {n:"FABIANA PEREIRA ROCHA",g:"F",r:"16",e:"MELI",c:"REP I"},
     {n:"GERSINETE DOS SANTOS NASCIMENTO",g:"F",r:"16",e:"MELI",c:"REP I"},
@@ -769,7 +768,6 @@ const BASE_FIXA = {
     {n:"LUCIANE DOS SANTOS CARVALHO PEREIRA",g:"F",r:"15",e:"MELI",c:"REP I"},
     {n:"RAQUEL LOURENCO DE SOUZA",g:"F",r:"15",e:"MELI",c:"REP I"},
     {n:"SAMIRI COIMBRA DE ARAUJO",g:"F",r:"16",e:"MELI",c:"REP I"},
-    {n:"STEPHANNY MAYRA PEREIRA DOS REIS",g:"F",r:"18",e:"MELI",c:"REP I"},
     {n:"VALERIA BARBOSA LIMA CORDEIRO",g:"F",r:"26",e:"MELI",c:"REP I"},
     {n:"VITORIA CARVALHO DA SILVA",g:"F",r:"15",e:"MELI",c:"REP I"},
     {n:"ANDREY GABRIEL FREITAS LOPES",g:"M",r:"18EX",e:"MELI",c:"REP I"},
@@ -784,13 +782,11 @@ const BASE_FIXA = {
     {n:"RICARDO AUGUSTO CRUZ",g:"M",r:"16",e:"MELI",c:"REP I"},
     {n:"WANDERSON TOMAZ ROCHA",g:"M",r:"16EX",e:"MELI",c:"REP I"},
   ],
-  C:[
-    {n:"CIBELE BARBOSA DOS SANTOS",g:"M",r:"16",e:"MELI",c:"OPL 3"},
+  C:[        {n:"CIBELE BARBOSA DOS SANTOS",g:"M",r:"16",e:"MELI",c:"OPL 3"},
     {n:"JENIFFER VITORIA PRATES RODRIGUES",g:"F",r:"26",e:"MELI",c:"OPL 2"},
     {n:"LORENA VITÓRIA DE OLIVEIRA PAES",g:"F",r:"26",e:"MELI",c:"OPL 2"},
     {n:"FABIANA BARROS DE MORAIS",g:"F",r:"15",e:"MELI",c:"REP II"},
     {n:"WARLEY DE SOUZA SILVA",g:"M",r:"18",e:"MELI",c:"REP II"},
-    {n:"ANDREA RIBEIRO DOS SANTOS",g:"F",r:"15EX",e:"MELI",c:"REP I"},
     {n:"ANNA CAROLINE DE AQUINO",g:"F",r:"18EX",e:"MELI",c:"REP I"},
     {n:"CARINA APARECIDA DE OLIVEIRA ROSA",g:"F",r:"15EX",e:"MELI",c:"REP I"},
     {n:"FRANCIELE MARIA DE OLIVEIRA",g:"F",r:"16EX",e:"MELI",c:"REP I"},
@@ -798,7 +794,7 @@ const BASE_FIXA = {
     {n:"JACQUELINE CRISTINA DA SILVA",g:"F",r:"15",e:"MELI",c:"REP I"},
     {n:"KELLY SILVA DOS SANTOS MACIEL",g:"F",r:"15",e:"MELI",c:"REP I"},
     {n:"LIVIA OLIVEIRA SILVA",g:"F",r:"26",e:"MELI",c:"REP I"},
-    {n:"LUCILENE DA COSTA CAMPOS DE JESUS",g:"F",r:"26",e:"MELI",c:"REP I"},
+    {n:"LUCILENE DA COSTA CAMPOS DE JESUS",g:"F",r:"100",e:"MELI",c:"REP I"},
     {n:"MARCIA FERREIRA DOS SANTOS",g:"F",r:"26",e:"MELI",c:"REP I"},
     {n:"POLIANA MENDES DE PAULA",g:"F",r:"18",e:"MELI",c:"REP I"},
     {n:"REJANE PAULA DE OLIVEIRA",g:"F",r:"26",e:"MELI",c:"REP I"},
@@ -807,20 +803,18 @@ const BASE_FIXA = {
     {n:"VANESSA DANTAS DOS SANTOS",g:"F",r:"15",e:"MELI",c:"REP I"},
     {n:"VITORIA GOMES VIEIRA",g:"F",r:"18",e:"MELI",c:"REP I"},
     {n:"CLAUDIO JUNIO RIBEIRO DE ARAUJO",g:"M",r:"15",e:"MELI",c:"REP I"},
-    {n:"DENIAN CESAR SOARES FARIA",g:"M",r:"18",e:"MELI",c:"REP I"},
+    {n:"DENIAN CESAR SOARES FARIA",g:"M",r:"100",e:"MELI",c:"REP I"},
     {n:"EDUARDO OLIVEIRA DE LANA",g:"M",r:"16",e:"MELI",c:"REP I"},
-    {n:"GETULIO JOSE MAGALHAES",g:"M",r:"26",e:"MELI",c:"REP I"},
     {n:"GUSTAVO RAMOS FERREIRA",g:"M",r:"18",e:"MELI",c:"REP I"},
     {n:"ITALO HENRIQUE VIEIRA DE SOUZA",g:"M",r:"15EX",e:"MELI",c:"REP I"},
     {n:"JOAO PEDRO REIS TECLO DE MIRANDA",g:"M",r:"18EX",e:"MELI",c:"REP I"},
-    {n:"JULIO HENRIQUE CIPRIANO BARBOSA",g:"M",r:"15",e:"GI GROUP",c:"TEMPORARIO"},
     {n:"MATEUS FILIPE DA COSTA MARCAL",g:"M",r:"15",e:"MELI",c:"REP I"},
     {n:"PABLO RODRIGO DOS SANTOS COELHO",g:"M",r:"15",e:"MELI",c:"REP I"},
     {n:"SAMUEL MARCOS RODRIGUES DA SILVA",g:"M",r:"26",e:"MELI",c:"REP I"},
     {n:"WASHINGTON GABRIEL CELESTINO PACHECO",g:"M",r:"15",e:"MELI",c:"REP I"},
   ],
   D:[
-    {n:"JOÃO VICTOR GOMES DAS DORES",g:"M",r:"16",e:"MELI",c:"OPL 2"},
+            {n:"JOÃO VICTOR GOMES DAS DORES",g:"M",r:"16",e:"MELI",c:"OPL 2"},
     {n:"MARCELO AUGUSTO CARDOSO LOPES",g:"M",r:"16",e:"MELI",c:"OPL 2"},
     {n:"LUISA DE OLIVEIRA RODRIGUES",g:"F",r:"16",e:"MELI",c:"REP II"},
     {n:"MIRIAN BATISTA SANTOS",g:"F",r:"15",e:"MELI",c:"REP II"},
@@ -828,12 +822,10 @@ const BASE_FIXA = {
     {n:"ANDRESA CRISTINA GONCALVES DE LIMA",g:"F",r:"16EX",e:"MELI",c:"REP I"},
     {n:"CRISTIANA DOS SANTOS CASSIANO",g:"F",r:"16EX",e:"MELI",c:"REP I"},
     {n:"DEYSY CRISTINA LOPES PEREIRA",g:"F",r:"16",e:"MELI",c:"REP I"},
-    {n:"EVA VILMA PEREIRA ALVES",g:"F",r:"18",e:"MELI",c:"REP I"},
     {n:"FRANCIELLE ADRIANE OLIVEIRA SILVA",g:"F",r:"26",e:"MELI",c:"REP I"},
     {n:"JESSICA OLIVEIRA DA SILVA BRITO",g:"F",r:"15",e:"MELI",c:"REP I"},
     {n:"KAILA VITORIA FAUSTINA BARRETO BISPO",g:"F",r:"16EX",e:"MELI",c:"REP I"},
     {n:"LORENA EMANUELE LUIZA GOMES DOS SANTOS",g:"F",r:"100",e:"MELI",c:"REP I"},
-    {n:"RENATA DAMARIS VERDE",g:"F",r:"18",e:"MELI",c:"REP I"},
     {n:"RUTHIELLE KEITHY RIBEIRO DE OLIVEIRA",g:"F",r:"16EX",e:"MELI",c:"REP I"},
     {n:"SARAH GABRIELE DA SILVA AGUIAR",g:"F",r:"16",e:"MELI",c:"REP I"},
     {n:"THAMIRIS VITORIA VIEIRA PEREIRA",g:"F",r:"18",e:"MELI",c:"REP I"},
@@ -842,19 +834,17 @@ const BASE_FIXA = {
     {n:"ARTHUR VICTOR",g:"M",r:"16EX",e:"MELI",c:"REP I"},
     {n:"CARLOS BERNARDO FERNANDES GOMES DA SILVA",g:"M",r:"100",e:"MELI",c:"REP I"},
     {n:"GUILHERME DE JESUS PORTO",g:"M",r:"26",e:"MELI",c:"REP I"},
-    {n:"GUSTAVO RODRIGUES LIMA",g:"M",r:"15",e:"MELI",c:"REP I"},
+    {n:"GUSTAVO RODRIGUES LIMA",g:"M",r:"100",e:"MELI",c:"REP I"},
     {n:"ISAAC PIRES ROCHA",g:"M",r:"26",e:"MELI",c:"REP I"},
     {n:"IURI JONATAN SANTOS DA SILVA",g:"M",r:"18",e:"MELI",c:"REP I"},
     {n:"JOSE APARECIDO DE JESUS",g:"M",r:"16",e:"MELI",c:"REP I"},
     {n:"KENNEDY ROBERTO MEDEIROS",g:"M",r:"16EX",e:"MELI",c:"REP I"},
     {n:"LUIZ INACIO SANTOS ARAUJO",g:"M",r:"18EX",e:"MELI",c:"REP I"},
-    {n:"MARCOS ANDRE FERNANDES MORIKAWA",g:"M",r:"16",e:"GI GROUP",c:"TEMPORARIO"},
     {n:"MATHEUS HENRIQUE DE PAULA SILVA",g:"M",r:"15EX",e:"MELI",c:"REP I"},
-    {n:"PAULO SERGIO DE SOUSA ALECRIM",g:"M",r:"16",e:"MELI",c:"REP I"},
     {n:"RAFAEL SIQUEIRA",g:"M",r:"16EX",e:"MELI",c:"REP I"},
-    {n:"WELBERT WAGNER SILVA",g:"M",r:"15",e:"RANDSTAD",c:"TEMPORARIO"},
+    {n:"WELBERT WAGNER SILVA",g:"M",r:"15",e:"RANDSTAD",c:"REP I"},
   ],
-};
+}
 
 const GROUPS=['A','B','C','D'];
 
@@ -1186,13 +1176,13 @@ function toast(icon,msg){
 function renderAll(){renderStats();renderGroups();renderInativos();}
 
 // ══ ESCALA ROTATIVA ════
-const E_DATAS=["23/08", "24/08", "25/08", "26/08", "27/08", "28/08", "29/08", "30/08", "31/08", "01/09", "02/09", "03/09", "04/09", "05/09", "06/09", "07/09", "08/09", "09/09", "10/09", "11/09", "12/09", "13/09", "14/09", "15/09", "16/09", "17/09", "18/09", "19/09", "20/09", "21/09", "22/09", "23/09", "24/09", "25/09", "26/09", "27/09", "28/09", "29/09", "30/09", "01/10", "02/10", "03/10", "04/10", "05/10", "06/10", "07/10", "08/10", "09/10", "10/10", "11/10", "12/10", "13/10", "14/10", "15/10", "16/10", "17/10", "18/10", "19/10", "20/10", "21/10", "22/10", "23/10", "24/10", "25/10", "26/10", "27/10", "28/10", "29/10", "30/10", "31/10", "01/11", "02/11", "03/11", "04/11", "05/11", "06/11", "07/11", "08/11", "09/11", "10/11", "11/11", "12/11", "13/11", "14/11"];
-const E_DIAS=["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb", "Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb", "Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb", "Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb", "Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb", "Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb", "Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb", "Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb", "Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb", "Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb", "Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb", "Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"];
+const E_DATAS=["24/08", "25/08", "26/08", "27/08", "28/08", "29/08", "30/08", "31/08", "01/09", "02/09", "03/09", "04/09", "05/09", "06/09", "07/09", "08/09", "09/09", "10/09", "11/09", "12/09", "13/09", "14/09", "15/09", "16/09", "17/09", "18/09", "19/09", "20/09", "21/09", "22/09", "23/09", "24/09", "25/09", "26/09", "27/09", "28/09", "29/09", "30/09", "01/10", "02/10", "03/10", "04/10", "05/10", "06/10", "07/10", "08/10", "09/10", "10/10", "11/10", "12/10", "13/10", "14/10", "15/10", "16/10", "17/10", "18/10", "19/10", "20/10", "21/10", "22/10", "23/10", "24/10", "25/10", "26/10", "27/10", "28/10", "29/10", "30/10", "31/10", "01/11", "02/11", "03/11", "04/11", "05/11", "06/11", "07/11", "08/11", "09/11", "10/11", "11/11", "12/11", "13/11", "14/11"];
+const E_DIAS=["Seg", "Ter", "Qua", "Qui", "Sex", "Sáb", "Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb", "Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb", "Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb", "Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb", "Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb", "Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb", "Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb", "Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb", "Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb", "Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb", "Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"];
 const E_ESCALA={
-  A:["DSR", "DSR", "T", "T", "T", "DSR", "T", "T", "T", "T", "DSR", "DSR", "T", "T", "T", "T", "DSR", "T", "T", "T", "T", "DSR", "T", "T", "T", "T", "T", "DSR", "DSR", "DSR", "T", "T", "T", "DSR", "T", "T", "T", "T", "DSR", "DSR", "T", "T", "T", "T", "DSR", "T", "T", "T", "T", "DSR", "T", "T", "T", "T", "T", "DSR", "DSR", "DSR", "T", "T", "T", "DSR", "T", "T", "T", "T", "DSR", "DSR", "T", "T", "T", "T", "DSR", "T", "T", "T", "T", "DSR", "T", "T", "T", "T", "T", "DSR"],
-  B:["DSR", "T", "T", "T", "T", "T", "DSR", "DSR", "DSR", "T", "T", "T", "DSR", "T", "T", "T", "T", "DSR", "DSR", "T", "T", "T", "T", "DSR", "T", "T", "T", "T", "DSR", "T", "T", "T", "T", "T", "DSR", "DSR", "DSR", "T", "T", "T", "DSR", "T", "T", "T", "T", "DSR", "DSR", "T", "T", "T", "T", "DSR", "T", "T", "T", "T", "DSR", "T", "T", "T", "T", "T", "DSR", "DSR", "DSR", "T", "T", "T", "DSR", "T", "T", "T", "T", "DSR", "DSR", "T", "T", "T", "T", "DSR", "T", "T", "T", "T"],
-  C:["T", "T", "DSR", "T", "T", "T", "T", "DSR", "T", "T", "T", "T", "T", "DSR", "DSR", "DSR", "T", "T", "T", "DSR", "T", "T", "T", "T", "DSR", "DSR", "T", "T", "T", "T", "DSR", "T", "T", "T", "T", "DSR", "T", "T", "T", "T", "T", "DSR", "DSR", "DSR", "T", "T", "T", "DSR", "T", "T", "T", "T", "DSR", "DSR", "T", "T", "T", "T", "DSR", "T", "T", "T", "T", "DSR", "T", "T", "T", "T", "T", "DSR", "DSR", "DSR", "T", "T", "T", "DSR", "T", "T", "T", "T", "DSR", "DSR", "T", "T"],
-  D:["T", "T", "T", "DSR", "DSR", "T", "T", "T", "T", "DSR", "T", "T", "T", "T", "DSR", "T", "T", "T", "T", "T", "DSR", "DSR", "DSR", "T", "T", "T", "DSR", "T", "T", "T", "T", "DSR", "DSR", "T", "T", "T", "T", "DSR", "T", "T", "T", "T", "DSR", "T", "T", "T", "T", "T", "DSR", "DSR", "DSR", "T", "T", "T", "DSR", "T", "T", "T", "T", "DSR", "DSR", "T", "T", "T", "T", "DSR", "T", "T", "T", "T", "DSR", "T", "T", "T", "T", "T", "DSR", "DSR", "DSR", "T", "T", "T", "DSR", "T"],
+  A:["DSR", "T", "T", "T", "DSR", "T", "T", "T", "T", "DSR", "DSR", "T", "T", "T", "T", "DSR", "T", "T", "T", "T", "DSR", "T", "T", "T", "T", "T", "DSR", "DSR", "DSR", "T", "T", "T", "DSR", "T", "T", "T", "T", "DSR", "DSR", "T", "T", "T", "T", "DSR", "T", "T", "T", "T", "DSR", "T", "T", "T", "T", "T", "DSR", "DSR", "DSR", "T", "T", "T", "DSR", "T", "T", "T", "T", "DSR", "DSR", "T", "T", "T", "T", "DSR", "T", "T", "T", "T", "DSR", "T", "T", "T", "T", "T", "DSR"],
+  B:["T", "T", "T", "T", "T", "DSR", "DSR", "DSR", "T", "T", "T", "DSR", "T", "T", "T", "T", "DSR", "DSR", "T", "T", "T", "T", "DSR", "T", "T", "T", "T", "DSR", "T", "T", "T", "T", "T", "DSR", "DSR", "DSR", "T", "T", "T", "DSR", "T", "T", "T", "T", "DSR", "DSR", "T", "T", "T", "T", "DSR", "T", "T", "T", "T", "DSR", "T", "T", "T", "T", "T", "DSR", "DSR", "DSR", "T", "T", "T", "DSR", "T", "T", "T", "T", "DSR", "DSR", "T", "T", "T", "T", "DSR", "T", "T", "T", "T"],
+  C:["T", "DSR", "T", "T", "T", "T", "DSR", "T", "T", "T", "T", "T", "DSR", "DSR", "DSR", "T", "T", "T", "DSR", "T", "T", "T", "T", "DSR", "DSR", "T", "T", "T", "T", "DSR", "T", "T", "T", "T", "DSR", "T", "T", "T", "T", "T", "DSR", "DSR", "DSR", "T", "T", "T", "DSR", "T", "T", "T", "T", "DSR", "DSR", "T", "T", "T", "T", "DSR", "T", "T", "T", "T", "DSR", "T", "T", "T", "T", "T", "DSR", "DSR", "DSR", "T", "T", "T", "DSR", "T", "T", "T", "T", "DSR", "DSR", "T", "T"],
+  D:["T", "T", "DSR", "DSR", "T", "T", "T", "T", "DSR", "T", "T", "T", "T", "DSR", "T", "T", "T", "T", "T", "DSR", "DSR", "DSR", "T", "T", "T", "DSR", "T", "T", "T", "T", "DSR", "DSR", "T", "T", "T", "T", "DSR", "T", "T", "T", "T", "DSR", "T", "T", "T", "T", "T", "DSR", "DSR", "DSR", "T", "T", "T", "DSR", "T", "T", "T", "T", "DSR", "DSR", "T", "T", "T", "T", "DSR", "T", "T", "T", "T", "DSR", "T", "T", "T", "T", "T", "DSR", "DSR", "DSR", "T", "T", "T", "DSR", "T"],
 };
 const E_TIMES=['A','B','C','D'];
 const E_COR={A:'#FFE600',B:'#3ECF8E',C:'#4DA6FF',D:'#FF6B9D'};
