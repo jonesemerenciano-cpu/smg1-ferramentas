@@ -158,6 +158,74 @@
   .legend-item { display: flex; align-items: center; gap: 6px; font-size: 11px; color: var(--tx); }
   .legend-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
   .row-count { font-size: 12px; color: var(--tx); margin-left: auto; }
+
+  /* ==================== IMPRESSÃO (fundo claro para economizar tinta) ==================== */
+  @media print {
+    body { background: #fff !important; color: #111 !important; }
+    header { background: #fff !important; border-bottom: 3px solid #FFE600; }
+    header h1, header p { color: #111 !important; }
+    .logo { background: #FFE600 !important; color: #111 !important; }
+
+    .upload-section, .btn-primary, .btn-sec, .spinner, .error-msg { display: none !important; }
+
+    .meta-bar-wrap, .kpi, .op-panel, .op-card, .panel, .alert-box, .filter-row {
+      background: #fff !important; border-color: #ccc !important; color: #111 !important;
+      box-shadow: none !important;
+    }
+    .meta-track { background: #eee !important; }
+    .meta-fill-real { background: #22994d !important; }
+    .meta-fill-real span { color: #fff !important; }
+    .meta-fill-ow { background: #2e6bb5 !important; }
+    .meta-fill-ow span { color: #fff !important; }
+    .meta-marker-label { color: #333 !important; }
+    .meta-bar-nums, .meta-bar-nums strong, .kpi-lbl, .kpi-sub, .op-subtitle,
+    .op-card-gaiola, .legend-item, .row-count, .previa-badge { color: #333 !important; }
+
+    .kpi-val { color: #111 !important; }
+    .kpi.am .kpi-val { color: #b8860b !important; }
+    .kpi.vd .kpi-val { color: #1a7a3c !important; }
+    .kpi.vr .kpi-val { color: #c0392b !important; }
+    .kpi.lr .kpi-val { color: #b35900 !important; }
+    .kpi.az .kpi-val { color: #1f5fa8 !important; }
+
+    .op-card-id { background: #f2f2f2 !important; color: #b8860b !important; border: 1px solid #ddd; }
+    .op-stat.ow  { background: #e6f0ff !important; color: #1f5fa8 !important; }
+    .op-stat.rec { background: #e6f7ec !important; color: #1a7a3c !important; }
+    .op-stat.hr  { background: #fff8dc !important; color: #8a6d00 !important; }
+    .op-tag.rec  { background: #e6f7ec !important; color: #1a7a3c !important; border-color: #ccc !important; }
+
+    thead th { background: #f2f2f2 !important; color: #333 !important; border-bottom: 1px solid #ccc !important; }
+    tbody tr { border-bottom: 1px solid #ddd !important; }
+    tbody tr:hover { background: transparent !important; }
+
+    .badge, .status-pill { border: 1px solid #ccc !important; }
+    .b-vd, .s-100  { background: #e6f7ec !important; color: #1a7a3c !important; }
+    .b-vr, .s-err  { background: #fdeaea !important; color: #c0392b !important; }
+    .b-lr, .s-mix  { background: #fff3e6 !important; color: #b35900 !important; }
+    .b-az, .s-auto { background: #e6f0ff !important; color: #1f5fa8 !important; }
+    .b-am { background: #fff8dc !important; color: #8a6d00 !important; }
+
+    .fill-track { background: #eee !important; }
+    .search-input, .filter-btn { display: none !important; }
+
+    /* evita cortar cards/linhas ao virar página */
+    .kpi, .op-card, tr { break-inside: avoid; }
+
+    /* Modo: imprimir SOMENTE o painel de Oportunidade */
+    body.print-op-only .upload-section,
+    body.print-op-only .btn-primary,
+    body.print-op-only .btn-sec,
+    body.print-op-only .meta-bar-wrap,
+    body.print-op-only .kpi-grid,
+    body.print-op-only .alert-box,
+    body.print-op-only .panel,
+    body.print-op-only header p {
+      display: none !important;
+    }
+    body.print-op-only .op-panel { border: none !important; padding: 0 !important; }
+    body.print-op-only .op-panel::before { display: none !important; }
+    body.print-op-only .op-header { border-bottom: 2px solid #FFE600; padding-bottom: 10px; margin-bottom: 16px; }
+  }
 </style>
 </head>
 <body>
@@ -262,7 +330,10 @@
           <div class="op-title">🎯 Oportunidade — 1 Pacote por Gaiola</div>
           <div class="op-subtitle">Gaiolas com 1 pacote recebido hoje na estação (com data de inbound) — 1 busca na gaiola e fecha</div>
         </div>
-        <div class="op-badge-count" id="opCount">0 gaiolas</div>
+        <div style="display:flex; align-items:center; gap:10px;">
+          <div class="op-badge-count" id="opCount">0 gaiolas</div>
+          <button class="btn-sec" style="width:auto; margin:0; white-space:nowrap; padding:8px 14px;" onclick="imprimirOportunidades()">🖨 Imprimir p/ o time</button>
+        </div>
       </div>
       <div id="opCards"></div>
     </div>
@@ -570,6 +641,12 @@ function aplicarFiltros(){
   renderTable(filtered);
 }
 function showError(msg){ document.getElementById('spinner').style.display='none'; const el=document.getElementById('errorMsg'); el.textContent='❌ '+msg; el.style.display='block'; }
+
+function imprimirOportunidades(){
+  document.body.classList.add('print-op-only');
+  window.print();
+}
+window.addEventListener('afterprint', ()=>{ document.body.classList.remove('print-op-only'); });
 </script>
 </body>
 </html>
