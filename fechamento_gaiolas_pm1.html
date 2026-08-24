@@ -112,6 +112,7 @@
   .op-stat { font-size: 10px; padding: 2px 8px; border-radius: 8px; font-weight: 600; }
   .op-stat.ow  { background: rgba(68,153,255,.15); color: var(--az); }
   .op-stat.rec { background: rgba(34,204,119,.15); color: var(--vd); }
+  .op-stat.hr  { background: rgba(255,230,0,.15); color: var(--am); }
   .op-tag { position: absolute; top: 10px; right: 10px; font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 10px; }
   .op-tag.rec { background: rgba(34,204,119,.2); color: var(--vd); border: 1px solid rgba(34,204,119,.3); }
   .op-section-label { font-size: 11px; font-weight: 700; color: var(--tx); text-transform: uppercase; letter-spacing: .5px; margin-bottom: 8px; margin-top: 14px; display: flex; align-items: center; gap: 6px; }
@@ -165,7 +166,7 @@
   <div class="logo">ML</div>
   <div>
     <h1>Fechamento de Gaiolas — PM1</h1>
-    <p>SMG1 · Meta 70% · "Caminho para a estação" = fecha automático · "Na estação" = ação necessária</p>
+    <p>SMG1 · Meta 80% · "Caminho para a estação" = fecha automático · "Na estação" = ação necessária</p>
   </div>
 </header>
 
@@ -201,7 +202,7 @@
     <div class="meta-bar-wrap" style="margin-top:24px;">
       <div class="meta-bar-header">
         <div>
-          <h3>🎯 Indicador de Fechamento — Meta 70%</h3>
+          <h3>🎯 Indicador de Fechamento — Meta 80%</h3>
         </div>
         <div class="meta-bar-nums">
           <span>✅ Fechadas: <strong id="metaF100">0</strong></span>
@@ -223,9 +224,9 @@
         <div class="meta-fill-real" id="metaFillReal" style="width:0%;">
           <span id="metaRealLabel"></span>
         </div>
-        <!-- marcador 70% -->
-        <div class="meta-marker" style="left:70%">
-          <div class="meta-marker-label">Meta 70%</div>
+        <!-- marcador 80% -->
+        <div class="meta-marker" style="left:80%">
+          <div class="meta-marker-label">Meta 80%</div>
         </div>
       </div>
 
@@ -350,6 +351,11 @@ function splitLine(line,sep){
   for(const c of line){ if(c==='"'){inQ=!inQ;continue;} if(c===sep&&!inQ){r.push(cur);cur='';continue;} cur+=c; }
   r.push(cur); return r;
 }
+function extractTime(str){
+  if(!str) return '';
+  const m = str.match(/\b\d{1,2}:\d{2}(:\d{2})?\b/);
+  return m ? m[0].slice(0,5) : '';
+}
 
 let tableData=[];
 
@@ -367,6 +373,7 @@ function analisar(){
       const colRota  = H1.find(h=>/rota|n.º/i.test(h))||H1[1];
       const colLoc   = H1.find(h=>/local/i.test(h))||H1[8];
       const colInb   = H1.find(h=>/inbound|data/i.test(h))||H1[4];
+      const colHora  = H1.find(h=>/hor[aá]rio|^hora$|hour|time/i.test(h));
 
       const H2=p2.headers;
       const colRotaOt=H2.find(h=>/otimizado/i.test(h))||H2[1];
@@ -383,11 +390,12 @@ function analisar(){
         const loc=(r[colLoc]||'').trim();
         const inb=(r[colInb]||'').trim();
         const id =(r[colId ]||'').trim();
+        const hora = ((colHora ? r[colHora] : '') || '').trim() || extractTime(inb);
         // Valores reais do CSV: "Caminho para a estação" = On Way | "Na estação" = At Station
         const isOnWay    = /caminho para a esta/i.test(loc) || /on.?way/i.test(loc);
         const isAtStation= /^na esta/i.test(loc) || /^at.?station/i.test(loc);
         if(isOnWay)     byRota[rota].onWay++;
-        if(isAtStation){ byRota[rota].atStation++; byRota[rota].atIds.push(id); if(inb) byRota[rota].atRec.push(id); }
+        if(isAtStation){ byRota[rota].atStation++; byRota[rota].atIds.push(id); if(inb) byRota[rota].atRec.push({id, hora}); }
         if(inb)         byRota[rota].recebidos++;
       });
 
@@ -416,7 +424,7 @@ function analisar(){
 
       // ---- KPIs ----
       const total  = tableData.length;
-      const meta   = Math.round(total * 0.7);
+      const meta   = Math.round(total * 0.8);
       const f100   = tableData.filter(r=>r.status==='100').length;
       const fAuto  = tableData.filter(r=>r.status==='auto').length;
       const fErro  = tableData.filter(r=>r.status==='erro').length;
@@ -444,7 +452,7 @@ function analisar(){
       owEl.style.borderRadius = '6px';
 
       realEl.style.width      = pct100 + '%';
-      realEl.style.background = pct100 >= 70 ? 'var(--vd)' : pct100 >= 50 ? 'var(--am)' : 'var(--vd)';
+      realEl.style.background = pct100 >= 80 ? 'var(--vd)' : pct100 >= 50 ? 'var(--am)' : 'var(--vd)';
       realEl.style.borderRadius = pctAuto > 0 ? '6px 0 0 6px' : '6px';
       realEl.querySelector('span').textContent = pct100 >= 4 ? Math.round(pct100)+'%' : '';
 
@@ -462,7 +470,7 @@ function analisar(){
         statusWrap.innerHTML = '<strong style="color:var(--vd)">✅ Meta atingida!</strong>';
       } else {
         const pctTotal = Math.round(pctFechadas);
-        statusWrap.innerHTML = `Faltam <strong style="color:var(--lr)">${faltandoMeta}</strong> para meta &nbsp;<span style="font-size:11px;color:#666">(${pctTotal}% / 70%)</span>`;
+        statusWrap.innerHTML = `Faltam <strong style="color:var(--lr)">${faltandoMeta}</strong> para meta &nbsp;<span style="font-size:11px;color:#666">(${pctTotal}% / 80%)</span>`;
       }
 
       // ---- KPI GRID ----
@@ -489,17 +497,20 @@ function analisar(){
       let opHtml = '';
       if(op1.length){
         opHtml += `<div class="op-section-label">✅ Recebido hoje na estação — buscar na gaiola e despachar</div>`;
-        opHtml += '<div class="op-cards">'+op1.map(r=>`
+        opHtml += '<div class="op-cards">'+op1.map(r=>{
+          const rec = r.atRec[0]||{};
+          return `
           <div class="op-card recebido">
             <span class="op-tag rec">✅ Na Estação</span>
             <div class="op-card-rota">${r.rota}</div>
             <div class="op-card-gaiola">${r.gaiola}</div>
-            <code class="op-card-id">ID: ${r.atRec[0]||'—'}</code>
+            <code class="op-card-id">ID: ${rec.id||'—'}</code>
             <div class="op-card-stats">
+              ${rec.hora ? `<span class="op-stat hr">⏰ ${rec.hora}</span>` : ''}
               <span class="op-stat ow">🔵 ${r.onWay} On Way</span>
               <span class="op-stat rec">📦 ${r.est} Estimados</span>
             </div>
-          </div>`).join('')+'</div>';
+          </div>`;}).join('')+'</div>';
       } else {
         opHtml = '<div style="color:var(--tx);font-size:13px;padding:12px 0;">Nenhuma gaiola com 1 pacote recebido hoje na estação no momento.</div>';
       }
