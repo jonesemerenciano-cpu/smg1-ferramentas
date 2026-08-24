@@ -98,6 +98,22 @@
   /* OPORTUNIDADE */
   .op-panel { background: var(--cc); border-radius: 10px; padding: 18px 20px; margin-bottom: 20px; border: 1px solid var(--am); position: relative; overflow: hidden; }
   .op-panel::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: var(--am); }
+  .op-panel.erro { border-color: var(--vr); }
+  .op-panel.erro::before { background: var(--vr); }
+  .op-panel.erro .op-title { color: var(--vr); }
+  .op-badge-count.erro { background: var(--vr); color: #fff; }
+  .nrec-mini-kpi { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin-bottom: 16px; }
+  .nrec-kpi { background: #1a1a1a; border-radius: 8px; padding: 14px; border-left: 4px solid var(--vr); }
+  .nrec-kpi-val { font-size: 24px; font-weight: 800; color: var(--vr); line-height: 1; margin-bottom: 4px; }
+  .nrec-kpi-lbl { font-size: 11px; color: var(--tx); text-transform: uppercase; letter-spacing: .5px; }
+  .nrec-kpi-sub { font-size: 10px; color: #555; margin-top: 3px; }
+  .nrec-card { background: #1a1a1a; border-radius: 8px; padding: 14px; border: 1px solid var(--cb); border-left: 3px solid var(--vr); margin-bottom: 10px; }
+  .nrec-card-top { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 8px; flex-wrap: wrap; gap: 6px; }
+  .nrec-card-rota { font-size: 14px; font-weight: 800; color: var(--br); }
+  .nrec-card-gaiola { font-size: 11px; color: var(--tx); }
+  .nrec-card-count { font-size: 11px; font-weight: 700; color: var(--vr); background: rgba(255,68,68,.12); padding: 2px 10px; border-radius: 12px; }
+  .nrec-ids { display: flex; flex-wrap: wrap; gap: 6px; }
+  .nrec-id { font-size: 10px; font-family: monospace; background: #111; color: var(--vr); padding: 3px 8px; border-radius: 4px; }
   .op-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; flex-wrap: wrap; gap: 8px; }
   .op-title { font-size: 13px; font-weight: 700; color: var(--am); letter-spacing: 1px; text-transform: uppercase; }
   .op-subtitle { font-size: 12px; color: var(--tx); margin-top: 2px; }
@@ -194,6 +210,13 @@
     .op-stat.hr  { background: #fff8dc !important; color: #8a6d00 !important; }
     .op-tag.rec  { background: #e6f7ec !important; color: #1a7a3c !important; border-color: #ccc !important; }
 
+    .nrec-kpi, .nrec-card { background: #fff !important; border-color: #ccc !important; }
+    .nrec-kpi-val, .nrec-card-rota { color: #c0392b !important; }
+    .nrec-kpi-lbl, .nrec-kpi-sub, .nrec-card-gaiola { color: #555 !important; }
+    .nrec-card-count { background: #fdeaea !important; color: #c0392b !important; }
+    .nrec-id { background: #f2f2f2 !important; color: #c0392b !important; border: 1px solid #ddd; }
+    .op-badge-count.erro { background: #c0392b !important; color: #fff !important; }
+
     thead th { background: #f2f2f2 !important; color: #333 !important; border-bottom: 1px solid #ccc !important; }
     tbody tr { border-bottom: 1px solid #ddd !important; }
     tbody tr:hover { background: transparent !important; }
@@ -216,15 +239,32 @@
     body.print-op-only .btn-primary,
     body.print-op-only .btn-sec,
     body.print-op-only .meta-bar-wrap,
-    body.print-op-only .kpi-grid,
+    body.print-op-only #kpiGrid,
     body.print-op-only .alert-box,
     body.print-op-only .panel,
+    body.print-op-only #naoRecPanel,
     body.print-op-only header p {
       display: none !important;
     }
     body.print-op-only .op-panel { border: none !important; padding: 0 !important; }
     body.print-op-only .op-panel::before { display: none !important; }
     body.print-op-only .op-header { border-bottom: 2px solid #FFE600; padding-bottom: 10px; margin-bottom: 16px; }
+
+    /* Modo: imprimir SOMENTE o painel de Pacotes Não Recebidos */
+    body.print-nrec-only .upload-section,
+    body.print-nrec-only .btn-primary,
+    body.print-nrec-only .btn-sec,
+    body.print-nrec-only .meta-bar-wrap,
+    body.print-nrec-only #kpiGrid,
+    body.print-nrec-only .alert-box,
+    body.print-nrec-only .panel,
+    body.print-nrec-only #opPanel,
+    body.print-nrec-only header p {
+      display: none !important;
+    }
+    body.print-nrec-only .op-panel { border: none !important; padding: 0 !important; }
+    body.print-nrec-only .op-panel::before { display: none !important; }
+    body.print-nrec-only .op-header { border-bottom: 2px solid #FF4444; padding-bottom: 10px; margin-bottom: 16px; }
   }
 </style>
 </head>
@@ -336,6 +376,22 @@
         </div>
       </div>
       <div id="opCards"></div>
+    </div>
+
+    <!-- PAINEL DE PACOTES NÃO RECEBIDOS -->
+    <div class="op-panel erro" id="naoRecPanel">
+      <div class="op-header">
+        <div>
+          <div class="op-title">🔴 Pacotes At Station — Ainda Não Recebidos</div>
+          <div class="op-subtitle">Pacotes que chegaram à estação mas não têm data de inbound registrada — impedem o fechamento da gaiola</div>
+        </div>
+        <div style="display:flex; align-items:center; gap:10px;">
+          <div class="op-badge-count erro" id="naoRecCount">0 pacotes</div>
+          <button class="btn-sec" style="width:auto; margin:0; white-space:nowrap; padding:8px 14px;" onclick="imprimirNaoRecebidos()">🖨 Imprimir p/ o time</button>
+        </div>
+      </div>
+      <div class="nrec-mini-kpi" id="naoRecKpis"></div>
+      <div id="naoRecCards"></div>
     </div>
 
     <!-- TABELA GERAL -->
@@ -457,7 +513,7 @@ function analisar(){
       const byRota={};
       p1.rows.forEach(r=>{
         const rota=(r[colRota]||'').trim(); if(!rota)return;
-        if(!byRota[rota]) byRota[rota]={ onWay:0, atStation:0, recebidos:0, atIds:[], atRec:[] };
+        if(!byRota[rota]) byRota[rota]={ onWay:0, atStation:0, recebidos:0, atIds:[], atRec:[], atNaoRec:[] };
         const loc=(r[colLoc]||'').trim();
         const inb=(r[colInb]||'').trim();
         const id =(r[colId ]||'').trim();
@@ -466,7 +522,7 @@ function analisar(){
         const isOnWay    = /caminho para a esta/i.test(loc) || /on.?way/i.test(loc);
         const isAtStation= /^na esta/i.test(loc) || /^at.?station/i.test(loc);
         if(isOnWay)     byRota[rota].onWay++;
-        if(isAtStation){ byRota[rota].atStation++; byRota[rota].atIds.push(id); if(inb) byRota[rota].atRec.push({id, hora}); }
+        if(isAtStation){ byRota[rota].atStation++; byRota[rota].atIds.push(id); if(inb) byRota[rota].atRec.push({id, hora}); else byRota[rota].atNaoRec.push(id); }
         if(inb)         byRota[rota].recebidos++;
       });
 
@@ -475,7 +531,7 @@ function analisar(){
       tableData = Array.from(todasRotas).map(rota=>{
         const est    = estimados[rota]||0;
         const gaiola = gaiolas[rota]||'';
-        const d      = byRota[rota]||{ onWay:0, atStation:0, recebidos:0, atIds:[], atRec:[] };
+        const d      = byRota[rota]||{ onWay:0, atStation:0, recebidos:0, atIds:[], atRec:[], atNaoRec:[] };
         const faltantes = d.onWay + d.atStation;
         const chegaram  = est - faltantes;
         const pct = est>0 ? Math.min(100, Math.round((chegaram/est)*100)) : 0;
@@ -487,7 +543,7 @@ function analisar(){
         else                       status = 'misto'; // ambos → ação necessária
 
         return { rota, gaiola, est, faltantes, onWay:d.onWay, atStation:d.atStation,
-                 recebidos:d.recebidos, atIds:d.atIds, atRec:d.atRec, pct, status };
+                 recebidos:d.recebidos, atIds:d.atIds, atRec:d.atRec, atNaoRec:d.atNaoRec, pct, status };
       }).sort((a,b)=>{
         const ord={'100':0,'auto':1,'misto':2,'erro':3};
         return (ord[a.status]-ord[b.status]) || a.rota.localeCompare(b.rota);
@@ -587,6 +643,55 @@ function analisar(){
       }
       document.getElementById('opCards').innerHTML = opHtml;
 
+      // ---- PACOTES AT STATION NÃO RECEBIDOS ----
+      const totalEstGeral   = tableData.reduce((s,r)=>s+r.est,0);
+      const rotasNaoRec     = tableData.filter(r=>r.atNaoRec.length>0);
+      const totalNaoRec     = tableData.reduce((s,r)=>s+r.atNaoRec.length,0);
+      const gaiolasAfetadas = rotasNaoRec.length;
+      const pctPacotes      = totalEstGeral>0 ? (totalNaoRec/totalEstGeral*100) : 0;
+      const pctGaiolas      = total>0 ? (gaiolasAfetadas/total*100) : 0;
+
+      document.getElementById('naoRecCount').textContent = totalNaoRec + ' pacote' + (totalNaoRec!==1?'s':'');
+
+      document.getElementById('naoRecKpis').innerHTML = `
+        <div class="nrec-kpi">
+          <div class="nrec-kpi-val">${totalNaoRec.toLocaleString('pt-BR')}</div>
+          <div class="nrec-kpi-lbl">Pacotes Não Recebidos</div>
+          <div class="nrec-kpi-sub">At Station sem inbound</div>
+        </div>
+        <div class="nrec-kpi">
+          <div class="nrec-kpi-val">${gaiolasAfetadas}</div>
+          <div class="nrec-kpi-lbl">Gaiolas Afetadas</div>
+          <div class="nrec-kpi-sub">de ${total} gaiolas no total</div>
+        </div>
+        <div class="nrec-kpi">
+          <div class="nrec-kpi-val">${pctPacotes.toFixed(1)}%</div>
+          <div class="nrec-kpi-lbl">% do Volume Total</div>
+          <div class="nrec-kpi-sub">sobre ${totalEstGeral.toLocaleString('pt-BR')} pacotes estimados</div>
+        </div>
+        <div class="nrec-kpi">
+          <div class="nrec-kpi-val">${pctGaiolas.toFixed(1)}%</div>
+          <div class="nrec-kpi-lbl">% das Gaiolas</div>
+          <div class="nrec-kpi-sub">bloqueadas por esses pacotes</div>
+        </div>`;
+
+      if(rotasNaoRec.length){
+        const rotasOrdenadas = [...rotasNaoRec].sort((a,b)=>b.atNaoRec.length-a.atNaoRec.length);
+        document.getElementById('naoRecCards').innerHTML = rotasOrdenadas.map(r=>`
+          <div class="nrec-card">
+            <div class="nrec-card-top">
+              <div>
+                <div class="nrec-card-rota">${r.rota}</div>
+                ${r.gaiola?`<div class="nrec-card-gaiola">${r.gaiola}</div>`:''}
+              </div>
+              <div class="nrec-card-count">${r.atNaoRec.length} pacote${r.atNaoRec.length!==1?'s':''}</div>
+            </div>
+            <div class="nrec-ids">${r.atNaoRec.map(id=>`<span class="nrec-id">${id}</span>`).join('')}</div>
+          </div>`).join('');
+      } else {
+        document.getElementById('naoRecCards').innerHTML = '<div style="color:var(--tx);font-size:13px;padding:12px 0;">Nenhum pacote At Station pendente de recebimento no momento. ✅</div>';
+      }
+
       renderTable(tableData);
       document.getElementById('resultados').style.display='block';
       document.getElementById('resultados').scrollIntoView({behavior:'smooth'});
@@ -646,7 +751,12 @@ function imprimirOportunidades(){
   document.body.classList.add('print-op-only');
   window.print();
 }
-window.addEventListener('afterprint', ()=>{ document.body.classList.remove('print-op-only'); });
+window.addEventListener('afterprint', ()=>{ document.body.classList.remove('print-op-only','print-nrec-only'); });
+
+function imprimirNaoRecebidos(){
+  document.body.classList.add('print-nrec-only');
+  window.print();
+}
 </script>
 </body>
 </html>
